@@ -1,6 +1,6 @@
 # birdtalk
 
-A new Flutter project.
+talk birdy to me
 
 ## Getting Started
 
