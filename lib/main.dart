@@ -1,38 +1,109 @@
-import 'package:english_words/english_words.dart';
+// Uncomment the following lines when enabling Firebase Crashlytics
+// import 'dart:io';
+// import 'package:firebase_core/firebase_core.dart';
+// import 'firebase_options.dart';
+
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+import 'src/app_lifecycle/app_lifecycle.dart';
+import 'src/crashlytics/crashlytics.dart';
+import 'src/style/palette.dart';
+
+Future<void> main() async {
+  // To enable Firebase Crashlytics, uncomment the following lines and
+  // the import statements at the top of this file.
+  // See the 'Crashlytics' section of the main README.md file for details.
+
+  FirebaseCrashlytics? crashlytics;
+  // if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
+  //   try {
+  //     WidgetsFlutterBinding.ensureInitialized();
+  //     await Firebase.initializeApp(
+  //       options: DefaultFirebaseOptions.currentPlatform,
+  //     );
+  //     crashlytics = FirebaseCrashlytics.instance;
+  //   } catch (e) {
+  //     debugPrint("Firebase couldn't be initialized: $e");
+  //   }
+  // }
+
+  await guardWithCrashlytics(
+    guardedMain,
+    crashlytics: crashlytics,
+  );
+}
+
+void guardedMain() {
   runApp(MyApp());
 }
 
+//Logger _log = Logger('main.dart');
+
 class MyApp extends StatelessWidget {
+  static final _router = GoRouter(
+    routes: [
+      GoRoute(
+          path: '/',
+          builder: (context, state) => MyHomePage(),
+          routes: const []
+      ),
+    ]
+  );
+
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: 'Namer App',
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.cyanAccent),
-        ),
-        home: MyHomePage(),
-      ),
+    return AppLifecycleObserver(
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (context) => MyAppState(),
+          ),
+          Provider(
+            create: (context) => Palette(),
+          )
+        ],
+        child: Builder(builder: (context) {
+          final palette = context.watch<Palette>();
+
+          // TODO why isn't my background yellow... ?
+          return MaterialApp.router(
+            title: 'BirdTalk',
+            theme: ThemeData.from(
+              useMaterial3: true,
+              colorScheme: ColorScheme.fromSeed(
+                  seedColor: palette.darkPen,
+                  background: palette.backgroundMain,
+              ),
+              textTheme: TextTheme(
+                bodyMedium: TextStyle(
+                  color: palette.ink,
+                  fontFamily: 'Permanent Marker'
+                ),
+              ),
+            ),
+            routeInformationProvider: _router.routeInformationProvider,
+            routeInformationParser: _router.routeInformationParser,
+            routerDelegate: _router.routerDelegate,
+          );
+        }),
+      )
     );
   }
 }
 
 class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
+  var current = "BirdTalk";
   void getNext() {
-    current = WordPair.random();
+    current = "Talk Birdy To Me";
     notifyListeners();
   }
 
-  Set<WordPair> favorites = {};
+  Set<String> favorites = {};
 
   void toggleFavorite() {
     if (favorites.contains(current)) {
@@ -150,22 +221,28 @@ class BigCard extends StatelessWidget {
     required this.pair,
   });
 
-  final WordPair pair;
+  final String pair;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final style = theme.textTheme.displayMedium!
-        .copyWith(color: theme.colorScheme.onPrimary, letterSpacing: 1.0);
+
+    final style = theme.textTheme.displayMedium!.copyWith(
+      color: theme.colorScheme.onPrimary,
+      letterSpacing: 1.0,
+      // TODO figure out how to propagate this font through theme
+      fontFamily: 'Permanent Marker',
+      fontSize: 50
+    );
     return Card(
       color: theme.colorScheme.tertiary,
       elevation: 5.0,
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Text(
-          pair.asLowerCase,
+          pair,
           style: style,
-          semanticsLabel: "${pair.first} ${pair.second}",
+          semanticsLabel: "${pair} ${pair}",
         ),
       ),
     );
@@ -194,7 +271,7 @@ class FavoritesPage extends StatelessWidget {
           for (var pair in favorites)
             ListTile(
                 leading: Icon(Icons.favorite),
-                title: Text(pair.asLowerCase),
+                title: Text(pair),
             ),
         ]
       ),
