@@ -41,21 +41,11 @@ fn App() -> Element {
 #[component]
 fn Wrapper() -> Element {
     rsx! {
-        // nav {
-        //     Link { to: Route::Home {}, class: "nav-btn", "Home" }
-        //     Link { to: Route::Settings {}, class: "nav-btn", "Settings" }
-        // }
         div {
             class: "flex flex-col min-h-screen bg-amber-100 text-green-800", // yellow-50
-            // TODO: get header as text+font+svg
             header {
                 id: "header",
-                class: "mt-4",
-                img {
-                    class: "object-fill w-[600px] sm:w-[900px] block mx-auto",
-                    src: "heading-2.gif"
-                }
-                // h1 { class: "text-5xl text-center text-emerald-600", "birdtalk" } // cyan-600
+                class: "h-32 sm:h-48 md:h-64 w-full max-w-screen-lg mt-4 my-[-2rem] mx-auto bg-[url('heading-2.gif')] bg-cover bg-center bg-no-repeat",
             }
             div {
                 id: "content",
