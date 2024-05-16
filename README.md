@@ -57,4 +57,11 @@ dx serve --platform fullstack
 - autoplay: auto / auto after first / off
 - loop: on/off
 
+- https://dioxuslabs.com/learn/0.5/reference/context#using-shared-state use context for settings
+
+### error handling
+
+- use https://dioxuslabs.com/learn/0.5/cookbook/error_handling#throwing-errors
+  to have an error msg section up top. or context?
+
 ### mvp
