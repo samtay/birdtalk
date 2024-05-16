@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+if appropriate, reference below for building classes:
+https://tailwindcss.com/docs/reusing-styles#extracting-classes-with-apply
+*/
