@@ -85,7 +85,7 @@ fn Index() -> Element {
                 AudioPlayer {}
             }
             div {
-                class: "grid grid-cols-1 md:grid-cols-2 gap-4",
+                class: "grid grid-cols-1 sm:grid-cols-2 gap-4",
                 for bird in bird::test_bird_data() {
                     MultipleChoiceCard { bird }
                 }
@@ -118,7 +118,7 @@ fn AudioPlayer() -> Element {
 fn MultipleChoiceCard(bird: Bird) -> Element {
     rsx! {
         button {
-            class: "group py-8 px-8 max-w-sm mx-auto rounded-xl shadow-lg space-y-2 border border-amber-200 bg-amber-50 hover:bg-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-600 focus:ring-offset-2 sm:py-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-6",
+            class: "group py-8 px-8 w-full mx-auto rounded-xl shadow-lg space-y-2 border border-amber-200 bg-amber-50 hover:bg-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-600 focus:ring-offset-2 sm:py-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-6",
             img {
                 class: "block mx-auto w-24 h-24 rounded-full object-cover sm:mx-0 sm:shrink-0",
                 src: bird.img_file.to_string_lossy().to_string(),
