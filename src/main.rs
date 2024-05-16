@@ -2,6 +2,8 @@
 
 use dioxus::prelude::*;
 use tracing::Level;
+use wasm_bindgen::JsCast;
+use web_sys::HtmlAudioElement;
 
 use crate::bird::Bird;
 
@@ -99,8 +101,22 @@ fn Index() -> Element {
 // then follow a tutorial for a tailwind based player
 #[component]
 fn AudioPlayer() -> Element {
+    let mut audio_element: Signal<Option<HtmlAudioElement>> = use_signal(|| None);
     rsx! {
+        button {
+            onclick: move |_| async move {
+                if let Some(audio) = audio_element.read().as_ref() {
+                    if audio.paused() {
+                        wasm_bindgen_futures::JsFuture::from(audio.play().unwrap()).await.unwrap();
+                    } else {
+                        audio.pause().unwrap();
+                    }
+            }
+            },
+            "<PlayButton>"
+        }
         audio {
+            onmounted: move |cx| audio_element.set(cx.downcast::<web_sys::Element>().cloned().map(|el| el.unchecked_into())),
             controls: "true",
             preload: "auto",
             r#loop: "true",

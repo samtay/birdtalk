@@ -8,13 +8,20 @@ edition = "2021"
 
 [dependencies]
 serde = { version = "1.0.197", features = ["derive"] }
-
 dioxus = { version = "0.5", features = ["fullstack", "router"] }
+
 
 # Debug
 tracing = "0.1.40"
 dioxus-logger = "0.5.0"
 manganis = "0.2.2"
+web-sys = { version = "0.3.69", features = [
+  "Element",
+  "HtmlElement",
+  "HtmlAudioElement",
+] }
+wasm-bindgen-futures = "0.4.42"
+wasm-bindgen = "0.2.92"
 
 [features]
 default = []
