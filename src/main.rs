@@ -70,8 +70,32 @@ fn Wrapper() -> Element {
 
 #[component]
 fn Index() -> Element {
-    let game = use_signal(|| Game::init_demo(false));
+    // Trigger an initial re-render on the frontend to load the game.
+    //
+    // This is necessary because the randomness causes the SSR and first frontend render to be out
+    // of sync.
+    //
+    // A further optimization: Have a "GameView" placeholder with the loading symbol where the
+    // audio button goes (as it is now) plus grayed out content cards where the birds are.
+    //
+    // Note: I don't think any of this will be necessary in a future state. The initial page should
+    // require auth on the backend to choose available bird packs _and_ requesting local storage to
+    // see what's immediately available and what needs downloading. Randomization will always be
+    // client side. For now, just use a loading symbol to keep random game init on the client side
+    // on page load.
+    let game = use_signal(|| Game::init_demo(true));
+    if cfg!(feature = "web") && generation() == 0 {
+        needs_update();
+    }
+    if cfg!(feature = "server") || generation() == 0 {
+        rsx! {Loading {}}
+    } else {
+        rsx! {GameView { game }}
+    }
+}
 
+#[component]
+fn GameView(game: Signal<Game>) -> Element {
     let birds = use_memo(move || {
         let birds = game
             .read()
@@ -87,22 +111,14 @@ fn Index() -> Element {
         birds
     });
 
-    // Trigger an initial re-render on the frontend to shuffle (TODO)
-    if !cfg!(feature = "server") && generation() == 0 {
-        needs_update();
-    }
-
     // Can maybe subscribe to a "turn" so shuffle only runs per turn
     // For now just hack this to change when the actual birds change
     let shuffle = use_memo(move || {
         let _ = birds.read(); // subscribe to birds
         let mut indices = (0..MULTIPLE_CHOICE_SIZE).collect::<Vec<_>>();
-        // Don't shuffle on the first render, as server / frontend will be out of sync
-        if !cfg!(feature = "server") && generation() > 0 {
-            use rand::seq::SliceRandom as _;
-            indices.shuffle(&mut rand::thread_rng());
-            tracing::debug!("Shuffled: {:?}", indices);
-        }
+        use rand::seq::SliceRandom as _;
+        indices.shuffle(&mut rand::thread_rng());
+        tracing::debug!("Shuffled: {:?}", indices);
         indices
     });
 
@@ -237,6 +253,18 @@ fn MultipleChoiceCard(bird: MappedSignal<Bird>, onclick: EventHandler<MouseEvent
                         "{bird.scientific_name}"
                     }
                 }
+            }
+        }
+    }
+}
+
+#[component]
+fn Loading() -> Element {
+    rsx! {
+        div {
+            class: "mt-12 flex flex-col items-center justify-center", // animate-bounce
+            div {
+                class: "animate-spin w-24 h-24 border-t-4 border-green-800 rounded-full",
             }
         }
     }

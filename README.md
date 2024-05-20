@@ -89,6 +89,13 @@ MVP should probably just be a game demo using local storage, no user identity, d
 
 - get fullstack platform working with [Evan's tip](https://discord.com/channels/899851952891002890/1241875862924824658/1241901511030734963)
 
+- fix header
+  - get the commit from the saved branch. export the header with the nice font
+    from canva, resized to fit the word and with transparent background.
+  - then export the birdtalk icon as SVG
+    - or, export both the talk bubble and bird separately
+  - then animate the bird portion of the svg with css!
+
 # business
 
 ### Freemium
