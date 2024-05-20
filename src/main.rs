@@ -49,7 +49,7 @@ fn Wrapper() -> Element {
             class: "flex flex-col min-h-screen bg-amber-100 text-green-800", // yellow-50
             header {
                 id: "header",
-                class: "h-36 sm:h-48 md:h-64 w-full max-w-screen-lg mt-4 my-[-2rem] mx-auto bg-[url('heading-2.gif')] bg-cover bg-center bg-no-repeat",
+                class: "h-32 sm:h-48 md:h-64 w-full max-w-screen-lg mt-2 sm:mt-4 my-[-1rem] sm:my-[-2rem] mx-auto bg-[url('heading-2.gif')] bg-cover bg-center bg-no-repeat",
             }
             div {
                 id: "content",
@@ -123,9 +123,9 @@ fn GameView(game: Signal<Game>) -> Element {
     });
 
     rsx!(div {
-        class: "container m-auto p-4",
+        class: "container m-auto p-2 sm:p-4",
         div {
-            class: "grid grid-cols-1 justify-items-center place-content-center gap-4",
+            class: "grid grid-cols-1 justify-items-center place-content-center gap-2 sm:gap-4",
             div {
                 class: "",
                 AudioPlayer {
@@ -137,7 +137,7 @@ fn GameView(game: Signal<Game>) -> Element {
                 }
             }
             div {
-                class: "grid grid-cols-1 sm:grid-cols-2 gap-4",
+                class: "grid grid-cols-2 gap-4",
                 for ix in shuffle() {
                     MultipleChoiceCard {
                         bird: birds.map(move |bs| &bs[ix]),
@@ -195,7 +195,7 @@ fn AudioPlayer(bird: MappedSignal<Bird>) -> Element {
                 "stroke-width": "1.5",
                 "stroke": "currentColor",
                 "xmlns": "http://www.w3.org/2000/svg",
-                class: "w-24 h-24",
+                class: "w-16 h-16 sm:w-24 sm:h-24",
                 path {
                     "stroke-linejoin": "round",
                     "stroke-linecap": "round",
@@ -234,7 +234,7 @@ fn MultipleChoiceCard(bird: MappedSignal<Bird>, onclick: EventHandler<MouseEvent
     rsx! {
         button {
             onclick: move |e| onclick.call(e),
-            class: "group py-8 px-8 w-full mx-auto rounded-xl shadow-lg space-y-2 border border-amber-200 bg-amber-50 hover:bg-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-600 focus:ring-offset-2 sm:py-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-6",
+            class: "group p-4 w-full mx-auto rounded-xl shadow-lg space-y-2 border border-amber-200 bg-amber-50 hover:bg-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-600 focus:ring-offset-2 sm:py-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-6",
             img {
                 class: "block mx-auto w-24 h-24 rounded-full object-cover sm:mx-0 sm:shrink-0",
                 src: "{bird.img_file.to_string_lossy()}",
@@ -249,7 +249,7 @@ fn MultipleChoiceCard(bird: MappedSignal<Bird>, onclick: EventHandler<MouseEvent
                         "{bird.common_name}"
                     }
                     p {
-                        class: "text-slate-500 font-medium group-hover:text-green-800/75",
+                        class: "text-sm sm:text-base text-slate-500 font-medium group-hover:text-green-800/75",
                         "{bird.scientific_name}"
                     }
                 }
