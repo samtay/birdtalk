@@ -261,7 +261,7 @@ fn MultipleChoiceCard(
                 }
             },
             onmounted: move |e| button_element.set(Some(e.data())),
-            class: "group p-4 w-full mx-auto rounded-xl shadow-lg space-y-2 border border-amber-200 bg-amber-50 hover:bg-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-600 focus:ring-offset-2 sm:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6",
+            class: "group p-4 w-full mx-auto rounded-xl shadow-lg space-y-2 border border-amber-200 bg-amber-50 hover:bg-amber-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 sm:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6",
             img {
                 class: "block mx-auto w-24 h-24 rounded-full object-cover sm:mx-0 sm:shrink-0",
                 src: "{bird.img_file.to_string_lossy()}",
