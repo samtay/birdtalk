@@ -1,5 +1,7 @@
 #![allow(non_snake_case)]
 
+use std::rc::Rc;
+
 use dioxus::prelude::*;
 use tracing::Level;
 
@@ -153,6 +155,7 @@ fn GameView(game: Signal<Game>) -> Element {
                 for ix in shuffle() {
                     MultipleChoiceCard {
                         bird: birds.map(move |bs| &bs[ix]),
+                        correct: ix == 0,
                         onclick: move |_| {
                             tracing::debug!("Clicked on choice {}", ix);
                             handle_choice(ix == 0, game)
@@ -169,11 +172,7 @@ fn AudioPlayer(bird: MappedSignal<Bird>) -> Element {
     use wasm_bindgen::JsCast;
     use web_sys::HtmlAudioElement;
 
-    // should this be a use_hook instead?
     let mut audio_element: Signal<Option<HtmlAudioElement>> = use_signal(|| None);
-    // does this make sense?
-    // should I instead use `use_memo`?
-    // or use_effect? :/
     let mut playing: Signal<bool> = use_signal(|| false);
 
     // Explicitly audio.load() on changes to bird, otherwise the first audio element gets persisted
@@ -241,12 +240,28 @@ fn AudioPlayer(bird: MappedSignal<Bird>) -> Element {
 
 // TODO: Probably will need a custom component to handle effects, animations, etc.
 #[component]
-fn MultipleChoiceCard(bird: MappedSignal<Bird>, onclick: EventHandler<MouseEvent>) -> Element {
+fn MultipleChoiceCard(
+    bird: MappedSignal<Bird>,
+    correct: bool,
+    onclick: EventHandler<MouseEvent>,
+) -> Element {
     let bird = bird.read();
+    let mut button_element: Signal<Option<Rc<MountedData>>> = use_signal(|| None);
     rsx! {
         button {
-            onclick: move |e| onclick.call(e),
-            class: "group p-4 w-full mx-auto rounded-xl shadow-lg space-y-2 border border-amber-200 bg-amber-50 hover:bg-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-600 focus:ring-offset-2 sm:py-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-6",
+            onclick: move |e| async move {
+                onclick.call(e);
+                // For now, just blur the element so the new one doesn't stay focused.
+                // Might be preferable to set focus onto the audio button instead?
+                // Would need to mark that one as focus-visible
+                if correct {
+                    if let Some(el) = button_element.read().as_ref() {
+                        el.set_focus(false).await.ok();
+                    }
+                }
+            },
+            onmounted: move |e| button_element.set(Some(e.data())),
+            class: "group p-4 w-full mx-auto rounded-xl shadow-lg space-y-2 border border-amber-200 bg-amber-50 hover:bg-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-600 focus:ring-offset-2 sm:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6",
             img {
                 class: "block mx-auto w-24 h-24 rounded-full object-cover sm:mx-0 sm:shrink-0",
                 src: "{bird.img_file.to_string_lossy()}",
