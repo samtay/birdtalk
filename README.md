@@ -78,6 +78,10 @@ MVP should probably just be a game demo using local storage, no user identity, d
   - pulse on error,
   - disable btn on error so user doesn't wrack up mistakes,
   - success animation: spin, green, modal with more info and nice things?
+  - YO https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-sibling-state
+    - it might be possible to have this be PURELY tailwind css driven! just use
+      groups or peers to trigger visibility on the correct / incorrect modals (and
+      hopefully CSS animations will be enough)
 
 - settings
 
@@ -87,14 +91,16 @@ MVP should probably just be a game demo using local storage, no user identity, d
 
 - remember: use ? none propagation to hide elements. also see above for error handling
 
-- get fullstack platform working with [Evan's tip](https://discord.com/channels/899851952891002890/1241875862924824658/1241901511030734963)
-
 - fix header
+
   - get the commit from the saved branch. export the header with the nice font
     from canva, resized to fit the word and with transparent background.
   - then export the birdtalk icon as SVG
     - or, export both the talk bubble and bird separately
   - then animate the bird portion of the svg with css!
+
+- add 'space' or other handler to toggle audio
+  - see docsite/src/shortcuts.rs
 
 # business
 
@@ -106,6 +112,17 @@ MVP should probably just be a game demo using local storage, no user identity, d
 - $10/month for access to everything
 - Note: for life options probably require downloading bird packs rather than streaming, to limit server costs.
 - Naming: bird pack? bevy? flock?
+
+### Cost to run
+
+- Maybe it makes more sense to drop fullstack. Instead, just build frontend (web, mobile) and initially render with placeholders that `use_server_future()` against `supabase {pg, auth}`.
+
+- See linode https://www.linode.com/products/object-storage/
+  - and digital ocean https://www.digitalocean.com/products/spaces
+  - similar offerings, DO being .005 / GB more expensive on > 1TB transfer
+  - Can I use these to just host the static site? I guess if I want "fullstack" I need to run server as well...
+  - Too bad bc supabase would be free, could just hit them instead of running my own server.
+- can i leverage supabase edge functions? they have to be typescript...
 
 # template readme
 

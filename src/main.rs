@@ -11,6 +11,8 @@ use crate::{
 mod bird;
 mod game;
 
+const USE_LOADING_ANIMATION: bool = false;
+
 // These are automagically included in the <head>.
 // Note that URLs are relative to your Cargo.toml file.
 // const _TAILWIND_URL: &str = manganis::mg!(file("assets/tailwind.css"));
@@ -83,13 +85,21 @@ fn Index() -> Element {
     // see what's immediately available and what needs downloading. Randomization will always be
     // client side. For now, just use a loading symbol to keep random game init on the client side
     // on page load.
-    let game = use_signal(|| Game::init_demo(true));
-    if cfg!(feature = "web") && generation() == 0 {
-        needs_update();
-    }
-    if cfg!(feature = "server") || generation() == 0 {
-        rsx! {Loading {}}
+    //
+    // Yet another way around this: use_server_future(|| rand::<SeedType>()) have the server
+    // generate a random seed for the initial game.
+    if USE_LOADING_ANIMATION {
+        let game = use_signal(|| Game::init_demo(true));
+        if cfg!(feature = "web") && generation() == 0 {
+            needs_update();
+        }
+        if cfg!(feature = "server") || generation() == 0 {
+            rsx! {Loading {}}
+        } else {
+            rsx! {GameView { game }}
+        }
     } else {
+        let game = use_signal(|| Game::init_demo(false));
         rsx! {GameView { game }}
     }
 }
@@ -116,9 +126,11 @@ fn GameView(game: Signal<Game>) -> Element {
     let shuffle = use_memo(move || {
         let _ = birds.read(); // subscribe to birds
         let mut indices = (0..MULTIPLE_CHOICE_SIZE).collect::<Vec<_>>();
-        use rand::seq::SliceRandom as _;
-        indices.shuffle(&mut rand::thread_rng());
-        tracing::debug!("Shuffled: {:?}", indices);
+        if USE_LOADING_ANIMATION || (generation() > 0 && cfg!(feature = "web")) {
+            use rand::seq::SliceRandom as _;
+            indices.shuffle(&mut rand::thread_rng());
+            tracing::debug!("Shuffled: {:?}", indices);
+        }
         indices
     });
 
