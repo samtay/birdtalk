@@ -1,3 +1,5 @@
+#![allow(dead_code)] // TODO: remove
+
 /// The number of times a bird must be correctly identified consecutively to be considered learned.
 pub const LEARN_THRESHOLD: u32 = 3;
 

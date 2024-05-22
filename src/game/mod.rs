@@ -132,9 +132,3 @@ impl From<Bird> for BirdContext {
         }
     }
 }
-
-/// A bird pack with surrounding game context.
-pub struct BirdPackContext {
-    /// All the birds in the pack, excluding the current one.
-    birds: Vec<BirdContext>,
-}

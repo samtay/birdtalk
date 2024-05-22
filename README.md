@@ -49,6 +49,7 @@ See
 - Show sonogram animation
 - achievements, streaks, etc.
 - can I do a "tour" with context state? and once tour is marked as skipped or finished, those elements go away?
+- #46764e is a great color for text
 
 #### settings ideas
 
@@ -70,24 +71,23 @@ MVP should probably just be a game demo using local storage, no user identity, d
 
 - game loop
 
-  - get like 10 legit birds with photos and audio
   - handle game finished (all birds learned)
 
 - animations
 
-  - pulse on error,
-  - disable btn on error so user doesn't wrack up mistakes,
   - success animation: spin, green, modal with more info and nice things?
   - YO https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-sibling-state
     - it might be possible to have this be PURELY tailwind css driven! just use
       groups or peers to trigger visibility on the correct / incorrect modals (and
       hopefully CSS animations will be enough)
+  - see https://www.joshwcomeau.com/animation/css-transitions/ for tips on
+    finishing touches and leveraging GPU for smooth transitions
+    and apply https://tailwindcss.com/docs/will-change
 
 - settings
 
   - create a client-side settings context using local storage
   - implement game settings like confirm choice, autoplay, etc.
-  - get autoplay working with toggle button
 
 - remember: use ? none propagation to hide elements. also see above for error handling
 
@@ -97,10 +97,13 @@ MVP should probably just be a game demo using local storage, no user identity, d
     from canva, resized to fit the word and with transparent background.
   - then export the birdtalk icon as SVG
     - or, export both the talk bubble and bird separately
-  - then animate the bird portion of the svg with css!
+  - then animate the bird portion of the svg with css! (could be .gif still but smaller footprint)
 
 - add 'space' or other handler to toggle audio
   - see docsite/src/shortcuts.rs
+  - and
+    https://github.com/DioxusLabs/dioxus/blob/e2002d6ea42f5844a3832ab7f038620ecf977a1c/packages/desktop/src/hooks.rs#L72
+    for desktop
 
 # business
 

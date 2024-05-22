@@ -14,6 +14,8 @@ mod bird;
 mod game;
 
 const USE_LOADING_ANIMATION: bool = false;
+const AUDIO_LOOP: bool = true;
+const AUDIO_AUTOPLAY: bool = true;
 
 // These are automagically included in the <head>.
 // Note that URLs are relative to your Cargo.toml file.
@@ -35,7 +37,12 @@ enum Route {
 fn main() {
     // Init logger
     dioxus_logger::init(Level::DEBUG).expect("failed to init logger");
-    launch(App)
+    #[allow(clippy::let_unit_value)]
+    let cfg = server_only!(
+        dioxus::fullstack::Config::new().addr(std::net::SocketAddr::from(([0, 0, 0, 0], 3000)))
+    );
+    LaunchBuilder::fullstack().with_cfg(cfg).launch(App)
+    // launch(App)
 }
 
 fn App() -> Element {
@@ -43,8 +50,6 @@ fn App() -> Element {
         Router::<Route> {}
     }
 }
-
-// TODO: #46764e is a great color for text
 
 #[component]
 fn Wrapper() -> Element {
@@ -151,7 +156,7 @@ fn GameView(game: Signal<Game>) -> Element {
                 }
             }
             div {
-                class: "grid grid-cols-2 gap-4",
+                class: "grid grid-cols-2 gap-4 sm:gap-6",
                 for ix in shuffle() {
                     MultipleChoiceCard {
                         bird: birds.map(move |bs| &bs[ix]),
@@ -218,8 +223,6 @@ fn AudioPlayer(bird: MappedSignal<Bird>) -> Element {
                     }
                 }
             }
-
-
         }
         audio {
             onmounted: move |cx| audio_element.set(cx.downcast::<web_sys::Element>().cloned().map(|el| el.unchecked_into())),
@@ -227,8 +230,8 @@ fn AudioPlayer(bird: MappedSignal<Bird>) -> Element {
             onpause: move |_| *playing.write() = false,
             // controls: "true",
             preload: "auto",
-            r#loop: "true",
-            autoplay: "true",
+            r#loop: AUDIO_LOOP,
+            autoplay: AUDIO_AUTOPLAY,
             source {
                 r#type: "audio/mpeg",
                 src: bird.read().sound_file.to_string_lossy().to_string(),
@@ -238,19 +241,33 @@ fn AudioPlayer(bird: MappedSignal<Bird>) -> Element {
     }
 }
 
-// TODO: Probably will need a custom component to handle effects, animations, etc.
 #[component]
 fn MultipleChoiceCard(
     bird: MappedSignal<Bird>,
     correct: bool,
     onclick: EventHandler<MouseEvent>,
 ) -> Element {
-    let bird = bird.read();
     let mut button_element: Signal<Option<Rc<MountedData>>> = use_signal(|| None);
+    // TODO: note that this is assuming a different set of birds each round!
+    let mut mistakenly_chosen = use_signal(|| false);
+    let bird_copy = bird.clone();
+    let bird_signal = use_memo(move || bird_copy.read().clone());
+    use_effect(move || {
+        bird_signal.read();
+        mistakenly_chosen.set(false);
+    });
     rsx! {
         button {
             onclick: move |e| async move {
+                // Handle mistaken state
+                if !correct {
+                    tracing::debug!("Setting mistakenly_chosen to true");
+                    mistakenly_chosen.set(true);
+                }
+
+                // Let the parent know the choice was made
                 onclick.call(e);
+
                 // For now, just blur the element so the new one doesn't stay focused.
                 // Might be preferable to set focus onto the audio button instead?
                 // Would need to mark that one as focus-visible
@@ -261,23 +278,30 @@ fn MultipleChoiceCard(
                 }
             },
             onmounted: move |e| button_element.set(Some(e.data())),
-            class: "group p-4 w-full mx-auto rounded-xl shadow-lg space-y-2 border border-amber-200 bg-amber-50 hover:bg-amber-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 sm:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6",
+            class: "group p-4 w-full mx-auto rounded-xl border-amber-200 shadow enabled:hover:shadow-lg enabled:hover:bg-amber-200 space-y-2 bg-amber-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 sm:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 disabled:shadow-none",
+            class: if mistakenly_chosen() {
+                "animate-shake disabled border opacity-75 transition-opacity duration-1000"
+                // "border-2 border-red-500 z-10 absolute inset-0 m-0 transition-all duration-1000"
+            } else {
+                "border-2"
+            },
+            disabled: mistakenly_chosen(),
             img {
                 class: "block mx-auto w-24 h-24 rounded-full object-cover sm:mx-0 sm:shrink-0",
-                src: "{bird.img_file.to_string_lossy()}",
-                alt: "{bird.common_name}",
+                src: bird().img_file.to_string_lossy().to_string(),
+                alt: bird().common_name,
             }
             div {
                 class: "text-center space-y-2 sm:text-left",
                 div {
                     class: "space-y-0.5",
                     p {
-                        class: "text-lg text-amber-950 font-semibold group-hover:text-green-800",
-                        "{bird.common_name}"
+                        class: "text-lg text-amber-950 font-semibold group-enabled:group-hover:text-green-800",
+                        "{bird().common_name}"
                     }
                     p {
-                        class: "text-sm sm:text-base text-slate-500 font-medium group-hover:text-green-800/75",
-                        "{bird.scientific_name}"
+                        class: "text-sm sm:text-base text-slate-500 font-medium group-enabled:group-hover:text-green-800/75",
+                        "{bird().scientific_name}"
                     }
                 }
             }
