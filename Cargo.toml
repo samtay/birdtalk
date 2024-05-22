@@ -8,10 +8,8 @@ edition = "2021"
 
 [dependencies]
 # dioxus = { version = "0.5", features = ["fullstack", "router"] }
-dioxus = { path = "../dioxus/packages/dioxus", features = [
-  # dioxus = { git = "https://github.com/DioxusLabs/dioxus", features = [
-  "router",
-] }
+# dioxus = { path = "../dioxus/packages/dioxus", features = [
+dioxus = { git = "https://github.com/DioxusLabs/dioxus", features = ["router"] }
 manganis = "0.2.2"
 rand = "0.8.5"
 serde = { version = "1.0.197", features = ["derive"] }
