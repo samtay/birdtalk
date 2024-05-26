@@ -76,13 +76,18 @@ MVP should probably just be a game demo using local storage, no user identity, d
 - animations
 
   - success animation: spin, green, modal with more info and nice things?
+  - See https://codepen.io/designcouch/pen/obvKxm for modal animations
   - YO https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-sibling-state
     - it might be possible to have this be PURELY tailwind css driven! just use
       groups or peers to trigger visibility on the correct / incorrect modals (and
       hopefully CSS animations will be enough)
+    - e.g. if initial opacity 0 and then peer:success:animate-modal-in
+  - Another idea: drawing outline of bird? Like the logo?
+    - https://css-tricks.com/almanac/properties/s/stroke-dashoffset/
+    - TODO: export logo bird as SVG! with transparency!
   - see https://www.joshwcomeau.com/animation/css-transitions/ for tips on
     finishing touches and leveraging GPU for smooth transitions
-    and apply https://tailwindcss.com/docs/will-change
+    and apply https://tailwindcss.com/docs/will-change for any perf problems
 
 - settings
 
@@ -100,10 +105,29 @@ MVP should probably just be a game demo using local storage, no user identity, d
   - then animate the bird portion of the svg with css! (could be .gif still but smaller footprint)
 
 - add 'space' or other handler to toggle audio
+
   - see docsite/src/shortcuts.rs
   - and
     https://github.com/DioxusLabs/dioxus/blob/e2002d6ea42f5844a3832ab7f038620ecf977a1c/packages/desktop/src/hooks.rs#L72
     for desktop
+
+- make svg component for audio toggle
+
+- maybe add gradients https://tailwindcss.com/docs/gradient-color-stops nice
+  look
+
+- easy flip! https://www.youtube.com/watch?v=SJnRnQdjR0w
+
+  - stash modal stff and just flip and expand?
+
+- if html necessary:
+  depending on what you wanna do you can also maybe (depends on your use case) put something like this in your input.css
+  ```css
+  html,
+  body {
+    @apply h-full overflow-hidden;
+  }
+  ```
 
 # business
 

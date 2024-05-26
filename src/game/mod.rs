@@ -42,13 +42,13 @@ impl Game {
     }
 
     /// Get the current multiple choices.
-    pub fn choices(&self) -> Vec<BirdContext> {
-        self.choices.clone()
+    pub fn choices(&self) -> &[BirdContext] {
+        &self.choices
     }
 
     /// Get the current multiple choice birds.
     pub fn birds(&self) -> Vec<Bird> {
-        self.choices().into_iter().map(|bc| bc.bird).collect()
+        self.choices.clone().into_iter().map(|bc| bc.bird).collect()
     }
 
     /// Get the correct choice.

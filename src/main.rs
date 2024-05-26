@@ -7,7 +7,7 @@ use tracing::Level;
 
 use crate::{
     bird::Bird,
-    game::{Game, MULTIPLE_CHOICE_SIZE},
+    game::{BirdContext, Game, MULTIPLE_CHOICE_SIZE},
 };
 
 mod bird;
@@ -113,20 +113,7 @@ fn Index() -> Element {
 
 #[component]
 fn GameView(game: Signal<Game>) -> Element {
-    let birds = use_memo(move || {
-        let birds = game
-            .read()
-            .choices()
-            .clone()
-            .into_iter()
-            .map(|bc| bc.bird)
-            .collect::<Vec<_>>();
-        tracing::debug!(
-            "Birds: {:?}",
-            birds.iter().map(|b| &b.common_name).collect::<Vec<_>>()
-        );
-        birds
-    });
+    let birds = use_memo(move || game.read().birds());
 
     // Can maybe subscribe to a "turn" so shuffle only runs per turn
     // For now just hack this to change when the actual birds change
