@@ -58,7 +58,7 @@ fn Wrapper() -> Element {
             class: "flex flex-col min-h-screen bg-amber-100 text-green-800", // yellow-50
             header {
                 id: "header",
-                class: "h-32 sm:h-48 md:h-64 w-full max-w-screen-lg mt-2 sm:mt-4 my-[-1rem] sm:my-[-2rem] mx-auto bg-[url('heading-2.gif')] bg-cover bg-center bg-no-repeat",
+                class: "h-32 sm:h-48 md:h-64 w-full max-w-screen-lg mt-2 sm:mt-4 mb-[-2rem] mx-auto bg-[url('heading-2.gif')] bg-cover bg-center bg-no-repeat",
             }
             div {
                 id: "content",
