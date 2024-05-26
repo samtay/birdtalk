@@ -128,35 +128,37 @@ fn GameView(game: Signal<Game>) -> Element {
         indices
     });
 
-    rsx!(div {
-        class: "container m-auto p-2 sm:p-4",
+    let correct_chosen = use_signal(|| false);
+
+    rsx! {
         div {
-            class: "grid grid-cols-1 justify-items-center place-content-center gap-2 sm:gap-4",
+            class: "container m-auto px-2 sm:px-4",
             div {
-                class: "",
-                AudioPlayer {
-                    bird: birds.map(|bs| {
-                        let bird = bs.first().unwrap();
-                        tracing::debug!("Bird: {:?}", bird.common_name);
-                        bird
-                    })
+                class: "grid grid-cols-1 justify-items-center place-content-center gap-2 sm:gap-4",
+                div {
+                    class: "",
+                    AudioPlayer {
+                        bird: birds.map(|bs| {
+                            let bird = bs.first().unwrap();
+                            tracing::debug!("Bird: {:?}", bird.common_name);
+                            bird
+                        })
+                    }
                 }
-            }
-            div {
-                class: "grid grid-cols-2 gap-4 sm:gap-6",
-                for ix in shuffle() {
-                    MultipleChoiceCard {
-                        bird: birds.map(move |bs| &bs[ix]),
-                        correct: ix == 0,
-                        onclick: move |_| {
-                            tracing::debug!("Clicked on choice {}", ix);
-                            handle_choice(ix == 0, game)
+                div {
+                    class: "grid grid-cols-2 gap-4 sm:gap-6",
+                    for ix in shuffle() {
+                        MultipleChoiceCard {
+                            bird: game.map(move |g| &g.choices()[ix]),
+                            correct: ix == 0,
+                            game,
+                            correct_chosen,
                         }
                     }
                 }
             }
         }
-    })
+    }
 }
 
 #[component]
@@ -230,17 +232,72 @@ fn AudioPlayer(bird: MappedSignal<Bird>) -> Element {
 
 #[component]
 fn MultipleChoiceCard(
-    bird: MappedSignal<Bird>,
+    bird: MappedSignal<BirdContext>,
+    correct: bool,
+    game: Signal<Game>,
+    correct_chosen: Signal<bool>,
+) -> Element {
+    let bird_copy = bird.clone();
+    let bird_memo = use_memo(move || bird_copy.read().bird.clone());
+    let next_button_enabled = use_memo(move || *correct_chosen.read() && correct);
+    rsx! {
+        div {
+            // TODO: try removing this with the other cubic, it might be better fitting vibe.
+            class: "[perspective:1000px]",
+            div {
+                class: "grid transition-transform duration-1000 [transform-style:preserve-3d] h-full",
+                class: if correct && correct_chosen() {
+                    "[transform:rotateY(180deg)]"
+                },
+                div {
+                    class: "row-start-1 row-end-2 col-start-1 col-end-2 [backface-visibility:hidden] [transform:rotateY(0deg)]",
+                    CardFront {
+                        bird: bird_memo,
+                        onclick: move |_| {
+                            spawn(async move {
+                                if correct {
+                                    correct_chosen.set(true);
+                                }
+                                modify_choice_stats(correct, game);
+                            });
+                        },
+                        correct,
+                        correct_chosen,
+                    }
+                }
+                div {
+                    class: "row-start-1 row-end-2 col-start-1 col-end-2 [backface-visibility:hidden] [transform:rotateY(-180deg)]",
+                    CardBack {
+                        bird,
+                        onclick: move |_| {
+                            spawn(async move {
+                                if correct {
+                                    correct_chosen.set(false);
+                                    next_challenge(game);
+                                } else {
+                                    tracing::error!("This shouldn't happen. How did you get here?");
+                                }
+                            });
+                        },
+                        next_button_enabled
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn CardFront(
+    bird: Memo<Bird>,
     correct: bool,
     onclick: EventHandler<MouseEvent>,
+    correct_chosen: Signal<bool>,
 ) -> Element {
-    let mut button_element: Signal<Option<Rc<MountedData>>> = use_signal(|| None);
     // TODO: note that this is assuming a different set of birds each round!
     let mut mistakenly_chosen = use_signal(|| false);
-    let bird_copy = bird.clone();
-    let bird_signal = use_memo(move || bird_copy.read().clone());
     use_effect(move || {
-        bird_signal.read();
+        bird.read();
         mistakenly_chosen.set(false);
     });
     rsx! {
@@ -251,28 +308,19 @@ fn MultipleChoiceCard(
                     tracing::debug!("Setting mistakenly_chosen to true");
                     mistakenly_chosen.set(true);
                 }
-
                 // Let the parent know the choice was made
                 onclick.call(e);
-
-                // For now, just blur the element so the new one doesn't stay focused.
-                // Might be preferable to set focus onto the audio button instead?
-                // Would need to mark that one as focus-visible
-                if correct {
-                    if let Some(el) = button_element.read().as_ref() {
-                        el.set_focus(false).await.ok();
-                    }
-                }
             },
-            onmounted: move |e| button_element.set(Some(e.data())),
-            class: "group p-4 w-full mx-auto rounded-xl border-amber-200 shadow enabled:hover:shadow-lg enabled:hover:bg-amber-200 space-y-2 bg-amber-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 sm:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 disabled:shadow-none",
+            class: "group p-4 w-full h-full mx-auto border-amber-200 rounded-xl shadow enabled:hover:shadow-lg enabled:hover:bg-amber-200 space-y-2 bg-amber-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 sm:px-8 flex flex-col justify-between sm:flex-row sm:items-center sm:space-y-0 sm:space-x-6 disabled:shadow-none",
             class: if mistakenly_chosen() {
-                "animate-shake disabled border opacity-75 transition-opacity duration-1000"
-                // "border-2 border-red-500 z-10 absolute inset-0 m-0 transition-all duration-1000"
+                "animate-shake"
+            },
+            class: if mistakenly_chosen() || correct_chosen() {
+                "disabled border opacity-50 transition-opacity duration-1000"
             } else {
                 "border-2"
             },
-            disabled: mistakenly_chosen(),
+            disabled: mistakenly_chosen() || correct_chosen(),
             img {
                 class: "block mx-auto w-24 h-24 rounded-full object-cover sm:mx-0 sm:shrink-0",
                 src: bird().img_file.to_string_lossy().to_string(),
@@ -289,6 +337,64 @@ fn MultipleChoiceCard(
                     p {
                         class: "text-sm sm:text-base text-slate-500 font-medium group-enabled:group-hover:text-green-800/75",
                         "{bird().scientific_name}"
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn CardBack(
+    bird: MappedSignal<BirdContext>,
+    onclick: EventHandler<MouseEvent>,
+    next_button_enabled: Memo<bool>,
+) -> Element {
+    let mut next_button: Signal<Option<Rc<MountedData>>> = use_signal(|| None);
+    use_effect(move || {
+        spawn(async move {
+            if next_button_enabled() {
+                if let Some(btn) = next_button.read().as_ref() {
+                    btn.set_focus(true).await.ok();
+                }
+            }
+        });
+    });
+    rsx! {
+        div {
+            class: "p-4 w-full h-full mx-auto border-green-200 rounded-xl shadow space-y-2 bg-green-100/50 sm:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 border-2",
+            img {
+                class: "animate-[spin_1s_linear] block mx-auto w-24 h-24 rounded-full object-cover sm:mx-0 sm:shrink-0",
+                src: bird().bird.img_file.to_string_lossy().to_string(),
+                alt: bird().bird.common_name,
+            }
+            div {
+                class: "text-center sm:text-left w-full",
+                div {
+                    class: "space-y-2",
+                    p {
+                        class: "text-lg font-semibold text-green-800",
+                        "Nice work!"
+                    }
+                    div {
+                        class: "flex space-x-2 text-sm text-green-800/75",
+                        div {
+                            "Identified: {bird().identified}"
+                        }
+                        div {
+                            "Streak: {bird().consecutively_identified}"
+                        }
+                    }
+                    button {
+                        class: "px-4 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 font-semibold text-sm sm:text-base bg-green-500 text-amber-50 rounded-full shadow-sm",
+                        onclick: move |e| async move {
+                            onclick.call(e);
+                        },
+                        onmounted: move |e| async move {
+                            next_button.set(Some(e.data()));
+                        },
+                        disabled: !next_button_enabled(),
+                        "Ok!"
                     }
                 }
             }
@@ -331,7 +437,7 @@ async fn get_initial_game() -> Result<Game, ServerFnError> {
 }
 
 // TODO: most of this should live on the game itself
-fn handle_choice(correct: bool, game: Signal<Game>) {
+fn modify_choice_stats(correct: bool, game: Signal<Game>) {
     tracing::info!("handle_choice was called");
     let mut game = game;
     let mut game = game.write();
@@ -339,14 +445,18 @@ fn handle_choice(correct: bool, game: Signal<Game>) {
     if correct {
         choice.identified += 1;
         choice.consecutively_identified += 1;
-        tracing::info!("setting next challenge...");
-        game.set_next_challenge();
-        tracing::info!(
-            "set! new bird is: {:?}",
-            game.correct_choice().bird.common_name
-        );
     } else {
         choice.mistaken += 1;
         choice.consecutively_identified = 0;
     }
+}
+
+fn next_challenge(game: Signal<Game>) {
+    tracing::info!("setting next challenge...");
+    let mut game = game;
+    game.write().set_next_challenge();
+    tracing::info!(
+        "set! new bird is: {:?}",
+        game.read().correct_choice().bird.common_name
+    );
 }
