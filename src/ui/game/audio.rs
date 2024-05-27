@@ -39,16 +39,17 @@ pub fn AudioPlayer(bird: MappedSignal<Bird>) -> Element {
                 }
             },
             svg {
-                "viewBox": "0 0 24 24",
-                "fill": "none",
-                "stroke-width": "1.5",
-                "stroke": "currentColor",
-                "xmlns": "http://www.w3.org/2000/svg",
-                class: "w-16 h-16 sm:w-24 sm:h-24",
+                view_box: "0 0 24 24",
+                fill: "none",
+                stroke_width: "1.5",
+                stroke: "currentColor",
+                xmlns: "http://www.w3.org/2000/svg",
+                // TODO: gate landscape styling to mobile builds only.
+                class: "w-16 h-16 sm:w-24 sm:h-24 sm:max-md:landscape:w-16 sm:max-md:landscape:h-16",
                 path {
-                    "stroke-linejoin": "round",
-                    "stroke-linecap": "round",
-                    "d": if playing() {
+                    stroke_linejoin: "round",
+                    stroke_linecap: "round",
+                    d: if playing() {
                         "M14.25 9v6m-4.5 0V9M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
                     } else {
                         "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z

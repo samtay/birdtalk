@@ -6,6 +6,7 @@ use crate::game::Game;
 use game::GameView;
 
 const USE_LOADING_ANIMATION: bool = false;
+
 const AUDIO_LOOP: bool = true;
 const AUDIO_AUTOPLAY: bool = true;
 
@@ -32,10 +33,10 @@ enum Route {
 fn Wrapper() -> Element {
     rsx! {
         div {
-            class: "flex flex-col h-dvh bg-amber-100 text-green-800", // yellow-50
+            class: "flex flex-col h-dvh bg-amber-100 text-green-800",
             header {
                 id: "header",
-                class: "shrink container h-32 sm:h-48 md:h-64 w-full max-w-screen-lg mt-2 sm:mt-4 mb-[-2rem] mx-auto bg-[url('heading-2.gif')] bg-cover bg-center bg-no-repeat",
+                class: "shrink container h-32 sm:h-48 md:h-64 w-full max-w-screen-lg mt-2 sm:mt-4 mb-[-2rem] mx-auto sm:max-md:landscape:hidden bg-[url('heading-2.gif')] bg-cover bg-center bg-no-repeat",
             }
             div {
                 id: "content",
@@ -44,7 +45,7 @@ fn Wrapper() -> Element {
             }
             footer {
                 id: "footer",
-                class: "shrink sticky top-[100vh] grid justify-items-center justify-center",
+                class: "shrink sticky top-[100vh] grid justify-items-center justify-center sm:max-md:landscape:hidden",
                 div {
                     class: "text-green-800/75",
                     "© 2024 birdtalk"

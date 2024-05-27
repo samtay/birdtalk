@@ -76,29 +76,26 @@ See
 
 MVP should probably just be a game demo using local storage, no user identity, database, etc.
 
+- storage
+
+  - what is stored where? I have access to local storage (not on mobile currently)
+  - what about external DB?
+  - don't want to lock into situation where user needs internet connection to use the app..
+  - so try to stick most in local storage, and attempt to sync up when I can?
+    - this has the con that mobile gets pushed out... can offer mobile sooner with db backing only?
+    - maybe I can swap out storage implementation with db backing...
+  - maybe for now we have our own central storage API:
+    - and it just uses dioxus sdk for web
+    - and an enum of some sort representing connection status
+    - birdpacks can be accessed in offline mode
+    - progress will be persisted with local storage, with syncs attempted periodically
+      - merge should be mostly simple and additive (learned birds for example)
+      - however identified count will have to take into account delta since updated datetime, etc.
+
 - game loop
 
   - handle game finished (all birds learned)
-
-- animations
-
-  - success animation:
-    - Change card flip to be a modal. Animate cards in/out from corners of
-      screen between challenges. As card flies out, modal comes in with next
-      button and stats. Modal should slide from bottom on mobile.
-  - See https://codepen.io/designcouch/pen/obvKxm for modal animations
-  - Keep in mind, many of this could possibly be purely tailwind css driven:
-    - https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-sibling-state
-    - by using peer classes to determine when modal pops up, etc.
-    - or even set class on parent when correct choice has been made, then do
-      - group-[correct-choice]:animate-out
-      - or e.g. if initial opacity 0 and then peer:success:animate-modal-in
-  - Another idea: drawing outline of bird? Like the logo?
-    - https://css-tricks.com/almanac/properties/s/stroke-dashoffset/
-    - TODO: export logo bird as SVG! with transparency!
-  - see https://www.joshwcomeau.com/animation/css-transitions/ for tips on
-    finishing touches and leveraging GPU for smooth transitions
-    and apply https://tailwindcss.com/docs/will-change for any perf problems
+  - awards? levels? badges?
 
 - settings
 
@@ -124,17 +121,35 @@ MVP should probably just be a game demo using local storage, no user identity, d
 
 - make svg component for audio toggle
 
+#### styling
+
+- Style stats https://www.codewithfaraz.com/article/176/15-tailwind-css-stats-section-examples
 - maybe add gradients https://tailwindcss.com/docs/gradient-color-stops nice
   look
-
-- if html necessary:
-  depending on what you wanna do you can also maybe (depends on your use case) put something like this in your input.css
+- can put body styling in input.css if I have to:
   ```css
   html,
   body {
     @apply h-full overflow-hidden;
   }
   ```
+- success animation:
+  - Change card flip to be a modal. Animate cards in/out from corners of
+    screen between challenges. As card flies out, modal comes in with next
+    button and stats. Modal should slide from bottom on mobile.
+  - See https://codepen.io/designcouch/pen/obvKxm for modal animations
+  - Keep in mind, many of this could possibly be purely tailwind css driven:
+    - https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-sibling-state
+    - by using peer classes to determine when modal pops up, etc.
+    - or even set class on parent when correct choice has been made, then do
+      - group-[correct-choice]:animate-out
+      - or e.g. if initial opacity 0 and then peer:success:animate-modal-in
+  - Another idea: drawing outline of bird? Like the logo?
+    - https://css-tricks.com/almanac/properties/s/stroke-dashoffset/
+    - TODO: export logo bird as SVG! with transparency!
+  - see https://www.joshwcomeau.com/animation/css-transitions/ for tips on
+    finishing touches and leveraging GPU for smooth transitions
+    and apply https://tailwindcss.com/docs/will-change for any perf problems
 
 # business
 

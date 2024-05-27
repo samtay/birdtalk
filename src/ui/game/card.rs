@@ -88,14 +88,12 @@ fn CardFront(
                 // Let the parent know the choice was made
                 onclick.call(e);
             },
-            class: "group p-4 w-full h-full mx-auto border-amber-200 rounded-xl shadow enabled:hover:shadow-lg enabled:hover:bg-amber-200 space-y-2 bg-amber-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 sm:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 disabled:shadow-none",
+            class: "group p-4 w-full h-full mx-auto border-2 border-amber-200 rounded-xl shadow enabled:hover:shadow-lg enabled:hover:bg-amber-200 space-y-2 bg-amber-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 sm:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 disabled:shadow-none",
             class: if mistakenly_chosen() {
                 "animate-shake"
             },
             class: if mistakenly_chosen() || correct_chosen() {
                 "disabled border opacity-50 transition-opacity duration-1000"
-            } else {
-                "border-2"
             },
             disabled: mistakenly_chosen() || correct_chosen(),
             img {
