@@ -254,12 +254,10 @@ fn MultipleChoiceCard(
                     CardFront {
                         bird: bird_memo,
                         onclick: move |_| {
-                            spawn(async move {
-                                if correct {
-                                    correct_chosen.set(true);
-                                }
-                                modify_choice_stats(correct, game);
-                            });
+                            if correct {
+                                correct_chosen.set(true);
+                            }
+                            modify_choice_stats(correct, game);
                         },
                         correct,
                         correct_chosen,
@@ -270,14 +268,12 @@ fn MultipleChoiceCard(
                     CardBack {
                         bird,
                         onclick: move |_| {
-                            spawn(async move {
-                                if correct {
-                                    correct_chosen.set(false);
-                                    next_challenge(game);
-                                } else {
-                                    tracing::error!("This shouldn't happen. How did you get here?");
-                                }
-                            });
+                            if correct {
+                                correct_chosen.set(false);
+                                next_challenge(game);
+                            } else {
+                                tracing::error!("This shouldn't happen. How did you get here?");
+                            }
                         },
                         next_button_enabled
                     }
@@ -352,13 +348,16 @@ fn CardBack(
 ) -> Element {
     let mut next_button: Signal<Option<Rc<MountedData>>> = use_signal(|| None);
     use_effect(move || {
-        spawn(async move {
-            if next_button_enabled() {
+        if next_button_enabled() {
+            tracing::debug!("Spawning to focus next button...");
+            spawn(async move {
+                tracing::debug!("Trying to act on button...");
                 if let Some(btn) = next_button.read().as_ref() {
+                    tracing::debug!("Setting focus on next button");
                     btn.set_focus(true).await.ok();
                 }
-            }
-        });
+            });
+        }
     });
     rsx! {
         div {
