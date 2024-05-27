@@ -75,13 +75,17 @@ MVP should probably just be a game demo using local storage, no user identity, d
 
 - animations
 
-  - success animation: spin, green, modal with more info and nice things?
+  - success animation:
+    - Change card flip to be a modal. Animate cards in/out from corners of
+      screen between challenges. As card flies out, modal comes in with next
+      button and stats. Modal should slide from bottom on mobile.
   - See https://codepen.io/designcouch/pen/obvKxm for modal animations
-  - YO https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-sibling-state
-    - it might be possible to have this be PURELY tailwind css driven! just use
-      groups or peers to trigger visibility on the correct / incorrect modals (and
-      hopefully CSS animations will be enough)
-    - e.g. if initial opacity 0 and then peer:success:animate-modal-in
+  - Keep in mind, many of this could possibly be purely tailwind css driven:
+    - https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-sibling-state
+    - by using peer classes to determine when modal pops up, etc.
+    - or even set class on parent when correct choice has been made, then do
+      - group-[correct-choice]:animate-out
+      - or e.g. if initial opacity 0 and then peer:success:animate-modal-in
   - Another idea: drawing outline of bird? Like the logo?
     - https://css-tricks.com/almanac/properties/s/stroke-dashoffset/
     - TODO: export logo bird as SVG! with transparency!
@@ -115,10 +119,6 @@ MVP should probably just be a game demo using local storage, no user identity, d
 
 - maybe add gradients https://tailwindcss.com/docs/gradient-color-stops nice
   look
-
-- easy flip! https://www.youtube.com/watch?v=SJnRnQdjR0w
-
-  - stash modal stff and just flip and expand?
 
 - if html necessary:
   depending on what you wanna do you can also maybe (depends on your use case) put something like this in your input.css
