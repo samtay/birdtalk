@@ -246,7 +246,7 @@ fn MultipleChoiceCard(
             // TODO: try removing this with the other cubic, it might be better fitting vibe.
             class: "[perspective:1000px]",
             div {
-                class: "grid transition-transform duration-1000 [transform-style:preserve-3d] h-full",
+                class: "grid transition-transform duration-500 [transform-style:preserve-3d] h-full",
                 class: if correct && correct_chosen() {
                     "[transform:rotateY(180deg)]"
                 },
