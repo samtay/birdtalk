@@ -61,11 +61,6 @@ impl Game {
         self.choices.first_mut().unwrap()
     }
 
-    /// Get the correct bird.
-    pub fn correct_bird(&self) -> &Bird {
-        &self.choices.first().unwrap().bird
-    }
-
     // TODO: redo this. it doesn't allow any of the birds in a multi choice round to be repeated?
     // The correct bird choice should be sorted appropriately, but the rest of choices should be
     // either random or chosen with a different criteria.

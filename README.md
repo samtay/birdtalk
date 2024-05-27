@@ -42,7 +42,14 @@ See
 
 - `/game` for game mode
 - `/lib` or `/train` for just learning and no quizzing.
-  - Maybe catalog, filterable, with "bird cards" that each have a play/pause button. (def would want preload=metadata for that).
+- Additionally, perhaps game mode should include learning stuff between challenges. Anything you get quizzed on should have been presented at some point beforehand. Maybe this is configurable?
+  - Choose your adventure!
+    - [Learn] [Mixed] [Quiz]
+    - [No pressure! Just learn the birds in this pack with no challenges.]
+    - [Learn these birds as the challenges progress.]
+    - [Think you know all these bird calls already? Jump right in!]
+- Maybe you can create/share your own bird packs with premium subscription.
+- Maybe catalog, filterable, with "bird cards" that each have a play/pause button. (def would want preload=metadata for that).
 - `/ambience` with a playlist of birds.
   - per dan: maybe option for river background and random intervals between bird calls
 - Option to show picture of the bird, but no points awarded in this mode.
