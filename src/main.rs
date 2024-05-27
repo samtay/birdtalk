@@ -370,13 +370,13 @@ fn CardBack(
             div {
                 class: "text-center sm:text-left w-full",
                 div {
-                    class: "space-y-2",
-                    p {
-                        class: "text-lg font-semibold text-green-800",
+                    class: "flex flex-col sm:flex-row justify-between",
+                    div {
+                        class: "text-lg font-semibold text-green-800 whitespace-nowrap",
                         "Nice work!"
                     }
                     div {
-                        class: "flex space-x-2 text-sm text-green-800/75",
+                        class: "flex space-x-2 text-sm text-green-800/75 whitespace-nowrap",
                         div {
                             "Identified: {bird().identified}"
                         }
@@ -385,7 +385,7 @@ fn CardBack(
                         }
                     }
                     button {
-                        class: "px-4 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 font-semibold text-sm sm:text-base bg-green-500 text-amber-50 rounded-full shadow-sm",
+                        class: "mt-2 px-4 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 font-semibold text-sm sm:text-base bg-green-500 text-amber-50 rounded-full shadow-sm",
                         onclick: move |e| async move {
                             onclick.call(e);
                         },
