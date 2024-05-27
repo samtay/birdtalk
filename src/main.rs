@@ -371,7 +371,7 @@ fn CardBack(
             div {
                 class: "text-center sm:text-left w-full",
                 div {
-                    class: "flex flex-col sm:flex-row justify-between",
+                    class: "flex flex-col justify-between",
                     div {
                         class: "text-lg font-semibold text-green-800 whitespace-nowrap",
                         "Nice work!"
