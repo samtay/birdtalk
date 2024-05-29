@@ -63,7 +63,7 @@ fn CardFront(bird: Memo<Bird>, correct: bool, game_ctx: GameCtx) -> Element {
                 }
                 game_ctx.record_choice(correct);
             },
-            class: "group p-4 w-full h-full mx-auto border-2 border-amber-200 rounded-xl shadow enabled:hover:shadow-lg enabled:hover:bg-amber-200 space-y-2 bg-amber-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 sm:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 disabled:shadow-none",
+            class: "group w-full h-full mx-auto border-2 border-amber-200 rounded-xl shadow enabled:hover:shadow-lg enabled:hover:bg-amber-200 space-y-2 bg-amber-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 px-2 py-2 sm:py-4 sm:px-6 md:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 disabled:shadow-none",
             class: if mistakenly_chosen() {
                 "animate-shake"
             },
@@ -112,7 +112,7 @@ fn CardBack(bird: MappedSignal<BirdContext>, correct: bool, game_ctx: GameCtx) -
     });
     rsx! {
         div {
-            class: "p-4 w-full h-full mx-auto border-green-200 rounded-xl shadow space-y-2 bg-green-100/50 sm:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 border-2",
+            class: "w-full h-full mx-auto border-green-200 rounded-xl shadow space-y-2 bg-green-100/50 px-2 py-2 sm:py-4 sm:px-6 md:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 border-2",
             img {
                 class: "animate-[spin_1s_linear] block mx-auto w-24 h-24 rounded-full object-cover sm:mx-0 sm:shrink-0",
                 src: bird().bird.img_file.to_string_lossy().to_string(),

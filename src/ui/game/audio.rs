@@ -44,7 +44,7 @@ pub fn AudioPlayer(bird: Memo<Bird>) -> Element {
                 stroke: "currentColor",
                 xmlns: "http://www.w3.org/2000/svg",
                 // TODO: gate landscape styling to mobile builds only.
-                class: "w-16 h-16 sm:w-24 sm:h-24 sm:max-md:landscape:w-16 sm:max-md:landscape:h-16",
+                class: "w-16 h-16 sm:w-24 sm:h-24 sm:max-lg:landscape:w-16 sm:max-lg:landscape:h-16",
                 path {
                     stroke_linejoin: "round",
                     stroke_linecap: "round",

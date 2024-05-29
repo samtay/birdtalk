@@ -32,10 +32,10 @@ enum Route {
 fn Wrapper() -> Element {
     rsx! {
         div {
-            class: "flex flex-col h-dvh bg-amber-100 text-green-800",
+            class: "flex flex-col h-dvh bg-amber-100 text-green-800 sm:max-lg:landscape:justify-center",
             header {
                 id: "header",
-                class: "shrink container h-32 sm:h-48 md:h-64 w-full max-w-screen-lg mt-2 sm:mt-4 mb-[-2rem] mx-auto sm:max-md:landscape:hidden bg-[url('heading-2.gif')] bg-cover bg-center bg-no-repeat",
+                class: "shrink container h-32 sm:h-48 md:h-64 w-full max-w-screen-lg mt-2 sm:mt-4 mb-[-2rem] mx-auto sm:max-lg:landscape:hidden bg-[url('heading-2.gif')] bg-cover bg-center bg-no-repeat",
             }
             div {
                 id: "content",
@@ -44,7 +44,7 @@ fn Wrapper() -> Element {
             }
             footer {
                 id: "footer",
-                class: "shrink sticky top-[100vh] grid justify-items-center justify-center sm:max-md:landscape:hidden",
+                class: "shrink sticky top-[100vh] grid justify-items-center justify-center sm:max-lg:landscape:hidden",
                 div {
                     class: "text-green-800/75",
                     "© 2024 birdtalk"
