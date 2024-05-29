@@ -106,7 +106,7 @@ pub fn GameView(game: Signal<Game>) -> Element {
         div {
             class: "container m-auto px-2 sm:px-4",
             div {
-                class: "grid grid-cols-1 justify-items-center place-content-center gap-2 sm:gap-4 sm:max-lg:landscape:flex justify-center items-center",
+                class: "flex flex-col sm:max-lg:landscape:flex-row justify-center items-center place-content-center gap-2 sm:gap-4",
                 div {
                     class: "",
                     AudioPlayer {

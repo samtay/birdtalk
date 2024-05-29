@@ -44,7 +44,7 @@ fn Wrapper() -> Element {
             }
             footer {
                 id: "footer",
-                class: "shrink sticky top-[100vh] grid justify-items-center justify-center sm:max-lg:landscape:hidden",
+                class: "shrink sticky top-[100vh] flex justify-items-center justify-center sm:max-lg:landscape:hidden",
                 div {
                     class: "text-green-800/75",
                     "© 2024 birdtalk"
