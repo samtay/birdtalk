@@ -76,9 +76,12 @@ See
 
 MVP should probably just be a game demo using local storage, no user identity, database, etc.
 
-- [ ] REFACTOR move ./game into ./ui/game/quiz.rs and create struct with Signals, provide it as context, clean up all the signal passing.
-- [ ] REFACTOR probably separate game context from bird data
 - [ ] FINISH up persistent storage for "level" and display level/xp nicely
+
+  - Use the tailwind gradient to display a nice progress bar like Duolingo
+    - Duolingo also has temporary text "2 in a row!"
+    - Exiting presents the user with a confirm modal: "Quit and you'll lose all XP gained in this lesson!"
+    - Maybe bird icon marking the progress?
 
 - storage
 
@@ -132,6 +135,15 @@ MVP should probably just be a game demo using local storage, no user identity, d
   - Change card flip to be a modal. Animate cards in/out from corners of
     screen between challenges. As card flies out, modal comes in with next
     button and stats. Modal should slide from bottom on mobile.
+  - Or, take a cue from Duolingo:
+    - Keep cards on screen, but highlight correct with green (and some subtle
+      animation, maybe star(s) appear and then {fade,rotate, translate})
+    - slide modal up on mobile
+    - maybe web it slides up or just appears under cards but in a less modally
+      way?
+    - This will fix the sizing issue on the flip card, as the button will no
+      longer be on the card. Maybe have room to describe the sound just heard
+      (mating call, song, etc.)
   - See https://codepen.io/designcouch/pen/obvKxm for modal animations
   - Keep in mind, many of this could possibly be purely tailwind css driven:
     - https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-sibling-state
@@ -157,6 +169,7 @@ MVP should probably just be a game demo using local storage, no user identity, d
 - make svg component for audio toggle
 
 - can replace hacky tailwind landscape with `use_window_size`
+- also, just disallow landscape mode on mobile!
 
 # business
 
