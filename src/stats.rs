@@ -1,0 +1,66 @@
+//! This module contains progress functionality that is _permanent_ rather than per game session.
+
+#![allow(dead_code)] // TODO: remove
+
+use std::collections::HashMap;
+
+use serde::{Deserialize, Serialize};
+
+/// The number of times a bird must be correctly identified consecutively to be considered learned.
+pub const LEARN_THRESHOLD: u32 = 3;
+pub const BIRD_PACK_SIZE: usize = 30;
+pub const BIRDS_PER_LEVEL: usize = 15;
+
+// TODO: stick Stats into a context, with storage backing!
+// Eventually there should be impls around this to handle storage / storage + db
+
+/// Learning progress for a user.
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Stats {
+    /// Per bird stats
+    bird_stats: HashMap<String, BirdStats>,
+
+    /// Current consecutive correct ID streak.
+    current_streak: u32,
+
+    /// Record number of consecutive correct bird IDs.
+    record_streak: u32,
+}
+
+/// Stats per bird for a user.
+#[derive(Debug, Default, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct BirdStats {
+    identified: u32,
+    mistaken: u32,
+    learned: bool,
+}
+
+impl Stats {
+    pub fn xp(&self) -> u32 {
+        self.bird_stats
+            .values()
+            .map(|bs| if bs.learned { 10 } else { 0 } + bs.identified)
+            .sum()
+    }
+
+    pub fn level(&self) -> u32 {
+        1 + (self.bird_stats.values().filter(|bs| bs.learned).count() / BIRDS_PER_LEVEL) as u32
+    }
+
+    // TODO: put this behind a trait that handles bumps to DB
+    pub fn add_correct_id(&mut self, learned: bool, bird_id: &str) {
+        self.current_streak += 1;
+        if self.current_streak > self.record_streak {
+            self.record_streak = self.current_streak;
+        }
+        let bird_stat = self.bird_stats.entry(bird_id.to_string()).or_default();
+        bird_stat.identified += 1;
+        bird_stat.learned |= learned;
+    }
+
+    pub fn add_incorrect_id(&mut self, bird_id: &str) {
+        self.current_streak = 0;
+        let bird_stat = self.bird_stats.entry(bird_id.to_string()).or_default();
+        bird_stat.mistaken += 1;
+    }
+}

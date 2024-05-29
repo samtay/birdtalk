@@ -3,32 +3,104 @@ mod card;
 mod modal;
 
 use dioxus::prelude::*;
+use dioxus_sdk::storage::{use_synced_storage, LocalStorage};
 
 use crate::{
+    bird::Bird,
     game::{Game, MULTIPLE_CHOICE_SIZE},
+    stats::{Stats, LEARN_THRESHOLD},
     ui::USE_LOADING_ANIMATION,
 };
 use audio::AudioPlayer;
 use card::MultipleChoiceCard;
 
-#[component]
-pub fn GameView(game: Signal<Game>) -> Element {
-    let birds = use_memo(move || game.read().birds());
+#[derive(Clone, Copy, PartialEq)]
+struct GameCtx {
+    /// Game state
+    game: Signal<Game>,
+    /// Storage backed stats state
+    stats: Signal<Stats>,
+    /// Has a correct choice been made for this multiple choice yet?
+    correct_chosen: Signal<bool>,
+}
 
+impl GameCtx {
+    // TODO right now game signal created with loading nonsense from above.
+    // After we split it up, just create it here (with use_hook)
+    // ALL of this should be under one use_hook (after we figure out storage panic)
+    // probably _outside_ of this so that we could also choose to do context
+    fn new(game: Signal<Game>) -> Self {
+        let stats =
+            use_synced_storage::<LocalStorage, _>("{user.email}".to_string(), Stats::default);
+        let correct_chosen = use_signal(|| false);
+        Self {
+            game,
+            stats,
+            correct_chosen,
+        }
+    }
+
+    /// Create a new memo signal of the current challenge's birds
+    fn birds_memo(&self) -> Memo<Vec<Bird>> {
+        let game = self.game;
+        use_memo(move || game.read().birds())
+    }
+
+    /// Create a shuffle of 0..4 that will shuffle itself on changes to birds
     // Can maybe subscribe to a "turn" so shuffle only runs per turn
     // For now just hack this to change when the actual birds change
-    let shuffle = use_memo(move || {
-        let _ = birds.read(); // subscribe to birds
-        let mut indices = (0..MULTIPLE_CHOICE_SIZE).collect::<Vec<_>>();
-        if USE_LOADING_ANIMATION || (generation() > 0 && cfg!(feature = "web")) {
-            use rand::seq::SliceRandom as _;
-            indices.shuffle(&mut rand::thread_rng());
-            tracing::debug!("Shuffled: {:?}", indices);
-        }
-        indices
-    });
+    fn shuffle_memo(&self) -> Memo<Vec<usize>> {
+        let birds = self.birds_memo();
+        use_memo(move || {
+            let _ = birds.read(); // subscribe to birds
+            let mut indices = (0..MULTIPLE_CHOICE_SIZE).collect::<Vec<_>>();
+            if USE_LOADING_ANIMATION || (generation() > 0 && cfg!(feature = "web")) {
+                use rand::seq::SliceRandom as _;
+                indices.shuffle(&mut rand::thread_rng());
+                tracing::debug!("Shuffled: {:?}", indices);
+            }
+            indices
+        })
+    }
 
-    let correct_chosen = use_signal(|| false);
+    fn record_choice(&mut self, correct: bool) {
+        let mut game = self.game.write();
+        let mut stats = self.stats.write();
+        let choice = game.correct_choice_mut();
+        // TODO can probably move this out?
+        if correct {
+            choice.identified += 1;
+            choice.consecutively_identified += 1;
+            stats.add_correct_id(
+                choice.consecutively_identified >= LEARN_THRESHOLD,
+                choice.bird.id(),
+            );
+        } else {
+            choice.mistaken += 1;
+            choice.consecutively_identified = 0;
+            stats.add_incorrect_id(choice.bird.id());
+        }
+        self.correct_chosen.set(correct);
+        // TODO: remove
+        drop(stats);
+        tracing::debug!("Stats: {:?}", self.stats.read());
+    }
+
+    fn next_challenge(&mut self) {
+        self.correct_chosen.set(false);
+        self.game.write().set_next_challenge();
+        tracing::debug!(
+            "set! new bird is: {:?}",
+            self.game.read().correct_choice().bird.common_name
+        );
+    }
+}
+
+#[component]
+pub fn GameView(game: Signal<Game>) -> Element {
+    let game_ctx = GameCtx::new(game);
+    let birds = game_ctx.birds_memo();
+    let shuffle = game_ctx.shuffle_memo();
 
     rsx! {
         div {
@@ -51,8 +123,7 @@ pub fn GameView(game: Signal<Game>) -> Element {
                         MultipleChoiceCard {
                             bird: game.map(move |g| &g.choices()[ix]),
                             correct: ix == 0,
-                            game,
-                            correct_chosen,
+                            game_ctx,
                         }
                     }
                 }

@@ -1,3 +1,9 @@
+# watch all (server, tailwind)
+watch:
+  #!/usr/bin/env -S parallel --shebang --ungroup --jobs {{num_cpus()}} --retry-failed
+  just watch-tailwind
+  just watch-server
+
 # watch server
 watch-server:
   dx serve

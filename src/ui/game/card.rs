@@ -2,21 +2,19 @@ use std::rc::Rc;
 
 use dioxus::prelude::*;
 
-use crate::{
-    bird::Bird,
-    game::{BirdContext, Game},
-};
+use crate::{bird::Bird, game::BirdContext};
+
+use super::GameCtx;
 
 #[component]
 pub fn MultipleChoiceCard(
     bird: MappedSignal<BirdContext>,
     correct: bool,
-    game: Signal<Game>,
-    correct_chosen: Signal<bool>,
+    game_ctx: GameCtx,
 ) -> Element {
     let bird_copy = bird.clone();
     let bird_memo = use_memo(move || bird_copy.read().bird.clone());
-    let next_button_enabled = use_memo(move || *correct_chosen.read() && correct);
+    let correct_chosen = game_ctx.correct_chosen;
     rsx! {
         div {
             // TODO: try removing this with the other cubic, it might be better fitting vibe.
@@ -30,33 +28,16 @@ pub fn MultipleChoiceCard(
                     class: "row-start-1 row-end-2 col-start-1 col-end-2 [backface-visibility:hidden] [transform:rotateY(0deg)]",
                     CardFront {
                         bird: bird_memo,
-                        onclick: move |_| {
-                            if correct {
-                                correct_chosen.set(true);
-                            }
-                            modify_choice_stats(correct, game);
-                        },
                         correct,
-                        correct_chosen,
+                        game_ctx
                     }
                 }
                 div {
                     class: "row-start-1 row-end-2 col-start-1 col-end-2 [backface-visibility:hidden] [transform:rotateY(-180deg)]",
                     CardBack {
                         bird,
-                        onclick: move |_| {
-                            if correct {
-                                correct_chosen.set(false);
-                                game.write().set_next_challenge();
-                                tracing::info!(
-                                    "set! new bird is: {:?}",
-                                    game.read().correct_choice().bird.common_name
-                                );
-                            } else {
-                                tracing::error!("This shouldn't happen. How did you get here?");
-                            }
-                        },
-                        next_button_enabled
+                        correct,
+                        game_ctx
                     }
                 }
             }
@@ -65,28 +46,23 @@ pub fn MultipleChoiceCard(
 }
 
 #[component]
-fn CardFront(
-    bird: Memo<Bird>,
-    correct: bool,
-    onclick: EventHandler<MouseEvent>,
-    correct_chosen: Signal<bool>,
-) -> Element {
+fn CardFront(bird: Memo<Bird>, correct: bool, game_ctx: GameCtx) -> Element {
     // TODO: note that this is assuming a different set of birds each round!
     let mut mistakenly_chosen = use_signal(|| false);
+    let correct_chosen = game_ctx.correct_chosen;
     use_effect(move || {
         bird.read();
         mistakenly_chosen.set(false);
     });
     rsx! {
         button {
-            onclick: move |e| async move {
+            onclick: move |_| {
                 // Handle mistaken state
                 if !correct {
                     tracing::debug!("Setting mistakenly_chosen to true");
                     mistakenly_chosen.set(true);
                 }
-                // Let the parent know the choice was made
-                onclick.call(e);
+                game_ctx.record_choice(correct);
             },
             class: "group p-4 w-full h-full mx-auto border-2 border-amber-200 rounded-xl shadow enabled:hover:shadow-lg enabled:hover:bg-amber-200 space-y-2 bg-amber-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 sm:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 disabled:shadow-none",
             class: if mistakenly_chosen() {
@@ -120,11 +96,8 @@ fn CardFront(
 }
 
 #[component]
-fn CardBack(
-    bird: MappedSignal<BirdContext>,
-    onclick: EventHandler<MouseEvent>,
-    next_button_enabled: Memo<bool>,
-) -> Element {
+fn CardBack(bird: MappedSignal<BirdContext>, correct: bool, game_ctx: GameCtx) -> Element {
+    let next_button_enabled = use_memo(move || *game_ctx.correct_chosen.read() && correct);
     let mut next_button: Signal<Option<Rc<MountedData>>> = use_signal(|| None);
     use_effect(move || {
         if next_button_enabled() {
@@ -165,10 +138,14 @@ fn CardBack(
                     }
                     button {
                         class: "mt-2 px-4 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 font-semibold text-sm sm:text-base bg-green-500 text-amber-50 rounded-full shadow-sm",
-                        onclick: move |e| async move {
-                            onclick.call(e);
+                        onclick: move |_| {
+                            if correct {
+                                game_ctx.next_challenge();
+                            } else {
+                                tracing::error!("This shouldn't happen. How did you get here?");
+                            }
                         },
-                        onmounted: move |e| async move {
+                        onmounted: move |e| {
                             next_button.set(Some(e.data()));
                         },
                         disabled: !next_button_enabled(),
@@ -177,20 +154,5 @@ fn CardBack(
                 }
             }
         }
-    }
-}
-
-// TODO: most of this should live on the game itself
-fn modify_choice_stats(correct: bool, game: Signal<Game>) {
-    tracing::info!("handle_choice was called");
-    let mut game = game;
-    let mut game = game.write();
-    let choice = game.correct_choice_mut();
-    if correct {
-        choice.identified += 1;
-        choice.consecutively_identified += 1;
-    } else {
-        choice.mistaken += 1;
-        choice.consecutively_identified = 0;
     }
 }

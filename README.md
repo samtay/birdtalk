@@ -76,6 +76,10 @@ See
 
 MVP should probably just be a game demo using local storage, no user identity, database, etc.
 
+- [ ] REFACTOR move ./game into ./ui/game/quiz.rs and create struct with Signals, provide it as context, clean up all the signal passing.
+- [ ] REFACTOR probably separate game context from bird data
+- [ ] FINISH up persistent storage for "level" and display level/xp nicely
+
 - storage
 
   - what is stored where? I have access to local storage (not on mobile currently)
@@ -104,22 +108,12 @@ MVP should probably just be a game demo using local storage, no user identity, d
 
 - remember: use ? none propagation to hide elements. also see above for error handling
 
-- fix header
-
-  - get the commit from the saved branch. export the header with the nice font
-    from canva, resized to fit the word and with transparent background.
-  - then export the birdtalk icon as SVG
-    - or, export both the talk bubble and bird separately
-  - then animate the bird portion of the svg with css! (could be .gif still but smaller footprint)
-
 - add 'space' or other handler to toggle audio
 
   - see docsite/src/shortcuts.rs
   - and
     https://github.com/DioxusLabs/dioxus/blob/e2002d6ea42f5844a3832ab7f038620ecf977a1c/packages/desktop/src/hooks.rs#L72
     for desktop
-
-- make svg component for audio toggle
 
 #### styling
 
@@ -134,6 +128,7 @@ MVP should probably just be a game demo using local storage, no user identity, d
   }
   ```
 - success animation:
+
   - Change card flip to be a modal. Animate cards in/out from corners of
     screen between challenges. As card flies out, modal comes in with next
     button and stats. Modal should slide from bottom on mobile.
@@ -150,6 +145,18 @@ MVP should probably just be a game demo using local storage, no user identity, d
   - see https://www.joshwcomeau.com/animation/css-transitions/ for tips on
     finishing touches and leveraging GPU for smooth transitions
     and apply https://tailwindcss.com/docs/will-change for any perf problems
+
+- fix header
+
+  - get the commit from the saved branch. export the header with the nice font
+    from canva, resized to fit the word and with transparent background.
+  - then export the birdtalk icon as SVG
+    - or, export both the talk bubble and bird separately
+  - then animate the bird portion of the svg with css! (could be .gif still but smaller footprint)
+
+- make svg component for audio toggle
+
+- can replace hacky tailwind landscape with `use_window_size`
 
 # business
 

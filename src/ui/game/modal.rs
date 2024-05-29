@@ -70,7 +70,7 @@ fn BirdDetails(
             }
             button {
                 class: "rounded-lg bg-green-800 text-amber-50",
-                onclick: move |_| async move {
+                onclick: move |_| {
                     visible.set(false);
                     game.write().set_next_challenge();
                 },
