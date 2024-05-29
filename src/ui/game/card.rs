@@ -137,8 +137,17 @@ fn CardBack(bird: MappedSignal<BirdContext>, correct: bool, game_ctx: GameCtx) -
                     }
                     button {
                         class: "mt-2 px-4 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 font-semibold text-sm sm:text-base bg-green-500 text-amber-50 rounded-full shadow-sm",
-                        onclick: move |_| {
+                        onclick: move |_| async move {
                             if correct {
+                                // Start the animation to flip the card back (500ms)
+                                game_ctx.correct_chosen.set(false);
+
+                                // Issue a short delay before changing the card content
+                                // Otherwise there's a brief moment where you see the stats of the
+                                // next bird, which feels a bit janky.
+                                #[cfg(feature = "web")]
+                                async_std::task::sleep(std::time::Duration::from_millis(300)).await;
+
                                 game_ctx.next_challenge();
                             } else {
                                 tracing::error!("This shouldn't happen. How did you get here?");
