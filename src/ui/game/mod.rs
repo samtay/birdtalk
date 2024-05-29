@@ -104,7 +104,7 @@ pub fn GameView(game: Signal<Game>) -> Element {
 
     rsx! {
         div {
-            class: "container m-auto px-2 sm:px-4",
+            class: "container m-auto px-2 landscape:max-lg:px-1 sm:px-4",
             div {
                 class: "flex flex-col sm:max-lg:landscape:flex-row justify-center items-center place-content-center gap-2 sm:gap-4",
                 div {
