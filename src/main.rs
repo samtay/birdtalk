@@ -4,7 +4,6 @@ use dioxus::prelude::*;
 use tracing::Level;
 
 mod bird;
-mod game;
 mod stats;
 mod ui;
 

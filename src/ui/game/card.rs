@@ -2,9 +2,8 @@ use std::rc::Rc;
 
 use dioxus::prelude::*;
 
-use crate::{bird::Bird, game::BirdContext};
-
-use super::GameCtx;
+use super::{quiz::BirdContext, GameCtx};
+use crate::bird::Bird;
 
 #[component]
 pub fn MultipleChoiceCard(

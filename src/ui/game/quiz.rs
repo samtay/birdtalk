@@ -14,14 +14,6 @@ pub const MULTIPLE_CHOICE_SIZE: usize = 4;
 // Keep persistent / db related stuff like progress outside of UI, put this "flow" stuff into
 // UI.
 
-// TODO: Ah I know what to do. Use signals _within_ the struct. Refactor this!
-// fn use_game_context_provider() -> use_context_provider(Game::init)
-// where
-// Game::init uses Signal::new
-// Probably with methods for the derived use_memo's (like singular birds? mapped?)
-
-// Maybe there's still room for a non-signally struct holding the choices and pack though? unsure.
-
 // Game should maybe have some enum field with explains the state -> Next Challenge Ready, Finished Pack, etc.
 /// The game data.
 #[derive(Clone, Serialize, Deserialize)]
@@ -72,6 +64,18 @@ impl Game {
     /// Get a mutable reference to the correct choice.
     pub fn correct_choice_mut(&mut self) -> &mut BirdContext {
         self.choices.first_mut().unwrap()
+    }
+
+    /// Record a choice made on the current challenge.
+    pub fn record_choice(&mut self, correct: bool) {
+        let choice = self.correct_choice_mut();
+        if correct {
+            choice.identified += 1;
+            choice.consecutively_identified += 1;
+        } else {
+            choice.mistaken += 1;
+            choice.consecutively_identified = 0;
+        }
     }
 
     // TODO: redo this. it doesn't allow any of the birds in a multi choice round to be repeated?

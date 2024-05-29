@@ -2,8 +2,7 @@ mod game;
 
 use dioxus::prelude::*;
 
-use crate::game::Game;
-use game::GameView;
+use game::{quiz::Game, GameView};
 
 const USE_LOADING_ANIMATION: bool = false;
 

@@ -1,18 +1,19 @@
 mod audio;
 mod card;
 mod modal;
+pub mod quiz;
 
 use dioxus::prelude::*;
 use dioxus_sdk::storage::{use_synced_storage, LocalStorage};
 
+use super::USE_LOADING_ANIMATION;
 use crate::{
     bird::Bird,
-    game::{Game, MULTIPLE_CHOICE_SIZE},
     stats::{Stats, LEARN_THRESHOLD},
-    ui::USE_LOADING_ANIMATION,
 };
 use audio::AudioPlayer;
 use card::MultipleChoiceCard;
+use quiz::{Game, MULTIPLE_CHOICE_SIZE};
 
 #[derive(Clone, Copy, PartialEq)]
 struct GameCtx {
@@ -64,20 +65,16 @@ impl GameCtx {
     }
 
     fn record_choice(&mut self, correct: bool) {
-        let mut game = self.game.write();
+        self.game.write().record_choice(correct);
+        let game = self.game.read();
+        let choice = game.correct_choice();
         let mut stats = self.stats.write();
-        let choice = game.correct_choice_mut();
-        // TODO can probably move this out?
         if correct {
-            choice.identified += 1;
-            choice.consecutively_identified += 1;
             stats.add_correct_id(
                 choice.consecutively_identified >= LEARN_THRESHOLD,
                 choice.bird.id(),
             );
         } else {
-            choice.mistaken += 1;
-            choice.consecutively_identified = 0;
             stats.add_incorrect_id(choice.bird.id());
         }
         self.correct_chosen.set(correct);

@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::game::{BirdContext, Game};
+use super::quiz::{BirdContext, Game};
 
 // TODO: onclick handler for dismissing modal
 #[component]
