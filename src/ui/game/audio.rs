@@ -6,7 +6,7 @@ use crate::{
 };
 
 #[component]
-pub fn AudioPlayer(bird: MappedSignal<Bird>) -> Element {
+pub fn AudioPlayer(bird: Memo<Bird>) -> Element {
     use wasm_bindgen::JsCast;
     use web_sys::HtmlAudioElement;
 
@@ -15,9 +15,8 @@ pub fn AudioPlayer(bird: MappedSignal<Bird>) -> Element {
 
     // Explicitly audio.load() on changes to bird, otherwise the first audio element gets persisted
     // indefinitely.
-    let bird_signal = bird.clone();
     use_effect(move || {
-        let _ = bird_signal.read();
+        let _ = bird.read();
         if let Some(audio) = audio_element.read().as_ref() {
             audio.load();
         }

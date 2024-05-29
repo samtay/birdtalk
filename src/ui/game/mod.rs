@@ -47,6 +47,12 @@ impl GameCtx {
         use_memo(move || game.read().birds())
     }
 
+    /// Create a new memo signal of the current correct bird
+    fn correct_bird_memo(&self) -> Memo<Bird> {
+        let game = self.game;
+        use_memo(move || game.read().correct_choice().bird.clone())
+    }
+
     /// Create a shuffle of 0..4 that will shuffle itself on changes to birds
     // Can maybe subscribe to a "turn" so shuffle only runs per turn
     // For now just hack this to change when the actual birds change
@@ -78,16 +84,13 @@ impl GameCtx {
             stats.add_incorrect_id(choice.bird.id());
         }
         self.correct_chosen.set(correct);
-        // TODO: remove
-        drop(stats);
-        tracing::debug!("Stats: {:?}", self.stats.read());
     }
 
     fn next_challenge(&mut self) {
         self.correct_chosen.set(false);
         self.game.write().set_next_challenge();
         tracing::debug!(
-            "set! new bird is: {:?}",
+            "Set new challenge! new bird is: {:?}",
             self.game.read().correct_choice().bird.common_name
         );
     }
@@ -96,8 +99,8 @@ impl GameCtx {
 #[component]
 pub fn GameView(game: Signal<Game>) -> Element {
     let game_ctx = GameCtx::new(game);
-    let birds = game_ctx.birds_memo();
     let shuffle = game_ctx.shuffle_memo();
+    let correct_bird = game_ctx.correct_bird_memo();
 
     rsx! {
         div {
@@ -107,11 +110,7 @@ pub fn GameView(game: Signal<Game>) -> Element {
                 div {
                     class: "",
                     AudioPlayer {
-                        bird: birds.map(|bs| {
-                            let bird = bs.first().unwrap();
-                            tracing::debug!("Bird: {:?}", bird.common_name);
-                            bird
-                        })
+                        bird: correct_bird,
                     }
                 }
                 div {
