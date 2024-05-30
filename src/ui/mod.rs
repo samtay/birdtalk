@@ -35,7 +35,7 @@ fn Wrapper() -> Element {
             class: "flex flex-col h-dvh bg-amber-100 text-green-800 sm:max-lg:landscape:justify-center",
             header {
                 id: "header",
-                class: "shrink container h-32 sm:h-48 md:h-64 w-full max-w-screen-lg mt-2 sm:mt-4 mb-[-2rem] mx-auto sm:max-lg:landscape:hidden bg-[url('heading-2.gif')] bg-cover bg-center bg-no-repeat",
+                class: "shrink container h-32 sm:h-48 md:h-64 w-full max-w-screen-md mt-2 sm:mt-4 mb-[-2rem] mx-auto sm:max-lg:landscape:hidden bg-[url('heading-2.gif')] bg-cover bg-center bg-no-repeat",
             }
             div {
                 id: "content",
