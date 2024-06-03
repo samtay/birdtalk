@@ -129,7 +129,7 @@ fn CardBack(bird: MappedSignal<BirdContext>, correct: bool, game_ctx: GameCtx) -
                         }
                     }
                     button {
-                        class: "mt-2 px-4 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 font-semibold text-sm sm:text-base bg-green-500 text-amber-50 rounded-full shadow-sm",
+                        class: "mt-2 px-4 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2 font-semibold text-sm sm:text-base bg-green-500 text-amber-50 rounded-full shadow-sm",
                         onclick: move |_| async move {
                             if correct {
                                 game_ctx.correct_chosen.set(false);
