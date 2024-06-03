@@ -4,7 +4,7 @@ use rand::{seq::SliceRandom, thread_rng};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    bird::{demo_data, Bird},
+    bird::{Bird, BirdPack},
     stats::LEARN_THRESHOLD,
 };
 
@@ -32,8 +32,8 @@ pub struct Game {
 
 impl Game {
     /// Initialize the game.
-    pub fn init_demo(shuffle: bool) -> Self {
-        let mut choices: Vec<_> = demo_data().into_iter().map(BirdContext::from).collect();
+    pub fn init(bird_pack: BirdPack, shuffle: bool) -> Self {
+        let mut choices: Vec<_> = bird_pack.birds.into_iter().map(BirdContext::from).collect();
         if shuffle {
             choices.shuffle(&mut thread_rng());
         }
@@ -42,7 +42,7 @@ impl Game {
         Self {
             choices,
             pack,
-            already_learned: false,
+            already_learned: bird_pack.already_learned,
         }
     }
 

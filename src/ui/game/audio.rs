@@ -27,7 +27,6 @@ pub fn AudioPlayer(bird: Memo<Bird>) -> Element {
             onclick: move |_| async move {
                 if let Some(audio) = audio_element.read().as_ref() {
                     tracing::debug!("audio_element.src(): {:?}", audio.current_src());
-                    // TODO: determine which of these errors should be displayed.
                     if audio.paused() {
                         if let Ok(promise) = audio.play() {
                             wasm_bindgen_futures::JsFuture::from(promise).await.ok();
@@ -44,7 +43,7 @@ pub fn AudioPlayer(bird: Memo<Bird>) -> Element {
                 stroke: "currentColor",
                 xmlns: "http://www.w3.org/2000/svg",
                 // TODO: gate landscape styling to mobile builds only.
-                class: "w-16 h-16 sm:w-24 sm:h-24 sm:max-lg:landscape:w-16 sm:max-lg:landscape:h-16",
+                class: "text-green-800 w-16 h-16 sm:w-24 sm:h-24 sm:max-lg:landscape:w-16 sm:max-lg:landscape:h-16",
                 path {
                     stroke_linejoin: "round",
                     stroke_linecap: "round",
@@ -52,13 +51,18 @@ pub fn AudioPlayer(bird: Memo<Bird>) -> Element {
                         "M14.25 9v6m-4.5 0V9M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
                     } else {
                         "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z
-                         M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z"
+                                                         M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z"
                     }
                 }
             }
         }
         audio {
-            onmounted: move |cx| audio_element.set(cx.downcast::<web_sys::Element>().cloned().map(|el| el.unchecked_into())),
+            onmounted: move |cx| {
+                audio_element
+                    .set(
+                        cx.downcast::<web_sys::Element>().cloned().map(|el| el.unchecked_into()),
+                    )
+            },
             onplay: move |_| *playing.write() = true,
             onpause: move |_| *playing.write() = false,
             // controls: "true",
@@ -67,7 +71,7 @@ pub fn AudioPlayer(bird: Memo<Bird>) -> Element {
             autoplay: AUDIO_AUTOPLAY,
             source {
                 r#type: "audio/mpeg",
-                src: bird.read().sound_file.to_string_lossy().to_string(),
+                src: bird().sound_file
             }
             "Your browser does not support the audio element."
         }

@@ -101,6 +101,7 @@ MVP should probably just be a game demo using local storage, no user identity, d
 
 - game loop
 
+  - If randomness still an issue: yet another way around this: use_server_future(|| rand::<SeedType>()) have the server generate a random seed for the initial game.
   - handle game finished (all birds learned)
   - awards? levels? badges?
 
@@ -117,6 +118,11 @@ MVP should probably just be a game demo using local storage, no user identity, d
   - and
     https://github.com/DioxusLabs/dioxus/blob/e2002d6ea42f5844a3832ab7f038620ecf977a1c/packages/desktop/src/hooks.rs#L72
     for desktop
+
+- run through a11y tool
+
+- change the flip text (identified / streak is confusing here, it seems like
+  overall streak)
 
 #### styling
 
@@ -169,7 +175,11 @@ MVP should probably just be a game demo using local storage, no user identity, d
 - make svg component for audio toggle
 
 - can replace hacky tailwind landscape with `use_window_size`
+  - Math.min(window.screen.width, window.screen.height) < 768
+- or `@media only screen and (max-height: 575.98px) and (orientation: landscape)`
 - also, just disallow landscape mode on mobile!
+
+- simplify all the responsive designs, just assume sm > mobile, md > tablet.
 
 # business
 
@@ -192,6 +202,11 @@ MVP should probably just be a game demo using local storage, no user identity, d
   - Can I use these to just host the static site? I guess if I want "fullstack" I need to run server as well...
   - Too bad bc supabase would be free, could just hit them instead of running my own server.
 - can i leverage supabase edge functions? they have to be typescript...
+
+### Realistically
+
+Just do $3/month for everything. Otherwise you just get demo (maybe you also get
+bird pack of the day).
 
 # template readme
 

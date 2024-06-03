@@ -3,17 +3,70 @@ mod card;
 mod modal;
 pub mod quiz;
 
+use std::{fmt::Display, str::FromStr};
+
 use dioxus::prelude::*;
 use dioxus_sdk::storage::{use_synced_storage, LocalStorage};
+use serde::{Deserialize, Serialize};
 
 use super::USE_LOADING_ANIMATION;
 use crate::{
-    bird::Bird,
+    bird::{Bird, BirdPack},
     stats::{Stats, LEARN_THRESHOLD},
 };
 use audio::AudioPlayer;
 use card::MultipleChoiceCard;
 use quiz::{Game, MULTIPLE_CHOICE_SIZE};
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum GameMode {
+    Listen,
+    #[default]
+    Learn,
+    Quiz,
+}
+
+impl Display for GameMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
+            GameMode::Listen => "Listen",
+            GameMode::Learn => "Learn",
+            GameMode::Quiz => "Quiz",
+        };
+        write!(f, "{}", s)
+    }
+}
+
+impl FromStr for GameMode {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "Listen" => Ok(GameMode::Listen),
+            "Learn" => Ok(GameMode::Learn),
+            "Quiz" => Ok(GameMode::Quiz),
+            s => Err(format!("Invalid game mode: {s}")),
+        }
+    }
+}
+
+impl GameMode {
+    pub fn description(&self) -> &str {
+        match self {
+            GameMode::Listen => "Just listen to birds",
+            GameMode::Learn => "Listen to birds and then recall them",
+            GameMode::Quiz => "Think you know these birds? Test yourself",
+        }
+    }
+
+    pub fn pressure(&self) -> &str {
+        match self {
+            GameMode::Listen => "no pressure",
+            GameMode::Learn => "a little pressure",
+            GameMode::Quiz => "maximum pressure",
+        }
+    }
+}
 
 #[derive(Clone, Copy, PartialEq)]
 struct GameCtx {
@@ -26,11 +79,8 @@ struct GameCtx {
 }
 
 impl GameCtx {
-    // TODO right now game signal created with loading nonsense from above.
-    // After we split it up, just create it here (with use_hook)
-    // ALL of this should be under one use_hook (after we figure out storage panic)
-    // probably _outside_ of this so that we could also choose to do context
-    fn new(game: Signal<Game>) -> Self {
+    fn new(birdpack: BirdPack) -> Self {
+        let game = use_signal(|| Game::init(birdpack, true));
         let stats =
             use_synced_storage::<LocalStorage, _>("{user.email}".to_string(), Stats::default);
         let correct_chosen = use_signal(|| false);
@@ -86,6 +136,7 @@ impl GameCtx {
         self.correct_chosen.set(correct);
     }
 
+    // TODO: Handle learning the pack! Then visualize progress to learning the pack
     fn next_challenge(&mut self) {
         self.correct_chosen.set(false);
         self.game.write().set_next_challenge();
@@ -97,8 +148,25 @@ impl GameCtx {
 }
 
 #[component]
-pub fn GameView(game: Signal<Game>) -> Element {
-    let game_ctx = GameCtx::new(game);
+pub fn GameView(pack: BirdPack, mode: GameMode) -> Element {
+    // if USE_LOADING_ANIMATION {
+    //     let game = use_signal(|| Game::init_demo(true));
+    //     if cfg!(feature = "web") && generation() == 0 {
+    //         needs_update();
+    //     }
+    //     if cfg!(feature = "server") || generation() == 0 {
+    //         rsx! {Loading {}}
+    //     } else {
+    //         rsx! {GameView { game }}
+    //     }
+    // } else {
+    //     let game = use_signal(|| Game::init_demo(false));
+    //     rsx! {GameView { game }}
+    // }
+    if mode != GameMode::Quiz {
+        return rsx! { "Not implemented!" };
+    }
+    let game_ctx = GameCtx::new(pack);
     let shuffle = game_ctx.shuffle_memo();
     let correct_bird = game_ctx.correct_bird_memo();
 
@@ -110,16 +178,16 @@ pub fn GameView(game: Signal<Game>) -> Element {
                 div {
                     class: "",
                     AudioPlayer {
-                        bird: correct_bird,
+                        bird: correct_bird
                     }
                 }
                 div {
                     class: "grid grid-cols-2 gap-4 sm:gap-6 sm:max-lg:landscape:gap-2",
                     for ix in shuffle() {
                         MultipleChoiceCard {
-                            bird: game.map(move |g| &g.choices()[ix]),
+                            bird: game_ctx.game.map(move |g| &g.choices()[ix]),
                             correct: ix == 0,
-                            game_ctx,
+                            game_ctx
                         }
                     }
                 }

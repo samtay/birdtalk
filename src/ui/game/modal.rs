@@ -19,7 +19,11 @@ fn BirdDetailsModal(
             },
             div {
                 class: "h-full max-w-screen-md mx-4 md:mx-auto flex flex-col justify-center items-center",
-                BirdDetails { bird_context, game, visible }
+                BirdDetails {
+                    bird_context,
+                    game,
+                    visible
+                }
             }
         }
     }
@@ -40,8 +44,8 @@ fn BirdDetails(
             // eventually class: w-full h-96 rounded-xl opacity-100
             img {
                 class: "block mx-auto w-24 h-24 rounded-full object-cover sm:mx-0 sm:shrink-0",
-                src: bird_context().bird.img_file.to_string_lossy().to_string(),
-                alt: bird_context().bird.common_name,
+                src: bird_context().bird.img_file,
+                alt: bird_context().bird.common_name
             }
             div {
                 class: "text-center space-y-2 sm:text-left",

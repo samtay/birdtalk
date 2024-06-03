@@ -20,9 +20,7 @@ pub fn MultipleChoiceCard(
             class: "[perspective:1000px]",
             div {
                 class: "grid transition-transform duration-500 [transform-style:preserve-3d] h-full",
-                class: if correct && correct_chosen() {
-                    "[transform:rotateY(180deg)]"
-                },
+                class: if correct && correct_chosen() { "[transform:rotateY(180deg)]" },
                 div {
                     class: "row-start-1 row-end-2 col-start-1 col-end-2 [backface-visibility:hidden] [transform:rotateY(0deg)]",
                     CardFront {
@@ -56,25 +54,20 @@ fn CardFront(bird: Memo<Bird>, correct: bool, game_ctx: GameCtx) -> Element {
     rsx! {
         button {
             onclick: move |_| {
-                // Handle mistaken state
                 if !correct {
                     tracing::debug!("Setting mistakenly_chosen to true");
                     mistakenly_chosen.set(true);
                 }
                 game_ctx.record_choice(correct);
             },
-            class: "group w-full h-full mx-auto border-2 border-amber-200 rounded-xl shadow enabled:hover:shadow-lg enabled:hover:bg-amber-200 space-y-2 bg-amber-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 px-2 py-2 sm:py-4 sm:px-4 md:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 disabled:shadow-none",
-            class: if mistakenly_chosen() {
-                "animate-shake"
-            },
-            class: if mistakenly_chosen() || correct_chosen() {
-                "disabled border opacity-50 transition-opacity duration-1000"
-            },
+            class: "group w-full h-full mx-auto border-2 border-amber-200 rounded-xl shadow enabled:hover:shadow-lg enabled:hover:bg-amber-200 enabled:hover:-translate-y-2 transition-transform space-y-2 bg-amber-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 px-2 py-2 sm:py-4 sm:px-4 md:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 disabled:shadow-none",
+            class: if mistakenly_chosen() { "animate-shake" },
+            class: if mistakenly_chosen() || correct_chosen() { "disabled border opacity-50 transition-opacity duration-1000" },
             disabled: mistakenly_chosen() || correct_chosen(),
             img {
                 class: "block mx-auto w-24 h-24 rounded-full object-cover sm:mx-0 sm:shrink-0",
-                src: bird().img_file.to_string_lossy().to_string(),
-                alt: bird().common_name,
+                src: bird().img_file,
+                alt: bird().common_name
             }
             div {
                 class: "text-center space-y-2 sm:text-left",
@@ -115,8 +108,8 @@ fn CardBack(bird: MappedSignal<BirdContext>, correct: bool, game_ctx: GameCtx) -
             class: "w-full h-full mx-auto border-green-200 rounded-xl shadow space-y-2 bg-green-100/50 px-2 py-2 sm:py-4 sm:px-4 md:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 border-2",
             img {
                 class: "animate-[spin_1s_linear] block mx-auto w-24 h-24 rounded-full object-cover sm:mx-0 sm:shrink-0",
-                src: bird().bird.img_file.to_string_lossy().to_string(),
-                alt: bird().bird.common_name,
+                src: bird().bird.img_file,
+                alt: bird().bird.common_name
             }
             div {
                 class: "text-center sm:text-left w-full",
@@ -139,15 +132,9 @@ fn CardBack(bird: MappedSignal<BirdContext>, correct: bool, game_ctx: GameCtx) -
                         class: "mt-2 px-4 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 font-semibold text-sm sm:text-base bg-green-500 text-amber-50 rounded-full shadow-sm",
                         onclick: move |_| async move {
                             if correct {
-                                // Start the animation to flip the card back (500ms)
                                 game_ctx.correct_chosen.set(false);
-
-                                // Issue a short delay before changing the card content
-                                // Otherwise there's a brief moment where you see the stats of the
-                                // next bird, which feels a bit janky.
                                 #[cfg(feature = "web")]
                                 async_std::task::sleep(std::time::Duration::from_millis(300)).await;
-
                                 game_ctx.next_challenge();
                             } else {
                                 tracing::error!("This shouldn't happen. How did you get here?");
