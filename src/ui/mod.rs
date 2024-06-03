@@ -92,7 +92,7 @@ enum Route {
 fn HeaderFooter() -> Element {
     rsx! {
         div {
-            class: "flex flex-col h-dvh bg-amber-100 text-amber-950 sm:max-lg:landscape:justify-center",
+            class: "flex flex-col sm:h-dvh pb-2 sm:max-lg:landscape:justify-center",
             header {
                 id: "header",
                 class: "text-green-800 shrink container h-32 sm:h-48 md:h-64 w-full max-w-screen-md mt-2 sm:mt-4 mb-[-2rem] mx-auto sm:max-lg:landscape:hidden bg-[url('heading-2.gif')] bg-cover bg-center bg-no-repeat"
@@ -105,7 +105,7 @@ fn HeaderFooter() -> Element {
             }
             footer {
                 id: "footer",
-                class: "shrink sticky top-[100vh] flex justify-items-center justify-center sm:max-lg:landscape:hidden",
+                class: "shrink sticky top-[100vh] hidden sm:flex justify-items-center justify-center sm:max-lg:landscape:hidden",
                 div {
                     class: "text-green-800/75",
                     "© 2024 birdtalk"
@@ -142,7 +142,7 @@ fn GameSelector() -> Element {
     // TODO: stylish checkmarks on selected cards?
     rsx! {
         div {
-            class: "container max-w-screen-lg m-auto px-2 landscape:max-lg:px-1 sm:px-4 flex flex-col items-stretch gap-6",
+            class: "container max-w-screen-lg m-auto mt-2 px-2 landscape:max-lg:px-1 sm:px-4 flex flex-col items-stretch gap-6",
             PackSelector {birdpack}
             ModeSelector {mode}
             button {
