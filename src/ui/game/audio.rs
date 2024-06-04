@@ -57,10 +57,10 @@ pub fn AudioPlayer(bird: Memo<Bird>) -> Element {
             }
         }
         audio {
-            onmounted: move |cx| {
+            onmounted: move |mnt| {
                 audio_element
                     .set(
-                        cx.downcast::<web_sys::Element>().cloned().map(|el| el.unchecked_into()),
+                        mnt.downcast::<web_sys::Element>().cloned().map(|el| el.unchecked_into()),
                     )
             },
             onplay: move |_| *playing.write() = true,

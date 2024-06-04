@@ -3,7 +3,7 @@ mod game;
 
 use dioxus::prelude::*;
 
-use dioxus_sdk::storage::{use_synced_storage, use_synced_storage_entry};
+use dioxus_sdk::storage::{use_singleton_persistent, use_synced_storage, use_synced_storage_entry};
 use game::{GameMode, GameView};
 
 use crate::bird::BirdPack;
@@ -142,7 +142,8 @@ fn Index() -> Element {
 #[component]
 fn GameSelector() -> Element {
     let birdpack = use_signal(|| None);
-    let mode = use_signal(|| GameMode::default());
+    // Use Option as a hack to ensure change event occurs after page load
+    let mode = use_singleton_persistent(|| Some(GameMode::default()));
     rsx! {
         div {
             class: "container max-w-screen-lg m-auto mt-2 px-2 landscape:max-lg:px-1 sm:px-4 flex flex-col items-stretch gap-6",
@@ -151,10 +152,10 @@ fn GameSelector() -> Element {
             button {
                 class: "mt-2 px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-800 text-amber-50 rounded-full shadow-lg",
                 onclick: move |_| {
-                    *GAME_STATUS.write() = GameStatus::Playing(birdpack().unwrap(), mode());
+                    *GAME_STATUS.write() = GameStatus::Playing(birdpack().unwrap(), mode().unwrap());
                     tracing::debug!("GameStatus: {:?}", *GAME_STATUS.read())
                 },
-                disabled: birdpack().is_none(),
+                disabled: birdpack().zip(mode()).is_none(),
                 "Let's Go!"
             }
         }
@@ -204,6 +205,7 @@ fn PackSelector(birdpack: Signal<Option<BirdPack>>) -> Element {
                                     id: pack.id.as_str(),
                                     value: pack.id.as_str(),
                                     r#type: "radio",
+                                    // checked: pack.id.as_str() == "demo",
                                     checked: birdpack.as_ref().filter(|bp| bp.id == pack.id).is_some(),
                                     onmounted: {
                                         let pack = pack.clone();
@@ -283,8 +285,8 @@ fn PackSelector(birdpack: Signal<Option<BirdPack>>) -> Element {
 }
 
 #[component]
-fn ModeSelector(mode: Signal<GameMode>) -> Element {
-    // TODO: icons?
+fn ModeSelector(mode: Signal<Option<GameMode>>) -> Element {
+    // I think checked only works with initial page load?
     rsx! {
         fieldset {
             legend {
@@ -304,23 +306,23 @@ fn ModeSelector(mode: Signal<GameMode>) -> Element {
                                 id: "{opt}",
                                 value: "{opt}",
                                 r#type: "radio",
-                                checked: opt == *mode.read(),
-                                onmounted: move |_| {
-                                    // TODO: refreshed page keeps last selection without dioxus state being aware of it :/
-                                    // Need to cast mounted data to appropriate html element and manually check it.
-                                    if opt == GameMode::default() {
-                                        tracing::debug!("onmounted: setting mode to {opt:?}");
-                                        *mode.write() = opt;
+                                checked: mode.read().filter(|m| *m == opt).is_some(),
+                                // checked: opt == GameMode::default(),
+                                onmounted: move |mnt| async move {
+                                    if mode.read().filter(|m| *m == opt).is_some() {
+                                        tracing::debug!("onmounted: downcasting...");
+                                        if let Some(e) = mnt.downcast::<web_sys::Element>() {
+                                            tracing::debug!("onmounted: clicking on {opt:?}");
+                                            e.set_attribute("checked", "true").ok();
+                                            tracing::debug!("onmounted: setting mode to {opt:?}");
+                                            *mode.write() = Some(opt);
+                                        }
                                     }
                                 },
                                 onchange: move |_| {
-                                    tracing::debug!("onchange: setting mode to {opt:?}");
-                                    *mode.write() = opt;
+                                    tracing::debug!("onchange: setting mode to from {:?} to {opt:?}", mode());
+                                    *mode.write() = Some(opt);
                                 },
-                                oninput: move |_| {
-                                    tracing::debug!("oninput: setting mode to {opt:?}");
-                                    *mode.write() = opt;
-                                }
                             }
                             svg {
                                 class: "w-6 h-6 text-green-400 inline-block absolute right-2 top-2 invisible sm:peer-checked:visible",
