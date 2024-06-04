@@ -205,15 +205,15 @@ pub fn GameView(pack: BirdPack, mode: GameMode) -> Element {
 #[component]
 fn ProgressBar(game_ctx: GameCtx) -> Element {
     let progress = game_ctx.percent_complete();
+    tracing::debug!("Progress: {}", progress);
     rsx! {
         div {
-            class: "h-1.5 w-3/4 m-4 bg-stone-300/75 rounded-full",
+            class: "h-2 w-3/4 m-4 bg-stone-300/75 rounded-full",
             div {
-                class: "bg-gradient-to-r from-green-200 to-green-700 min-w-7 h-1.5 rounded-full relative transition-[width,transform]",
-                style: "width: {progress}%",
-                img {
-                    class: "absolute right-0 h-7 w-7 rounded-full object-cover top-[-0.65rem] bg-green-700",
-                    src: "/static_logo_transparent.png"
+                class: "bg-gradient-to-r from-green-200 to-green-700 min-w-7 h-full rounded-full relative transition-[width,transform]",
+                style: "width: min(calc(100% + 0.5rem), calc({progress}% + 1rem))", // 2 rem == w-8
+                span {
+                    class: "absolute right-0 h-8 w-8 rounded-full object-cover top-[-0.75rem] bg-green-700 bg-[url('/static_logo_transparent.png')] bg-cover",
                 }
             }
         }
