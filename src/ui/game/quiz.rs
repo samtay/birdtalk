@@ -105,7 +105,7 @@ impl Game {
         self.pack.sort_by_key(|ctx| {
             // The weights might need some randomization too.
             let mut weight: i32 = 0;
-            if ctx.consecutively_identified >= LEARN_THRESHOLD {
+            if ctx.learned() {
                 weight += 10;
             }
             // TODO: this assumes context is for a given game round. is that what we're doing here?
@@ -113,6 +113,18 @@ impl Game {
             weight -= ctx.last_seen.map(|ls| ls.max(5) as i32).unwrap_or(5);
             weight
         });
+    }
+
+    pub fn percent_complete(&self) -> usize {
+        // TODO: this also assumes an even partition into choices/pack.
+        let total = self.choices.len() + self.pack.len();
+        let learned = self
+            .choices
+            .iter()
+            .chain(self.pack.iter())
+            .filter(|bc| bc.learned())
+            .count();
+        learned * 100 / total
     }
 }
 
@@ -146,5 +158,12 @@ impl From<Bird> for BirdContext {
             mistaken: 0,
             last_seen: None,
         }
+    }
+}
+
+impl BirdContext {
+    /// Get the bird's learned status within the given game context.
+    pub fn learned(&self) -> bool {
+        self.consecutively_identified >= LEARN_THRESHOLD
     }
 }

@@ -42,6 +42,10 @@ impl BirdPack {
             already_learned: false,
         }
     }
+
+    pub fn id(&self) -> &str {
+        &self.id
+    }
 }
 
 pub fn demo_data() -> Vec<Bird> {

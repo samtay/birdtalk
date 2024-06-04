@@ -129,13 +129,7 @@ MVP should probably just be a game demo using local storage, no user identity, d
 - Style stats https://www.codewithfaraz.com/article/176/15-tailwind-css-stats-section-examples
 - maybe add gradients https://tailwindcss.com/docs/gradient-color-stops nice
   look
-- can put body styling in input.css if I have to:
-  ```css
-  html,
-  body {
-    @apply h-full overflow-hidden;
-  }
-  ```
+
 - success animation:
 
   - Change card flip to be a modal. Animate cards in/out from corners of
@@ -171,6 +165,9 @@ MVP should probably just be a game demo using local storage, no user identity, d
   - then export the birdtalk icon as SVG
     - or, export both the talk bubble and bird separately
   - then animate the bird portion of the svg with css! (could be .gif still but smaller footprint)
+
+- header: the current large version should only exist on a landing page (that we don't have)
+- use that space for something else - XP, etc.
 
 - make svg component for audio toggle
 

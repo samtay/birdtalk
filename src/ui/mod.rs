@@ -17,6 +17,7 @@ const PACKS_CACHE_KEY: &str = "packs-cache";
 
 static GAME_STATUS: GlobalSignal<GameStatus> = Signal::global(|| GameStatus::None);
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum GameStatus {
     None,
     Playing(BirdPack, GameMode),
@@ -95,7 +96,10 @@ fn HeaderFooter() -> Element {
             class: "flex flex-col sm:h-dvh pb-2 sm:max-lg:landscape:justify-center",
             header {
                 id: "header",
-                class: "text-green-800 shrink container h-32 sm:h-48 md:h-64 w-full max-w-screen-md mt-2 sm:mt-4 mb-[-2rem] mx-auto sm:max-lg:landscape:hidden bg-[url('heading-2.gif')] bg-cover bg-center bg-no-repeat"
+                class: "text-green-800 shrink container h-32 sm:h-48 md:h-64 w-full max-w-screen-md mt-2 sm:mt-4 mb-[-2rem] mx-auto sm:max-lg:landscape:hidden bg-[url('heading-2.gif')] bg-cover bg-center bg-no-repeat",
+                class: if GAME_STATUS.read().playing() {
+                    "hidden"
+                },
             }
             div {
                 id: "content",
@@ -103,14 +107,15 @@ fn HeaderFooter() -> Element {
                 Outlet::<Route> {
                 }
             }
-            footer {
-                id: "footer",
-                class: "shrink sticky top-[100vh] hidden sm:flex justify-items-center justify-center sm:max-lg:landscape:hidden",
-                div {
-                    class: "text-green-800/75",
-                    "© 2024 birdtalk"
-                }
-            }
+            // Use this on landing page
+            // footer {
+            //     id: "footer",
+            //     class: "shrink sticky top-[100vh] hidden sm:flex justify-items-center justify-center sm:max-lg:landscape:hidden",
+            //     div {
+            //         class: "text-green-800/75",
+            //         "© 2024 birdtalk"
+            //     }
+            // }
         }
     }
 }
@@ -120,8 +125,7 @@ fn Index() -> Element {
     match &*GAME_STATUS.read() {
         GameStatus::None => {
             rsx! {
-                GameSelector {
-                }
+                GameSelector { }
             }
         }
         GameStatus::Playing(pack, mode) | GameStatus::PlayingWithProgress(pack, mode) => {
@@ -139,7 +143,6 @@ fn Index() -> Element {
 fn GameSelector() -> Element {
     let birdpack = use_signal(|| None);
     let mode = use_signal(|| GameMode::default());
-    // TODO: stylish checkmarks on selected cards?
     rsx! {
         div {
             class: "container max-w-screen-lg m-auto mt-2 px-2 landscape:max-lg:px-1 sm:px-4 flex flex-col items-stretch gap-6",
@@ -149,6 +152,7 @@ fn GameSelector() -> Element {
                 class: "mt-2 px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-800 text-amber-50 rounded-full shadow-lg",
                 onclick: move |_| {
                     *GAME_STATUS.write() = GameStatus::Playing(birdpack().unwrap(), mode());
+                    tracing::debug!("GameStatus: {:?}", *GAME_STATUS.read())
                 },
                 disabled: birdpack().is_none(),
                 "Let's Go!"
@@ -193,24 +197,28 @@ fn PackSelector(birdpack: Signal<Option<BirdPack>>) -> Element {
                         li {
                             label {
                                 r#for: pack.id.as_str(),
-                                class: "sm:flex-col gap-4 justify-between inline-flex h-full w-full bg-amber-50 border-2 border-amber-200 rounded-xl shadow p-3 sm:p-4 hover:bg-amber-200 hover:shadow-xl focus-within:ring-2 focus-within:ring-green-400 has-[:checked]:border-green-400 has-[:checked]:bg-green-100/50 has-[:checked]:text-green-800 cursor-pointer relative",
+                                class: "sm:flex-col gap-4 justify-between inline-flex h-full w-full bg-amber-50 border-2 border-amber-200 rounded-xl shadow p-3 sm:p-4 hover:bg-amber-200 hover:shadow-xl focus-within:ring-2 focus-within:ring-green-400 has-[:checked]:border-green-400 has-[:checked]:bg-green-100/50 has-[:checked]:text-green-800 cursor-pointer select-none relative",
                                 input {
                                     class: "absolute opacity-0 peer",
                                     name: "pack",
                                     id: pack.id.as_str(),
                                     value: pack.id.as_str(),
                                     r#type: "radio",
-                                    checked: pack.id.as_str() == "demo",
+                                    checked: birdpack.as_ref().filter(|bp| bp.id == pack.id).is_some(),
                                     onmounted: {
                                         let pack = pack.clone();
                                         move |_| {
-                                            *birdpack.write() = Some(pack.clone())
+                                            if &pack.id == "demo" {
+                                                tracing::debug!("onmount: setting pack to {:?}", pack.id());
+                                                *birdpack.write() = Some(pack.clone())
+                                            }
                                         }
                                     },
                                     onchange: {
                                         let pack = pack.clone();
                                         move |_| {
-                                        *birdpack.write() = Some(pack.clone());
+                                            tracing::debug!("onchange: setting pack to {:?}", pack.id());
+                                            *birdpack.write() = Some(pack.clone());
                                     }}
                                 }
                                 svg {
@@ -289,22 +297,28 @@ fn ModeSelector(mode: Signal<GameMode>) -> Element {
                     li {
                         label {
                             r#for: "{opt}",
-                            class: "flex-col inline-flex h-full w-full bg-amber-50 border-2 border-amber-200 rounded-xl shadow p-3 sm:p-4 hover:bg-amber-200 hover:shadow-xl focus-within:ring-2 focus-within:ring-green-400 has-[:checked]:border-green-400 has-[:checked]:bg-green-100/50 has-[:checked]:text-green-800 cursor-pointer relative",
+                            class: "flex-col inline-flex h-full w-full bg-amber-50 border-2 border-amber-200 rounded-xl shadow p-3 sm:p-4 hover:bg-amber-200 hover:shadow-xl focus-within:ring-2 focus-within:ring-green-400 has-[:checked]:border-green-400 has-[:checked]:bg-green-100/50 has-[:checked]:text-green-800 cursor-pointer select-none relative",
                             input {
                                 class: "absolute opacity-0 peer",
                                 name: "mode",
                                 id: "{opt}",
                                 value: "{opt}",
                                 r#type: "radio",
-                                checked: opt == GameMode::default(),
+                                checked: opt == *mode.read(),
                                 onmounted: move |_| {
-                                    // TODO: refreshed page keeps last selection without dioxus state being aware of it.
+                                    // TODO: refreshed page keeps last selection without dioxus state being aware of it :/
                                     // Need to cast mounted data to appropriate html element and manually check it.
                                     if opt == GameMode::default() {
+                                        tracing::debug!("onmounted: setting mode to {opt:?}");
                                         *mode.write() = opt;
                                     }
                                 },
                                 onchange: move |_| {
+                                    tracing::debug!("onchange: setting mode to {opt:?}");
+                                    *mode.write() = opt;
+                                },
+                                oninput: move |_| {
+                                    tracing::debug!("oninput: setting mode to {opt:?}");
                                     *mode.write() = opt;
                                 }
                             }

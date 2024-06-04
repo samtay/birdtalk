@@ -120,6 +120,11 @@ impl GameCtx {
         })
     }
 
+    fn percent_complete(&self) -> Memo<usize> {
+        let game = self.game;
+        use_memo(move || game.read().percent_complete())
+    }
+
     fn record_choice(&mut self, correct: bool) {
         self.game.write().record_choice(correct);
         let game = self.game.read();
@@ -175,6 +180,7 @@ pub fn GameView(pack: BirdPack, mode: GameMode) -> Element {
             class: "container m-auto px-2 landscape:max-lg:px-1 sm:px-4",
             div {
                 class: "flex flex-col sm:max-lg:landscape:flex-row justify-center items-center place-content-center gap-2 sm:gap-4",
+                ProgressBar {game_ctx}
                 div {
                     class: "",
                     AudioPlayer {
@@ -190,6 +196,24 @@ pub fn GameView(pack: BirdPack, mode: GameMode) -> Element {
                             game_ctx
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn ProgressBar(game_ctx: GameCtx) -> Element {
+    let progress = game_ctx.percent_complete();
+    rsx! {
+        div {
+            class: "h-1.5 w-3/4 m-4 bg-stone-300/75 rounded-full",
+            div {
+                class: "bg-gradient-to-r from-green-200 to-green-700 min-w-7 h-1.5 rounded-full relative transition-[width,transform]",
+                style: "width: {progress}%",
+                img {
+                    class: "absolute right-0 h-7 w-7 rounded-full object-cover top-[-0.65rem] bg-green-700",
+                    src: "/static_logo_transparent.png"
                 }
             }
         }
