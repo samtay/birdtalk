@@ -78,10 +78,12 @@ MVP should probably just be a game demo using local storage, no user identity, d
 
 - [ ] FINISH up persistent storage for "level" and display level/xp nicely
 
-  - Use the tailwind gradient to display a nice progress bar like Duolingo
-    - Duolingo also has temporary text "2 in a row!"
-    - Exiting presents the user with a confirm modal: "Quit and you'll lose all XP gained in this lesson!"
-    - Maybe bird icon marking the progress?
+- game flow:
+
+  - Duolingo also has temporary text "2 in a row!"
+  - Exiting presents the user with a confirm modal: "Quit and you'll lose all XP gained in this lesson!"
+  - handle game finished (all birds learned); need to draw this out
+  - awards? levels? badges?
 
 - storage
 
@@ -98,12 +100,6 @@ MVP should probably just be a game demo using local storage, no user identity, d
     - progress will be persisted with local storage, with syncs attempted periodically
       - merge should be mostly simple and additive (learned birds for example)
       - however identified count will have to take into account delta since updated datetime, etc.
-
-- game loop
-
-  - If randomness still an issue: yet another way around this: use_server_future(|| rand::<SeedType>()) have the server generate a random seed for the initial game.
-  - handle game finished (all birds learned)
-  - awards? levels? badges?
 
 - settings
 
@@ -175,7 +171,6 @@ MVP should probably just be a game demo using local storage, no user identity, d
   - Math.min(window.screen.width, window.screen.height) < 768
 - or `@media only screen and (max-height: 575.98px) and (orientation: landscape)`
 - also, just disallow landscape mode on mobile!
-
 - simplify all the responsive designs, just assume sm > mobile, md > tablet.
 
 # business

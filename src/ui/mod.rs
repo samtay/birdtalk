@@ -1,12 +1,13 @@
+mod components;
 mod db;
 mod game;
 
 use dioxus::prelude::*;
-
-use dioxus_sdk::storage::{use_singleton_persistent, use_synced_storage, use_synced_storage_entry};
-use game::{GameMode, GameView};
+use dioxus_sdk::storage::use_singleton_persistent;
 
 use crate::bird::BirdPack;
+use components::Modal;
+use game::{GameMode, GameView};
 
 const USE_LOADING_ANIMATION: bool = false;
 
@@ -144,6 +145,7 @@ fn GameSelector() -> Element {
     let birdpack = use_signal(|| None);
     // Use Option as a hack to ensure change event occurs after page load
     let mode = use_singleton_persistent(|| Some(GameMode::default()));
+
     rsx! {
         div {
             class: "container max-w-screen-lg m-auto mt-2 px-2 landscape:max-lg:px-1 sm:px-4 flex flex-col items-stretch gap-6",
@@ -207,6 +209,7 @@ fn PackSelector(birdpack: Signal<Option<BirdPack>>) -> Element {
                                     r#type: "radio",
                                     // checked: pack.id.as_str() == "demo",
                                     checked: birdpack.as_ref().filter(|bp| bp.id == pack.id).is_some(),
+                                    disabled: pack.id != "demo",
                                     onmounted: {
                                         let pack = pack.clone();
                                         move |_| {
@@ -307,6 +310,7 @@ fn ModeSelector(mode: Signal<Option<GameMode>>) -> Element {
                                 value: "{opt}",
                                 r#type: "radio",
                                 checked: mode.read().filter(|m| *m == opt).is_some(),
+                                disabled: opt != GameMode::Quiz,
                                 // checked: opt == GameMode::default(),
                                 onmounted: move |mnt| async move {
                                     if mode.read().filter(|m| *m == opt).is_some() {

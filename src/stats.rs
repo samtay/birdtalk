@@ -20,6 +20,9 @@ pub struct Stats {
     /// Per bird stats
     bird_stats: HashMap<String, BirdStats>,
 
+    /// Per pack stats
+    pack_stats: HashMap<String, BirdPackStats>,
+
     /// Current consecutive correct ID streak.
     current_streak: u32,
 
@@ -33,6 +36,12 @@ pub struct BirdStats {
     identified: u32,
     mistaken: u32,
     learned: bool,
+}
+
+/// Stats per bird pack for a user.
+#[derive(Debug, Default, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct BirdPackStats {
+    times_completed: usize,
 }
 
 impl Stats {
@@ -62,5 +71,10 @@ impl Stats {
         self.current_streak = 0;
         let bird_stat = self.bird_stats.entry(bird_id.to_string()).or_default();
         bird_stat.mistaken += 1;
+    }
+
+    pub fn add_pack_completed(&mut self, pack_id: &str) {
+        let pack_stat = self.pack_stats.entry(pack_id.to_string()).or_default();
+        pack_stat.times_completed += 1;
     }
 }

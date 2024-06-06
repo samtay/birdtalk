@@ -135,7 +135,7 @@ fn CardBack(bird: MappedSignal<BirdContext>, correct: bool, game_ctx: GameCtx) -
                                 game_ctx.correct_chosen.set(false);
                                 #[cfg(feature = "web")]
                                 async_std::task::sleep(std::time::Duration::from_millis(300)).await;
-                                game_ctx.next_challenge();
+                                game_ctx.next();
                             } else {
                                 tracing::error!("This shouldn't happen. How did you get here?");
                             }

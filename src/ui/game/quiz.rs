@@ -126,6 +126,13 @@ impl Game {
             .count();
         learned * 100 / total
     }
+
+    pub fn is_complete(&self) -> bool {
+        self.choices
+            .iter()
+            .chain(self.pack.iter())
+            .all(|bc| bc.learned())
+    }
 }
 
 /// A bird with surrounding game context.

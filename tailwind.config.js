@@ -6,6 +6,8 @@ module.exports = {
     extend: {
       animation: {
         shake: 'shake 0.82s cubic-bezier(.36,.07,.19,.97) both',
+        'slide-up': 'slide-up 0.5s cubic-bezier(.36,.07,.19,.97) both',
+        'slide-down': 'slide-up 0.5s cubic-bezier(.36,.07,.19,.97) reverse both',
         'fly-in': 'fly-in 1s cubic-bezier(0.165, 0.840, 0.440, 1.000) forwards',
         'fade-in': 'fly-in 0.5s cubic-bezier(0.165, 0.840, 0.440, 1.000) forwards',
       },
@@ -25,6 +27,22 @@ module.exports = {
 
           '40%, 60%': {
             transform: 'translate3d(4px, 0, 0)'
+          }
+        },
+        'slide-up': {
+          from: {
+            transform: 'translateY(100%)',
+          },
+          to: {
+            transform: 'translateY(0px)',
+          }
+        },
+        'slide-down': {
+          from: {
+            transform: 'translateY(0px)',
+          },
+          to: {
+            transform: 'translateY(100%)',
           }
         },
         'fly-in': {
