@@ -244,7 +244,10 @@ pub fn GameView(pack: BirdPack, mode: GameMode) -> Element {
                         }
                     }
                     button {
-                        class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-800 text-amber-50 rounded-full shadow-lg",
+                        class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-800 text-amber-50 rounded-full shadow",
+                        // TODO: this handler doesn't have access to internal modal visibility
+                        // signal, that's why slide down doesn't work.
+                        // ... among other reasons.
                         onclick: move |_| {
                             game_over_dismissed_cb.call()
                         },

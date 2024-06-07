@@ -60,7 +60,7 @@ fn CardFront(bird: Memo<Bird>, correct: bool, game_ctx: GameCtx) -> Element {
                 }
                 game_ctx.record_choice(correct);
             },
-            class: "group w-full h-full mx-auto border-2 border-amber-200 rounded-xl shadow enabled:hover:shadow-lg enabled:hover:bg-amber-200 enabled:hover:-translate-y-2 transition-transform space-y-2 bg-amber-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 px-2 py-2 sm:py-4 sm:px-4 md:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 disabled:shadow-none",
+            class: "group w-full h-full mx-auto border-2 border-amber-200 rounded-xl shadow enabled:hover:shadow-lg enabled:hover:bg-amber-200 enabled:hover:-translate-y-2 transition-transform space-y-2 bg-amber-50 focus:outline-none focus-visible:ring focus-visible:ring-amber-600 px-2 py-2 sm:py-4 sm:px-4 md:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 disabled:shadow-none",
             class: if mistakenly_chosen() { "animate-shake" },
             class: if mistakenly_chosen() || correct_chosen() { "disabled border opacity-50 transition-opacity duration-1000" },
             disabled: mistakenly_chosen() || correct_chosen(),
@@ -129,7 +129,7 @@ fn CardBack(bird: MappedSignal<BirdContext>, correct: bool, game_ctx: GameCtx) -
                         }
                     }
                     button {
-                        class: "mt-2 px-4 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2 font-semibold text-sm sm:text-base bg-green-500 text-amber-50 rounded-full shadow-sm",
+                        class: "mt-2 px-4 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 font-semibold text-sm sm:text-base bg-green-800 text-amber-50 rounded-full shadow",
                         onclick: move |_| async move {
                             if correct {
                                 game_ctx.correct_chosen.set(false);

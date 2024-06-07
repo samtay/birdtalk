@@ -152,7 +152,7 @@ fn GameSelector() -> Element {
             PackSelector {birdpack}
             ModeSelector {mode}
             button {
-                class: "mt-2 px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-800 text-amber-50 rounded-full shadow-lg",
+                class: "mt-2 px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-800 text-amber-50 rounded-full shadow",
                 onclick: move |_| {
                     *GAME_STATUS.write() = GameStatus::Playing(birdpack().unwrap(), mode().unwrap());
                     tracing::debug!("GameStatus: {:?}", *GAME_STATUS.read())
@@ -200,7 +200,7 @@ fn PackSelector(birdpack: Signal<Option<BirdPack>>) -> Element {
                         li {
                             label {
                                 r#for: pack.id.as_str(),
-                                class: "sm:flex-col gap-4 justify-between inline-flex h-full w-full bg-amber-50 border-2 border-amber-200 rounded-xl shadow p-3 sm:p-4 hover:bg-amber-200 hover:shadow-xl focus-within:ring-2 focus-within:ring-green-400 has-[:checked]:border-green-400 has-[:checked]:bg-green-100/50 has-[:checked]:text-green-800 cursor-pointer select-none relative",
+                                class: "sm:flex-col gap-4 justify-between inline-flex h-full w-full bg-amber-50 border-2 border-amber-200 rounded-xl shadow p-3 sm:p-4 hover:bg-amber-200 hover:enabled:shadow-xl focus-within:ring-2 focus-within:ring-green-400 has-[:checked]:border-green-400 has-[:checked]:bg-green-100/50 has-[:checked]:text-green-800 cursor-pointer select-none relative",
                                 input {
                                     class: "absolute opacity-0 peer",
                                     name: "pack",
@@ -302,7 +302,7 @@ fn ModeSelector(mode: Signal<Option<GameMode>>) -> Element {
                     li {
                         label {
                             r#for: "{opt}",
-                            class: "flex-col inline-flex h-full w-full bg-amber-50 border-2 border-amber-200 rounded-xl shadow p-3 sm:p-4 hover:bg-amber-200 hover:shadow-xl focus-within:ring-2 focus-within:ring-green-400 has-[:checked]:border-green-400 has-[:checked]:bg-green-100/50 has-[:checked]:text-green-800 cursor-pointer select-none relative",
+                            class: "flex-col inline-flex h-full w-full bg-amber-50 border-2 border-amber-200 rounded-xl shadow p-3 sm:p-4 hover:bg-amber-200 enabled:hover:shadow-xl focus-within:ring-2 focus-within:ring-green-400 has-[:checked]:border-green-400 has-[:checked]:bg-green-100/50 has-[:checked]:text-green-800 cursor-pointer select-none relative",
                             input {
                                 class: "absolute opacity-0 peer",
                                 name: "mode",
