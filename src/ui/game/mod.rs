@@ -224,9 +224,9 @@ pub fn GameView(pack: BirdPack, mode: GameMode) -> Element {
             Modal {
                 on_dismiss: game_over_dismissed_cb,
                 div {
-                    class: "p-2 sm:p-4 mx-auto my-2 flex flex-col items-center gap-4 text-center",
+                    class: "p-2 sm:p-4 mx-auto my-2 flex flex-col items-center gap-4 sm:gap-8 text-center",
                     h1 {
-                        class: "text-2xl",
+                        class: "text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-green-800",
                         "Nice work!"
                     }
                     table { class: "table-auto text-lg",
