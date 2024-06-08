@@ -170,17 +170,23 @@ MVP should probably just be a game demo using local storage, no user identity, d
 
 - try moving modal to top level so that the background can swap while blurred
 - can apply "inert" to the main content to disable focusing within there whenever modal's open
-  - technically this doesn't require moving to top level, it just requires a
-    global signal indicating whether or not a modal is open.
-  - we could keep modals within their easier logical place within the DOM and
-    just use a global MODAL_VISIBILITY indicator; then different modals could
-    choose whether to clobber or respect any existing modal (like atomic counter,
-    etc.)
-    - in fact, this might naturally let modal parents access the currently
-      private `dismissed: Signal<bool>`.
-    - another option: get a `try_use_context::<ModalVisibility>` and prefer it
-      when available? not sure what signal combinators accomplish this, but prob
-      doable.
+- we could keep modals within their easier logical place within the DOM and
+  just use a global MODAL_VISIBILITY indicator; then different modals could
+  choose whether to clobber or respect any existing modal (like atomic counter,
+  etc.)
+
+  - in fact, this might naturally let modal parents access the currently
+    private `dismissed: Signal<bool>`.
+  - another option: get a `try_use_context::<ModalVisibility>` and prefer it
+    when available? not sure what signal combinators accomplish this, but prob
+    doable.
+
+- modal should exist permanently at the root level so that we can apply `inert` to
+  main content
+  - unfortunately there doesn't seem to be a way to escape inert-ness on children
+- requires opening a modal by storing component/element in a signal of some sort
+  - also would allow a smoother transition while background blurred, although
+    this could also be done by just putting the static modal backdrop in the root.
 
 # business
 

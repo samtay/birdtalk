@@ -208,6 +208,7 @@ fn PackSelector(birdpack: Signal<Option<BirdPack>>) -> Element {
                                     // checked: pack.id.as_str() == "demo",
                                     checked: birdpack.as_ref().filter(|bp| bp.id == pack.id).is_some(),
                                     disabled: pack.id != "demo",
+                                    // TODO: onmount should probably be replaced with use_effect if its not using mount data?
                                     onmounted: {
                                         let pack = pack.clone();
                                         move |_| {

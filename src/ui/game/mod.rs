@@ -1,7 +1,6 @@
 mod audio;
 mod card;
 mod game_over;
-mod modal;
 pub mod quiz;
 
 use std::{fmt::Display, str::FromStr};
