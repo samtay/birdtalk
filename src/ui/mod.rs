@@ -198,15 +198,14 @@ fn PackSelector(birdpack: Signal<Option<BirdPack>>) -> Element {
                         li {
                             label {
                                 r#for: pack.id.as_str(),
-                                class: "sm:flex-col gap-4 justify-between inline-flex h-full w-full bg-amber-50 border-2 border-amber-200 rounded-xl shadow p-3 sm:p-4 hover:bg-amber-200 hover:enabled:shadow-xl focus-within:ring-2 focus-within:ring-green-400 has-[:checked]:border-green-400 has-[:checked]:bg-green-100/50 has-[:checked]:text-green-800 cursor-pointer select-none relative",
+                                class: "sm:flex-col gap-4 justify-between inline-flex h-full w-full bg-amber-50 border-2 border-amber-200 rounded-xl shadow p-3 sm:p-4 has-[:enabled]:hover:bg-amber-200 has-[:enabled]:hover:shadow-xl has-[:disabled]:opacity-50 focus-within:ring-2 focus-within:ring-green-400 has-[:checked]:border-green-400 has-[:checked]:bg-green-100/50 has-[:checked]:hover:bg-green-100/50 has-[:checked]:text-green-800 cursor-pointer select-none relative",
                                 input {
                                     class: "absolute opacity-0 peer",
                                     name: "pack",
                                     id: pack.id.as_str(),
                                     value: pack.id.as_str(),
                                     r#type: "radio",
-                                    // checked: pack.id.as_str() == "demo",
-                                    checked: birdpack.as_ref().filter(|bp| bp.id == pack.id).is_some(),
+                                    checked: birdpack.as_ref().filter(|bp| bp.id == pack.id).map(|_|true),
                                     disabled: pack.id != "demo",
                                     // TODO: onmount should probably be replaced with use_effect if its not using mount data?
                                     onmounted: {
@@ -301,16 +300,15 @@ fn ModeSelector(mode: Signal<Option<GameMode>>) -> Element {
                     li {
                         label {
                             r#for: "{opt}",
-                            class: "flex-col inline-flex h-full w-full bg-amber-50 border-2 border-amber-200 rounded-xl shadow p-3 sm:p-4 hover:bg-amber-200 enabled:hover:shadow-xl focus-within:ring-2 focus-within:ring-green-400 has-[:checked]:border-green-400 has-[:checked]:bg-green-100/50 has-[:checked]:text-green-800 cursor-pointer select-none relative",
+                            class: "flex-col inline-flex h-full w-full bg-amber-50 border-2 border-amber-200 rounded-xl shadow p-3 sm:p-4 has-[:enabled]:hover:bg-amber-200 has-[:enabled]:hover:shadow-xl has-[:disabled]:opacity-50 focus-within:ring-2 focus-within:ring-green-400 has-[:checked]:border-green-400 has-[:checked]:bg-green-100/50 has-[:checked]:hover:bg-green-100/50 has-[:checked]:text-green-800 cursor-pointer select-none relative",
                             input {
                                 class: "absolute opacity-0 peer",
                                 name: "mode",
                                 id: "{opt}",
                                 value: "{opt}",
                                 r#type: "radio",
-                                checked: mode.read().filter(|m| *m == opt).is_some(),
+                                checked: mode.read().filter(|m| *m == opt).map(|_|true),
                                 disabled: opt != GameMode::Quiz,
-                                // checked: opt == GameMode::default(),
                                 onmounted: move |mnt| async move {
                                     if mode.read().filter(|m| *m == opt).is_some() {
                                         tracing::debug!("onmounted: downcasting...");

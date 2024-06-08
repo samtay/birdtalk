@@ -22,8 +22,8 @@ use quiz::{Game, MULTIPLE_CHOICE_SIZE};
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum GameMode {
     Listen,
-    #[default]
     Learn,
+    #[default] // TODO change to learn when implemented
     Quiz,
 }
 
