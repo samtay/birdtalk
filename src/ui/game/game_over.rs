@@ -41,6 +41,11 @@ pub fn GameOverModal() -> Element {
                     onclick: move |_| {
                         game_over_dismissed_cb.call()
                     },
+                    onmounted: move |mnt| async move {
+                        #[cfg(feature = "web")]
+                        async_std::task::sleep(std::time::Duration::from_millis(500)).await;
+                        mnt.set_focus(true).await.ok();
+                    },
                     "Continue"
                 }
             }
