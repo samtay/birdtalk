@@ -9,8 +9,6 @@ use crate::bird::BirdPack;
 use components::Modal;
 use game::{GameMode, GameView};
 
-const USE_LOADING_ANIMATION: bool = false;
-
 const AUDIO_LOOP: bool = true;
 const AUDIO_AUTOPLAY: bool = true;
 

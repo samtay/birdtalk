@@ -8,9 +8,9 @@ use std::{fmt::Display, str::FromStr};
 
 use dioxus::prelude::*;
 use dioxus_sdk::storage::{use_synced_storage, LocalStorage};
+use rand::prelude::SliceRandom;
 use serde::{Deserialize, Serialize};
 
-use super::USE_LOADING_ANIMATION;
 use crate::{
     bird::{Bird, BirdPack},
     stats::Stats,
@@ -133,12 +133,7 @@ impl GameCtx {
         use_memo(move || {
             let _ = birds.read(); // subscribe to birds
             let mut indices = (0..MULTIPLE_CHOICE_SIZE).collect::<Vec<_>>();
-            tracing::debug!("To shuffle or not? generation = {} == 0?", generation());
-            if USE_LOADING_ANIMATION || (generation() > 0 && cfg!(feature = "web")) {
-                use rand::seq::SliceRandom as _;
-                indices.shuffle(&mut rand::thread_rng());
-                tracing::debug!("Shuffled: {:?}", indices);
-            }
+            indices.shuffle(&mut rand::thread_rng());
             indices
         })
     }
@@ -181,20 +176,6 @@ impl GameCtx {
 
 #[component]
 pub fn GameView(pack: BirdPack, mode: GameMode) -> Element {
-    // if USE_LOADING_ANIMATION {
-    //     let game = use_signal(|| Game::init_demo(true));
-    //     if cfg!(feature = "web") && generation() == 0 {
-    //         needs_update();
-    //     }
-    //     if cfg!(feature = "server") || generation() == 0 {
-    //         rsx! {Loading {}}
-    //     } else {
-    //         rsx! {GameView { game }}
-    //     }
-    // } else {
-    //     let game = use_signal(|| Game::init_demo(false));
-    //     rsx! {GameView { game }}
-    // }
     if mode != GameMode::Quiz {
         return rsx! { "Not implemented!" };
     }
