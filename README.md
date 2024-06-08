@@ -67,22 +67,34 @@ See
 
 - https://dioxuslabs.com/learn/0.5/reference/context#using-shared-state use context for settings
 
-### error handling
-
-- use https://dioxuslabs.com/learn/0.5/cookbook/error_handling#throwing-errors
-  to have an error msg section up top. or context?
-
 ### mvp todo
 
 MVP should probably just be a game demo using local storage, no user identity, database, etc.
 
-- [ ] FINISH up persistent storage for "level" and display level/xp nicely
+- [ ] change the flip text (identified / streak is confusing here, it seems like overall streak)
+  - three dots to fill green would be nice
+- [ ] Display level/xp nicely (in header?)
+- [ ] Awards? levels? badges?
+- [ ] Run through a11y tool; looks like at least a bunch of labels are needed
+- [ ] Simplify all the responsive designs, just assume sm > mobile, md > tablet.
 
-- game flow:
+#### Bonus
 
-  - Duolingo also has temporary text "2 in a row!"
-  - Exiting presents the user with a confirm modal: "Quit and you'll lose your current progress!"
-  - awards? levels? badges?
+- [ ] Duolingo also has temporary text "2 in a row!"
+- [ ] Exiting / navigating away should present the user with a confirm modal:
+  - "Quit and you'll lose your current progress!"
+- [ ] Settings
+  - Create a client-side settings context using local storage
+  - Implement game settings like confirm choice, autoplay, etc.
+- Take a cue from Duolingo: modal instead of flip on mobile
+  - Keep cards on screen, but highlight correct with green (and some subtle
+    animation, maybe star(s) appear and then {fade,rotate, translate})
+  - slide modal up on mobile
+  - This will fix the sizing issue on the flip card, as the button will no
+    longer be on the card. Maybe have room to describe the sound just heard
+    (mating call, song, etc.)
+
+### later
 
 - storage
 
@@ -100,89 +112,38 @@ MVP should probably just be a game demo using local storage, no user identity, d
       - merge should be mostly simple and additive (learned birds for example)
       - however identified count will have to take into account delta since updated datetime, etc.
 
-- settings
+- shortcuts
 
-  - create a client-side settings context using local storage
-  - implement game settings like confirm choice, autoplay, etc.
-
-- remember: use ? none propagation to hide elements. also see above for error handling
-
-- add 'space' or other handler to toggle audio
-
+  - add 'p/a' or other handler to toggle audio
   - see docsite/src/shortcuts.rs
   - and
     https://github.com/DioxusLabs/dioxus/blob/e2002d6ea42f5844a3832ab7f038620ecf977a1c/packages/desktop/src/hooks.rs#L72
     for desktop
 
-- run through a11y tool
+- error handling
 
-- change the flip text (identified / streak is confusing here, it seems like overall streak)
-  - three dots to fill green would be nice
+  - use https://dioxuslabs.com/learn/0.5/cookbook/error_handling#throwing-errors to have an error msg section up top. or context?
 
-#### styling
+- performance
 
-- success animation:
-
-  - Change card flip to be a modal. Animate cards in/out from corners of
-    screen between challenges. As card flies out, modal comes in with next
-    button and stats. Modal should slide from bottom on mobile.
-  - Or, take a cue from Duolingo:
-    - Keep cards on screen, but highlight correct with green (and some subtle
-      animation, maybe star(s) appear and then {fade,rotate, translate})
-    - slide modal up on mobile
-    - maybe web it slides up or just appears under cards but in a less modally
-      way?
-    - This will fix the sizing issue on the flip card, as the button will no
-      longer be on the card. Maybe have room to describe the sound just heard
-      (mating call, song, etc.)
-  - See https://codepen.io/designcouch/pen/obvKxm for modal animations
-  - Keep in mind, many of this could possibly be purely tailwind css driven:
-    - https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-sibling-state
-    - by using peer classes to determine when modal pops up, etc.
-    - or even set class on parent when correct choice has been made, then do
-      - group-[correct-choice]:animate-out
-      - or e.g. if initial opacity 0 and then peer:success:animate-modal-in
-  - Another idea: drawing outline of bird? Like the logo?
-    - https://css-tricks.com/almanac/properties/s/stroke-dashoffset/
-    - TODO: export logo bird as SVG! with transparency!
   - see https://www.joshwcomeau.com/animation/css-transitions/ for tips on
     finishing touches and leveraging GPU for smooth transitions
     and apply https://tailwindcss.com/docs/will-change for any perf problems
 
 - fix header
 
-  - get the commit from the saved branch. export the header with the nice font
-    from canva, resized to fit the word and with transparent background.
-  - then export the birdtalk icon as SVG
-    - or, export both the talk bubble and bird separately
-  - then animate the bird portion of the svg with css! (could be .gif still but smaller footprint)
+  - export bird / text from canva separately
 
 - header: the current large version should only exist on a landing page (that we don't have)
 - use that space for something else - XP, etc.
-
-- make svg component for audio toggle
 
 - can replace hacky tailwind landscape with `use_window_size`
   - Math.min(window.screen.width, window.screen.height) < 768
 - or `@media only screen and (max-height: 575.98px) and (orientation: landscape)`
 - also, just disallow landscape mode on mobile!
-- simplify all the responsive designs, just assume sm > mobile, md > tablet.
 
 - try moving modal to top level so that the background can swap while blurred
 - can apply "inert" to the main content to disable focusing within there whenever modal's open
-- we could keep modals within their easier logical place within the DOM and
-  just use a global MODAL_VISIBILITY indicator; then different modals could
-  choose whether to clobber or respect any existing modal (like atomic counter,
-  etc.)
-
-  - in fact, this might naturally let modal parents access the currently
-    private `dismissed: Signal<bool>`.
-  - another option: get a `try_use_context::<ModalVisibility>` and prefer it
-    when available? not sure what signal combinators accomplish this, but prob
-    doable.
-
-- modal should exist permanently at the root level so that we can apply `inert` to
-  main content
   - unfortunately there doesn't seem to be a way to escape inert-ness on children
 - requires opening a modal by storing component/element in a signal of some sort
   - also would allow a smoother transition while background blurred, although
@@ -193,9 +154,8 @@ MVP should probably just be a game demo using local storage, no user identity, d
 ### Freemium
 
 - Free app with 20 birds, 1 song/call each
-- Additional 25-bird packs $5/each for life
-- Or enchilada full North American 800+ bird pack for $100 for life
-- $10/month for access to everything
+- Additional 30-bird packs $5/each for life
+- $3/month for access to everything if paying by year
 - Note: for life options probably require downloading bird packs rather than streaming, to limit server costs.
 - Naming: bird pack? bevy? flock?
 
