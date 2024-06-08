@@ -6,7 +6,6 @@ use dioxus::prelude::*;
 use dioxus_sdk::storage::use_singleton_persistent;
 
 use crate::bird::BirdPack;
-use components::Modal;
 use game::{GameMode, GameView};
 
 const AUDIO_LOOP: bool = true;
@@ -141,8 +140,7 @@ fn Index() -> Element {
 #[component]
 fn GameSelector() -> Element {
     let birdpack = use_signal(|| None);
-    // Use Option as a hack to ensure change event occurs after page load
-    let mode = use_singleton_persistent(|| Some(GameMode::default()));
+    let mode = use_singleton_persistent(GameMode::default);
 
     rsx! {
         div {
@@ -152,10 +150,10 @@ fn GameSelector() -> Element {
             button {
                 class: "mt-2 px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-800 text-amber-50 rounded-full shadow",
                 onclick: move |_| {
-                    *GAME_STATUS.write() = GameStatus::Playing(birdpack().unwrap(), mode().unwrap());
+                    *GAME_STATUS.write() = GameStatus::Playing(birdpack().unwrap(), mode());
                     tracing::debug!("GameStatus: {:?}", *GAME_STATUS.read())
                 },
-                disabled: birdpack().zip(mode()).is_none(),
+                disabled: birdpack.read().is_none(),
                 "Let's Go!"
             }
         }
@@ -286,7 +284,7 @@ fn PackSelector(birdpack: Signal<Option<BirdPack>>) -> Element {
 }
 
 #[component]
-fn ModeSelector(mode: Signal<Option<GameMode>>) -> Element {
+fn ModeSelector(mode: Signal<GameMode>) -> Element {
     // I think checked only works with initial page load?
     rsx! {
         fieldset {
@@ -307,22 +305,11 @@ fn ModeSelector(mode: Signal<Option<GameMode>>) -> Element {
                                 id: "{opt}",
                                 value: "{opt}",
                                 r#type: "radio",
-                                checked: mode.read().filter(|m| *m == opt).map(|_|true),
+                                checked: (*mode.read() == opt).then_some(true),
                                 disabled: opt != GameMode::Quiz,
-                                onmounted: move |mnt| async move {
-                                    if mode.read().filter(|m| *m == opt).is_some() {
-                                        tracing::debug!("onmounted: downcasting...");
-                                        if let Some(e) = mnt.downcast::<web_sys::Element>() {
-                                            tracing::debug!("onmounted: clicking on {opt:?}");
-                                            e.set_attribute("checked", "true").ok();
-                                            tracing::debug!("onmounted: setting mode to {opt:?}");
-                                            *mode.write() = Some(opt);
-                                        }
-                                    }
-                                },
                                 onchange: move |_| {
                                     tracing::debug!("onchange: setting mode to from {:?} to {opt:?}", mode());
-                                    *mode.write() = Some(opt);
+                                    *mode.write() = opt;
                                 },
                             }
                             svg {
