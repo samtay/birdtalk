@@ -191,6 +191,7 @@ pub fn GameView(pack: BirdPack, mode: GameMode) -> Element {
     rsx! {
         div {
             class: "container m-auto px-2 landscape:max-lg:px-1 sm:px-4",
+            "inert": game_ctx.game_completed.read().then(|| true),
             div {
                 class: "flex flex-col sm:max-lg:landscape:flex-row justify-center items-center place-content-center gap-2 sm:gap-4",
                 ProgressBar { }
