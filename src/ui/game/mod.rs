@@ -155,15 +155,21 @@ impl GameCtx {
         self.correct_chosen.set(correct);
     }
 
-    fn next(&mut self) {
+    async fn next(&mut self) {
         if self.game.read().is_complete() {
-            // TODO this could maybe be a case for `use_callback` instead of saving birdpack id?
             self.stats
                 .write()
                 .add_pack_completed(&self.birdpack_id.read());
             self.game_completed.set(true);
         } else {
+            // Cards flip back to face up
             self.correct_chosen.set(false);
+
+            // Try to let that flip complete before the new birds are displayed
+            #[cfg(feature = "web")]
+            async_std::task::sleep(std::time::Duration::from_millis(300)).await;
+
+            // Continue with next challenge
             self.game.write().set_next_challenge();
             tracing::debug!(
                 "Set new challenge! new bird is: {:?}",

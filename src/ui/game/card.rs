@@ -129,10 +129,7 @@ fn CardBack(bird: MappedSignal<BirdContext>, correct: bool) -> Element {
                         class: "mt-2 px-4 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 font-semibold text-sm sm:text-base bg-green-800 text-amber-50 rounded-full shadow",
                         onclick: move |_| async move {
                             if correct {
-                                game_ctx.correct_chosen.set(false);
-                                #[cfg(feature = "web")]
-                                async_std::task::sleep(std::time::Duration::from_millis(300)).await;
-                                game_ctx.next();
+                                game_ctx.next().await;
                             } else {
                                 tracing::error!("This shouldn't happen. How did you get here?");
                             }
