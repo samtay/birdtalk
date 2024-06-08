@@ -81,8 +81,7 @@ MVP should probably just be a game demo using local storage, no user identity, d
 - game flow:
 
   - Duolingo also has temporary text "2 in a row!"
-  - Exiting presents the user with a confirm modal: "Quit and you'll lose all XP gained in this lesson!"
-  - handle game finished (all birds learned); need to draw this out
+  - Exiting presents the user with a confirm modal: "Quit and you'll lose your current progress!"
   - awards? levels? badges?
 
 - storage
@@ -117,14 +116,10 @@ MVP should probably just be a game demo using local storage, no user identity, d
 
 - run through a11y tool
 
-- change the flip text (identified / streak is confusing here, it seems like
-  overall streak)
+- change the flip text (identified / streak is confusing here, it seems like overall streak)
+  - three dots to fill green would be nice
 
 #### styling
-
-- Style stats https://www.codewithfaraz.com/article/176/15-tailwind-css-stats-section-examples
-- maybe add gradients https://tailwindcss.com/docs/gradient-color-stops nice
-  look
 
 - success animation:
 

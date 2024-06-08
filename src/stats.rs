@@ -52,6 +52,10 @@ impl Stats {
             .sum()
     }
 
+    pub fn birds_learned(&self) -> u32 {
+        self.bird_stats.values().filter(|bs| bs.learned).count() as u32
+    }
+
     pub fn level(&self) -> u32 {
         1 + (self.bird_stats.values().filter(|bs| bs.learned).count() / BIRDS_PER_LEVEL) as u32
     }

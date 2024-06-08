@@ -6,11 +6,8 @@ use super::{quiz::BirdContext, GameCtx};
 use crate::bird::Bird;
 
 #[component]
-pub fn MultipleChoiceCard(
-    bird: MappedSignal<BirdContext>,
-    correct: bool,
-    game_ctx: GameCtx,
-) -> Element {
+pub fn MultipleChoiceCard(bird: MappedSignal<BirdContext>, correct: bool) -> Element {
+    let game_ctx = use_context::<GameCtx>();
     let bird_copy = bird.clone();
     let bird_memo = use_memo(move || bird_copy.read().bird.clone());
     let correct_chosen = game_ctx.correct_chosen;
@@ -26,7 +23,6 @@ pub fn MultipleChoiceCard(
                     CardFront {
                         bird: bird_memo,
                         correct,
-                        game_ctx
                     }
                 }
                 div {
@@ -34,7 +30,6 @@ pub fn MultipleChoiceCard(
                     CardBack {
                         bird,
                         correct,
-                        game_ctx
                     }
                 }
             }
@@ -43,7 +38,8 @@ pub fn MultipleChoiceCard(
 }
 
 #[component]
-fn CardFront(bird: Memo<Bird>, correct: bool, game_ctx: GameCtx) -> Element {
+fn CardFront(bird: Memo<Bird>, correct: bool) -> Element {
+    let mut game_ctx = use_context::<GameCtx>();
     // TODO: note that this is assuming a different set of birds each round!
     let mut mistakenly_chosen = use_signal(|| false);
     let correct_chosen = game_ctx.correct_chosen;
@@ -88,7 +84,8 @@ fn CardFront(bird: Memo<Bird>, correct: bool, game_ctx: GameCtx) -> Element {
 }
 
 #[component]
-fn CardBack(bird: MappedSignal<BirdContext>, correct: bool, game_ctx: GameCtx) -> Element {
+fn CardBack(bird: MappedSignal<BirdContext>, correct: bool) -> Element {
+    let mut game_ctx = use_context::<GameCtx>();
     let next_button_enabled = use_memo(move || *game_ctx.correct_chosen.read() && correct);
     let mut next_button: Signal<Option<Rc<MountedData>>> = use_signal(|| None);
     use_effect(move || {

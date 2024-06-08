@@ -1,5 +1,6 @@
 mod audio;
 mod card;
+mod game_over;
 mod modal;
 pub mod quiz;
 
@@ -13,10 +14,10 @@ use super::USE_LOADING_ANIMATION;
 use crate::{
     bird::{Bird, BirdPack},
     stats::Stats,
-    ui::{components::Modal, GameStatus, GAME_STATUS},
 };
 use audio::AudioPlayer;
 use card::MultipleChoiceCard;
+use game_over::GameOverModal;
 use quiz::{Game, MULTIPLE_CHOICE_SIZE};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
@@ -75,6 +76,8 @@ struct GameCtx {
     game: Signal<Game>,
     /// Storage backed stats state
     stats: Signal<Stats>,
+    /// Value of `stats` at the game start (so we can diff at the end).
+    stats_original: ReadOnlySignal<Stats>,
     /// Has a correct choice been made for this multiple choice yet?
     correct_chosen: Signal<bool>,
     /// Birdpack ID
@@ -88,20 +91,26 @@ struct GameCtx {
 }
 
 impl GameCtx {
+    /// Initialize a new game context (and provide it to children).
     fn new(birdpack: BirdPack) -> Self {
         let birdpack_id = use_signal(|| birdpack.id().to_string()).into();
         let game = use_signal(|| Game::init(birdpack, true));
         let stats =
             use_synced_storage::<LocalStorage, _>("{user.email}".to_string(), Stats::default);
+        let stats_original = stats.with_peek(|og| {
+            tracing::debug!("Generation: {}, Original stats: {:?}", generation(), og);
+            Signal::new(og.clone()).into()
+        });
         let correct_chosen = use_signal(|| false);
         let game_completed = use_signal(|| false);
-        Self {
+        use_context_provider(|| Self {
             game,
             stats,
             correct_chosen,
             birdpack_id,
             game_completed,
-        }
+            stats_original,
+        })
     }
 
     /// Create a new memo signal of the current challenge's birds
@@ -124,6 +133,7 @@ impl GameCtx {
         use_memo(move || {
             let _ = birds.read(); // subscribe to birds
             let mut indices = (0..MULTIPLE_CHOICE_SIZE).collect::<Vec<_>>();
+            tracing::debug!("To shuffle or not? generation = {} == 0?", generation());
             if USE_LOADING_ANIMATION || (generation() > 0 && cfg!(feature = "web")) {
                 use rand::seq::SliceRandom as _;
                 indices.shuffle(&mut rand::thread_rng());
@@ -192,16 +202,12 @@ pub fn GameView(pack: BirdPack, mode: GameMode) -> Element {
     let shuffle = game_ctx.shuffle_memo();
     let correct_bird = game_ctx.correct_bird_memo();
 
-    let game_over_dismissed_cb = use_callback(move || {
-        *GAME_STATUS.write() = GameStatus::None;
-    });
-
     rsx! {
         div {
             class: "container m-auto px-2 landscape:max-lg:px-1 sm:px-4",
             div {
                 class: "flex flex-col sm:max-lg:landscape:flex-row justify-center items-center place-content-center gap-2 sm:gap-4",
-                ProgressBar {game_ctx}
+                ProgressBar { }
                 div {
                     class: "",
                     AudioPlayer {
@@ -214,53 +220,20 @@ pub fn GameView(pack: BirdPack, mode: GameMode) -> Element {
                         MultipleChoiceCard {
                             bird: game_ctx.game.map(move |g| &g.choices()[ix]),
                             correct: ix == 0,
-                            game_ctx
                         }
                     }
                 }
             }
         }
         if *game_ctx.game_completed.read() {
-            Modal {
-                on_dismiss: game_over_dismissed_cb,
-                div {
-                    class: "p-2 sm:p-4 mx-auto my-2 flex flex-col items-center gap-4 sm:gap-8 text-center",
-                    h1 {
-                        class: "text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-green-800",
-                        "Nice work!"
-                    }
-                    table { class: "table-auto text-lg",
-                        tbody {
-                            tr {
-                                td { class: "text-right", "XP:" }
-                                td { class: "text-left px-1", "2000", }
-                                td { class: "text-left px-1 text-sm text-green-400 font-semibold", "+100"}
-                            }
-                            tr {
-                                td { class: "text-right px-1", "Birds Learned:" }
-                                td { class: "text-left px-1", "10", }
-                                td { class: "text-left px-1 text-sm text-green-400 font-semibold", "+10"}
-                            }
-                        }
-                    }
-                    button {
-                        class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-800 text-amber-50 rounded-full shadow",
-                        // TODO: this handler doesn't have access to internal modal visibility
-                        // signal, that's why slide down doesn't work.
-                        // ... among other reasons.
-                        onclick: move |_| {
-                            game_over_dismissed_cb.call()
-                        },
-                        "Continue"
-                    }
-                }
-            }
+            GameOverModal { }
         }
     }
 }
 
 #[component]
-fn ProgressBar(game_ctx: GameCtx) -> Element {
+fn ProgressBar() -> Element {
+    let game_ctx = use_context::<GameCtx>();
     let progress = game_ctx.percent_complete();
     tracing::debug!("Progress: {}", progress);
     rsx! {
