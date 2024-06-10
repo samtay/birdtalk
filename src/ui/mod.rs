@@ -196,7 +196,7 @@ fn PackSelector(birdpack: Signal<Option<BirdPack>>) -> Element {
                         li {
                             label {
                                 r#for: pack.id.as_str(),
-                                class: "sm:flex-col gap-4 justify-between inline-flex h-full w-full bg-amber-50 border-2 border-amber-200 rounded-xl shadow p-3 sm:p-4 has-[:enabled]:hover:bg-amber-200 has-[:enabled]:hover:shadow-xl has-[:disabled]:opacity-50 focus-within:ring-2 focus-within:ring-green-400 has-[:checked]:border-green-400 has-[:checked]:bg-green-100/50 has-[:checked]:hover:bg-green-100/50 has-[:checked]:text-green-800 cursor-pointer select-none relative",
+                                class: "sm:flex-col gap-4 justify-between inline-flex h-full w-full bg-amber-50 border-2 border-amber-200 rounded-xl shadow p-3 sm:p-4 has-[:enabled]:hover:bg-amber-200 has-[:enabled]:hover:shadow-xl has-[:disabled]:opacity-50 focus-within:ring-2 focus-within:ring-green-400 has-[:checked]:border-green-400 has-[:checked]:bg-green-100/50 has-[:checked]:has-[:enabled]:hover:bg-green-100/50 has-[:checked]:text-green-800 cursor-pointer select-none relative",
                                 input {
                                     class: "absolute opacity-0 peer",
                                     name: "pack",
@@ -298,7 +298,7 @@ fn ModeSelector(mode: Signal<GameMode>) -> Element {
                     li {
                         label {
                             r#for: "{opt}",
-                            class: "flex-col inline-flex h-full w-full bg-amber-50 border-2 border-amber-200 rounded-xl shadow p-3 sm:p-4 has-[:enabled]:hover:bg-amber-200 has-[:enabled]:hover:shadow-xl has-[:disabled]:opacity-50 focus-within:ring-2 focus-within:ring-green-400 has-[:checked]:border-green-400 has-[:checked]:bg-green-100/50 has-[:checked]:hover:bg-green-100/50 has-[:checked]:text-green-800 cursor-pointer select-none relative",
+                            class: "flex-col inline-flex h-full w-full bg-amber-50 border-2 border-amber-200 rounded-xl shadow p-3 sm:p-4 has-[:enabled]:hover:bg-amber-200 has-[:enabled]:hover:shadow-xl has-[:disabled]:opacity-50 focus-within:ring-2 focus-within:ring-green-400 has-[:checked]:border-green-400 has-[:checked]:bg-green-100/50 has-[:checked]:has-[:enabled]:hover:bg-green-100/50 has-[:checked]:text-green-800 cursor-pointer select-none relative",
                             input {
                                 class: "absolute opacity-0 peer",
                                 name: "mode",
