@@ -3,7 +3,7 @@ use std::rc::Rc;
 use dioxus::prelude::*;
 
 use super::{quiz::BirdContext, GameCtx};
-use crate::bird::Bird;
+use crate::{bird::Bird, stats::LEARN_THRESHOLD};
 
 #[component]
 pub fn MultipleChoiceCard(bird: MappedSignal<BirdContext>, correct: bool) -> Element {
@@ -115,15 +115,7 @@ fn CardBack(bird: MappedSignal<BirdContext>, correct: bool) -> Element {
                         class: "text-lg font-semibold text-green-800 whitespace-nowrap",
                         "Nice work!"
                     }
-                    div {
-                        class: "flex space-x-2 text-sm text-green-800/75 whitespace-nowrap",
-                        div {
-                            "Identified: {bird().identified}"
-                        }
-                        div {
-                            "Streak: {bird().consecutively_identified}"
-                        }
-                    }
+                    BirdProgress { bird: bird.clone() }
                     button {
                         class: "mt-2 px-4 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 font-semibold text-sm sm:text-base bg-green-800 text-amber-50 rounded-full shadow",
                         onclick: move |_| async move {
@@ -141,6 +133,31 @@ fn CardBack(bird: MappedSignal<BirdContext>, correct: bool) -> Element {
                     }
                 }
             }
+        }
+    }
+}
+
+#[component]
+fn BirdProgress(bird: MappedSignal<BirdContext>) -> Element {
+    let total = LEARN_THRESHOLD;
+    let progress = bird.read().consecutively_identified;
+    rsx! {
+        div {
+            class: "flex gap-0 items-center justify-center",
+            {(0..total).map(|ix| {
+                rsx! {
+                    div {
+                        class: "w-3 h-3 rounded-full grow-0",
+                        class: if ix < progress { "bg-green-400" } else { "bg-stone-300/75" }
+                    }
+                    if ix + 1 < total {
+                        div {
+                            class: "w-5 h-[0.2rem]",
+                            class: if ix + 1 < progress { "bg-green-400" } else { "bg-stone-300/75" }
+                        }
+                    }
+                }
+            })}
         }
     }
 }
