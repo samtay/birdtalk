@@ -57,6 +57,7 @@ See
 - achievements, streaks, etc.
 - can I do a "tour" with context state? and once tour is marked as skipped or finished, those elements go away?
 - #46764e is a great color for text
+- for separate server/frontend deployment, see https://discord.com/channels/899851952891002890/1251248438482440302 and e.g. https://github.com/DioxusLabs/dioxus/blob/487570d89751b34bbfd5e9b5ff1e0fd3780bf332/packages/fullstack/examples/axum-desktop/Cargo.toml#L20-L28
 
 #### settings ideas
 
@@ -67,19 +68,21 @@ See
 
 - https://dioxuslabs.com/learn/0.5/reference/context#using-shared-state use context for settings
 
-### mvp todo
+### todo
 
-MVP should probably just be a game demo using local storage, no user identity, database, etc.
-
-- [ ] change the flip text (identified / streak is confusing here, it seems like overall streak)
-  - three dots to fill green would be nice
-- [ ] Display level/xp nicely (in header?)
-- [ ] Awards? levels? badges?
+- [ ] nav bar (with accompanying route)
+  - Collapse game modes (quiz/learn are the same thing with a setting to differentiate)
+  - Listen can be a different nav spot (settings for how many times each bird is played default 1, auto skip after \_, etc.)
+- [ ] data parsed and hosted -- supabase: data + storage
+- [ ] auth via supabase, client side! (try copying t5 logic, make lib)
 - [ ] Run through a11y tool; looks like at least a bunch of labels are needed
 - [ ] Simplify all the responsive designs, just assume sm > mobile, md > tablet.
-
-#### Bonus
-
+- [ ] making a landing (web-only) www page with links to Login (send to app) + app stores
+  - this should be an SSG! with any necessary splash screen
+- [ ] subscription/payments (stripe - wrapper around pg via supabase)
+- [ ] collections / packs
+- [ ] Awards? levels? badges?
+- [ ] get in touch with Lang Elliot!
 - [ ] Duolingo also has temporary text "2 in a row!"
 - [ ] Exiting / navigating away should present the user with a confirm modal:
   - "Quit and you'll lose your current progress!"
@@ -146,18 +149,20 @@ MVP should probably just be a game demo using local storage, no user identity, d
 - can apply "inert" to the main content to disable focusing within there whenever modal's open
   - unfortunately there doesn't seem to be a way to escape inert-ness on children
 - requires opening a modal by storing component/element in a signal of some sort
+
   - also would allow a smoother transition while background blurred, although
     this could also be done by just putting the static modal backdrop in the root.
+
+- Naming: bird pack? bevy? flock?
 
 # business
 
 ### Freemium
 
 - Free app with 20 birds, 1 song/call each
-- Additional 30-bird packs $5/each for life
-- $3/month for access to everything if paying by year
-- Note: for life options probably require downloading bird packs rather than streaming, to limit server costs.
-- Naming: bird pack? bevy? flock?
+- $1/month?
+- $10/year?
+- $30/life with offline mode
 
 ### Cost to run
 
@@ -172,8 +177,9 @@ MVP should probably just be a game demo using local storage, no user identity, d
 
 ### Realistically
 
-Just do $3/month for everything. Otherwise you just get demo (maybe you also get
-bird pack of the day).
+- Just do $3/month for everything.
+  - Otherwise you just get demo (maybe you also get bird pack of the day).
+- Maybe pack of the day increases in difficulty Mon - Fri
 
 # template readme
 

@@ -19,12 +19,12 @@ use card::MultipleChoiceCard;
 use game_over::GameOverModal;
 use quiz::{Game, MULTIPLE_CHOICE_SIZE};
 
+// TODO: this might be unnecessary if Listen is a totally different route
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum GameMode {
     Listen,
+    #[default]
     Learn,
-    #[default] // TODO change to learn when implemented
-    Quiz,
 }
 
 impl Display for GameMode {
@@ -32,7 +32,6 @@ impl Display for GameMode {
         let s = match self {
             GameMode::Listen => "Listen",
             GameMode::Learn => "Learn",
-            GameMode::Quiz => "Quiz",
         };
         write!(f, "{}", s)
     }
@@ -45,7 +44,6 @@ impl FromStr for GameMode {
         match s {
             "Listen" => Ok(GameMode::Listen),
             "Learn" => Ok(GameMode::Learn),
-            "Quiz" => Ok(GameMode::Quiz),
             s => Err(format!("Invalid game mode: {s}")),
         }
     }
@@ -55,8 +53,7 @@ impl GameMode {
     pub fn description(&self) -> &str {
         match self {
             GameMode::Listen => "Just listen to birds",
-            GameMode::Learn => "Listen to birds and then recall them",
-            GameMode::Quiz => "Think you know these birds? Test yourself",
+            GameMode::Learn => "Listen to birds and identify them",
         }
     }
 
@@ -64,7 +61,6 @@ impl GameMode {
         match self {
             GameMode::Listen => "no pressure",
             GameMode::Learn => "a little pressure",
-            GameMode::Quiz => "maximum pressure",
         }
     }
 }
@@ -181,9 +177,6 @@ impl GameCtx {
 
 #[component]
 pub fn GameView(pack: BirdPack, mode: GameMode) -> Element {
-    if mode != GameMode::Quiz {
-        return rsx! { "Not implemented!" };
-    }
     let game_ctx = GameCtx::new(pack);
     let shuffle = game_ctx.shuffle_memo();
     let correct_bird = game_ctx.correct_bird_memo();
@@ -225,7 +218,7 @@ fn ProgressBar() -> Element {
     tracing::debug!("Progress: {}", progress);
     rsx! {
         div {
-            class: "h-2 w-3/4 m-4 bg-stone-300/75 rounded-full max-w-screen-md",
+            class: "h-2 w-3/4 m-4 mt-6 bg-stone-300/75 rounded-full max-w-screen-md",
             div {
                 class: "bg-gradient-to-r from-green-200 to-green-700 min-w-7 h-full rounded-full relative transition-[width,transform]",
                 style: "width: min(calc(100% + 0.5rem), calc({progress}% + 1rem))", // 2 rem == w-8

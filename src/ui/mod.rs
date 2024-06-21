@@ -1,12 +1,14 @@
 mod components;
 mod db;
 mod game;
+mod pages;
 
 use dioxus::prelude::*;
 use dioxus_sdk::storage::use_singleton_persistent;
 
 use crate::bird::BirdPack;
 use game::{GameMode, GameView};
+use pages::{Achievements, Birds, Listen, Settings};
 
 const AUDIO_LOOP: bool = true;
 const AUDIO_AUTOPLAY: bool = true;
@@ -48,7 +50,6 @@ impl GameStatus {
 }
 
 pub fn App() -> Element {
-    // TODO for demo: synced storage containing hashmap of user data (i.e. bird pack learned status)
     rsx! {
         Router::<Route> {
         }
@@ -58,35 +59,77 @@ pub fn App() -> Element {
 #[derive(Clone, Routable, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 #[rustfmt::skip]
 enum Route {
-    // N.B. landing page will be handled in the future or even on a separate subdomain
-    // That's where the copyright etc. can live
-
-    // TODO some pages might need this to scroll out of site.
-    #[layout(HeaderFooter)]
+    #[layout(Navbar)]
         #[route("/")]
-        Index,
+        Learn {},
 
-        // This could probably just be a popup.
-        // #[route("/settings")]
-        // Settings {},
+        #[route("/listen")]
+        Listen {},
 
-        // #[route("/birds")]
-        // Birds {},
+        #[route("/birds")]
+        Birds {},
 
         // #[route("/packs")]
         // Packs {},
-    // #[end_layout]
 
-    // Fuck it this is giving me a headache handling Signal<Option<Pack>> from upstream
-    // #[route("/game/:id/:mode")]
-    // GameView {
-    //     id: String,
-    //     mode: GameMode
-    // },
+        #[route("/achievements")]
+        Achievements {},
+
+        #[route("/settings")]
+        Settings {},
+    // #[end_layout]
 }
 
-// TODO: can provide two versions, passing prop to a third internal one for header size?
-// TODO: nav in here
+#[component]
+fn Navbar() -> Element {
+    rsx! {
+        div {
+            class: "flex sm:flex-row flex-col-reverse h-screen",
+            div {
+                class: "grow-0 bg-green-800 text-amber-50 p-2",
+                img {
+                    class: "w-24 mt-[-1rem] hidden sm:block",
+                    src: "static_logo_transparent.png"
+                }
+                nav {
+                    id: "navbar",
+                    class: "flex sm:flex-col gap-2 justify-between sm:justify-start items-center",
+                    Link {
+                        class: "text-amber-50 hover:text-amber-100",
+                        to: Route::Learn {}, "Learn"
+                    }
+                    Link {
+                        class: "text-amber-50 hover:text-amber-100",
+                        to: Route::Listen {}, "Listen"
+                    }
+                    Link {
+                        class: "text-amber-50 hover:text-amber-100",
+                        to: Route::Birds {}, "Birds"
+                    }
+                    // Link {
+                    //     class: "text-amber-50 hover:text-amber-100",
+                    //     to: Route::Packs {}, "Packs"
+                    // }
+                    Link {
+                        class: "text-amber-50 hover:text-amber-100",
+                        to: Route::Achievements {}, "Achievements"
+                    }
+                    Link {
+                        class: "text-amber-50 hover:text-amber-100",
+                        to: Route::Settings {}, "Settings"
+                    }
+                }
+            }
+            div {
+                id: "content",
+                class: "grow no-shrink",
+                Outlet::<Route> { }
+            }
+        }
+    }
+}
+
+// TODO: use this for landing page ( #[layout(HeaderFooter)] )
 #[component]
 fn HeaderFooter() -> Element {
     rsx! {
@@ -105,21 +148,20 @@ fn HeaderFooter() -> Element {
                 Outlet::<Route> {
                 }
             }
-            // Use this on landing page
-            // footer {
-            //     id: "footer",
-            //     class: "shrink sticky top-[100vh] hidden sm:flex justify-items-center justify-center sm:max-lg:landscape:hidden",
-            //     div {
-            //         class: "text-green-800/75",
-            //         "© 2024 birdtalk"
-            //     }
-            // }
+            footer {
+                id: "footer",
+                class: "shrink sticky top-[100vh] hidden sm:flex justify-items-center justify-center sm:max-lg:landscape:hidden",
+                div {
+                    class: "text-green-800/75",
+                    "© 2024 birdtalk"
+                }
+            }
         }
     }
 }
 
 #[component]
-fn Index() -> Element {
+fn Learn() -> Element {
     match &*GAME_STATUS.read() {
         GameStatus::None => {
             rsx! {
@@ -294,7 +336,7 @@ fn ModeSelector(mode: Signal<GameMode>) -> Element {
             }
             ul {
                 class: "grid grid-cols-1 sm:grid-cols-3 w-full gap-2 sm:gap-6 items-stretch",
-                for opt in [GameMode::Listen, GameMode::Learn, GameMode::Quiz] {
+                for opt in [GameMode::Listen, GameMode::Learn] {
                     li {
                         label {
                             r#for: "{opt}",
@@ -306,7 +348,7 @@ fn ModeSelector(mode: Signal<GameMode>) -> Element {
                                 value: "{opt}",
                                 r#type: "radio",
                                 checked: (*mode.read() == opt).then_some(true),
-                                disabled: opt != GameMode::Quiz,
+                                disabled: opt != GameMode::Learn,
                                 onchange: move |_| {
                                     tracing::debug!("onchange: setting mode to from {:?} to {opt:?}", mode());
                                     *mode.write() = opt;
@@ -369,17 +411,4 @@ fn Loading() -> Element {
             }
         }
     }
-}
-
-#[component]
-fn Settings() -> Element {
-    rsx!(
-        h1 {
-            class: "text-2xl text-center",
-            "Settings"
-        }
-        p {
-            "Settings are consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-        }
-    )
 }

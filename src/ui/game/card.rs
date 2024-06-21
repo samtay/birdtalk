@@ -113,7 +113,7 @@ fn CardBack(bird: MappedSignal<BirdContext>, correct: bool) -> Element {
                     class: "flex flex-col justify-between",
                     div {
                         class: "text-lg font-semibold text-green-800 whitespace-nowrap",
-                        "Nice work!"
+                        "{bird().bird.common_name}"
                     }
                     BirdProgress { bird: bird.clone() }
                     button {
@@ -129,7 +129,7 @@ fn CardBack(bird: MappedSignal<BirdContext>, correct: bool) -> Element {
                             next_button.set(Some(e.data()));
                         },
                         disabled: !next_button_enabled(),
-                        "Ok!"
+                        "Continue"
                     }
                 }
             }
