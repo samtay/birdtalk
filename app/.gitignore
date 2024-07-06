@@ -1,0 +1,5 @@
+/dist/
+/static/
+/.dioxus/
+node_modules/
+/assets/tailwind.css

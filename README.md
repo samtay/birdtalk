@@ -1,3 +1,24 @@
+# birdtalk
+
+### dependencies
+
+- [rust](https://rustup.rs/)
+- [supabase cli](https://github.com/supabase/cli/) (and a free account)
+
+### development
+
+#### Initial setup
+
+- Log into supabase [locally](https://supabase.com/docs/reference/cli/supabase-login)
+- `supabase start`
+- `cp .env.example .env` and fill in the anon key found in `supabase status`.
+
+#### Start up
+
+- `just supabase-up`: Start up local supabase with some seed data
+- `just watch-tailwind`: Start tailwind watcher
+- `just watch-server`: Start dioxus app running at `localhost:8080` with hot reload
+
 # resources
 
 1. [Supabase?]()
@@ -40,14 +61,6 @@ See
 
 ### roadmap
 
-- `/game` for game mode
-- `/lib` or `/train` for just learning and no quizzing.
-- Additionally, perhaps game mode should include learning stuff between challenges. Anything you get quizzed on should have been presented at some point beforehand. Maybe this is configurable?
-  - Choose your adventure!
-    - [Learn] [Mixed] [Quiz]
-    - [No pressure! Just learn the birds in this pack with no challenges.]
-    - [Learn these birds as the challenges progress.]
-    - [Think you know all these bird calls already? Jump right in!]
 - Maybe you can create/share your own bird packs with premium subscription.
 - Maybe catalog, filterable, with "bird cards" that each have a play/pause button. (def would want preload=metadata for that).
 - `/ambience` with a playlist of birds.
@@ -58,37 +71,59 @@ See
 - can I do a "tour" with context state? and once tour is marked as skipped or finished, those elements go away?
 - #46764e is a great color for text
 - for separate server/frontend deployment, see https://discord.com/channels/899851952891002890/1251248438482440302 and e.g. https://github.com/DioxusLabs/dioxus/blob/487570d89751b34bbfd5e9b5ff1e0fd3780bf332/packages/fullstack/examples/axum-desktop/Cargo.toml#L20-L28
+- probably want mostly CSR and hopefully avoid backend hosting. pre-rendered SSG for speed?
 
 #### settings ideas
 
-- out of 2 vs out of 4 (less points for 2)
-- possibly: show img on mystery bird instead of choices (less points)
-- autoplay: auto / auto after first / off
-- loop: on/off
-
-- https://dioxuslabs.com/learn/0.5/reference/context#using-shared-state use context for settings
+- game:
+  - out of 2 vs out of 4 (less points for 2)
+  - possibly: show img on mystery bird instead of choices (less points)
+  - autoplay: auto / auto after first / off
+  - loop: on/off
+  - confirm choice: y/n
+- listen:
+  - how many times each bird is played default 1,
+  - auto skip after \_, etc.
 
 ### todo
 
-- [ ] nav bar (with accompanying route)
-  - Collapse game modes (quiz/learn are the same thing with a setting to differentiate)
-  - Listen can be a different nav spot (settings for how many times each bird is played default 1, auto skip after \_, etc.)
-- [ ] data parsed and hosted -- supabase: data + storage
-- [ ] auth via supabase, client side! (try copying t5 logic, make lib)
+- [ ] Need outer "courses" to order packs.
+- [ ] Make `app` the root package of the workspace? Then don't need to specify `-p` and probably works better with `dx`
+- [ ] Buy birdtalk.xyz
+- Potentially one of these backends: https://aromatic-guava-53f.notion.site/Deploying-To-The-Cloud-6f6ce065f1aa4b43a6e4dca66d0c8f7e
+- [ ] Host the parsed data on supabase (data + storage)
+  - Get started with local CLI, staging env, etc.
+- [ ] Auth via supabase, client side! (try copying t5 logic, make lib)
+  - https://supabase.com/docs/guides/cli/managing-config
 - [ ] Run through a11y tool; looks like at least a bunch of labels are needed
 - [ ] Simplify all the responsive designs, just assume sm > mobile, md > tablet.
-- [ ] making a landing (web-only) www page with links to Login (send to app) + app stores
-  - this should be an SSG! with any necessary splash screen
-- [ ] subscription/payments (stripe - wrapper around pg via supabase)
-- [ ] collections / packs
+- [ ] Make a landing (web-only) www page with links to Login (send to app) + app stores
+  - This should be an SSG! with any necessary splash screen
+- [ ] Collections / packs
 - [ ] Awards? levels? badges?
-- [ ] get in touch with Lang Elliot!
+- [ ] Get in touch with Lang Elliot!
+- [ ] Decide pack/course structure
+  - Maybe you choose the course by category:
+    - Category: Region
+      - Course: East coast, west coast, etc.
+        - Pack: EC common 1, EC common 2, etc.
+    - Category: Habitat
+      - Course: Coasts and shorelines, Urban and Suburban Habitats,
+        - Pack: Coastal 1, Coastal 2, etc.
+    - Category: Commonality
+      - Course: Common, Uncommon, Rare, etc.
+        - Pack: ..
+    - (these could be user defined as well)
+- [ ] Settings: game, listen, other. (local storage only?)
+- [ ] Subscription/payments (stripe - wrapper around pg via supabase): https://supabase.github.io/wrappers/
+- [ ] Will need actual emails: https://supabase.com/docs/guides/auth/auth-smtp
+- [ ] Go through db stuff: https://supabase.com/docs/guides/database/tables?queryGroups=database-method&database-method=sql&queryGroups=language&language=js#bulk-data-loading
+
+#### bonus
+
 - [ ] Duolingo also has temporary text "2 in a row!"
 - [ ] Exiting / navigating away should present the user with a confirm modal:
   - "Quit and you'll lose your current progress!"
-- [ ] Settings
-  - Create a client-side settings context using local storage
-  - Implement game settings like confirm choice, autoplay, etc.
 - Take a cue from Duolingo: modal instead of flip on mobile
   - Keep cards on screen, but highlight correct with green (and some subtle
     animation, maybe star(s) appear and then {fade,rotate, translate})
@@ -155,14 +190,31 @@ See
 
 - Naming: bird pack? bevy? flock?
 
+- Allow users to contribute birds by submitting PRs with json? Script to import
+  these via supabase?
+
+- Set up staging sb project: https://supabase.com/docs/guides/cli/managing-environments?queryGroups=environment&environment=staging
+
+- For tuning later https://supabase.com/docs/reference/cli/supabase-inspect-db-vacuum-stats
+
+- Tests? https://supabase.com/docs/guides/cli/github-action/testing
+
+- Can play multiple calls at once for a hard mode
+
+- Display level/ xp somewhere!?
+
 # business
 
 ### Freemium
 
 - Free app with 20 birds, 1 song/call each
+- Maybe "Daily Dabble" is free?
+  - Maybe pack of the day increases in difficulty Mon - Fri
 - $1/month?
 - $10/year?
 - $30/life with offline mode
+
+- Maybe _everything_ is free to start?
 
 ### Cost to run
 
@@ -174,12 +226,6 @@ See
   - Can I use these to just host the static site? I guess if I want "fullstack" I need to run server as well...
   - Too bad bc supabase would be free, could just hit them instead of running my own server.
 - can i leverage supabase edge functions? they have to be typescript...
-
-### Realistically
-
-- Just do $3/month for everything.
-  - Otherwise you just get demo (maybe you also get bird pack of the day).
-- Maybe pack of the day increases in difficulty Mon - Fri
 
 # template readme
 

@@ -1,42 +1,23 @@
-[package]
-name = "birdtalk"
+[workspace]
+members = ["app", "data"]
+default-members = ["app"]
+resolver = "2"
+
+[workspace.package]
 version = "0.1.0"
 authors = ["Sam Tay <samctay@pm.me>"]
+description = "birdtalk: an app to help you learn bird calls"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-async-std = { version = "1.12.0", optional = true }
-# dioxus = { version = "0.5", features = ["fullstack", "router"] }
-# dioxus = { path = "../dioxus/packages/dioxus", features = [
+[workspace.dependencies]
+anyhow = "1.0.86"
 dioxus = { git = "https://github.com/DioxusLabs/dioxus", features = ["router"] }
 dioxus-logger = "0.5.0"
 dioxus-sdk = { version = "0.5.0", features = ["storage"] }
-manganis = "0.2.2"
-rand = "0.8.5"
 serde = { version = "1.0.197", features = ["derive"] }
 serde_json = "1.0.117"
 tracing = "0.1.40"
-wasm-bindgen = "0.2.92"
-wasm-bindgen-futures = "0.4.42"
-web-sys = { version = "0.3.69", features = [
-  "Element",
-  "HtmlElement",
-  "HtmlAudioElement",
-] }
-
-# can't seem to customize these enough
-# dioxus-free-icons = { version = "0.8.5", features = ["hero-icons-outline"] }
-
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-getrandom = { version = "0.2.12", features = ["js"] }
-
-[features]
-default = ["fullstack"]
-server = ["dioxus/axum"]
-web = ["dioxus/web", "dep:async-std"]
-fullstack = ["dioxus/fullstack"]
+dotenvy_macro = "0.15.7"
 
 # since we're using git dioxus, inform dioxus-sdk to use it as well
 [patch.crates-io]

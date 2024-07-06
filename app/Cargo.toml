@@ -1,0 +1,39 @@
+[package]
+name = "birdtalk-app"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+async-std = { version = "1.12.0", optional = true }
+dioxus = { workspace = true }
+dioxus-logger = { workspace = true }
+dioxus-sdk = { workspace = true }
+dotenvy_macro = "0.15.7"
+gloo-net = { version = "0.5.0", features = ["json"] }
+manganis = "0.2.2"
+rand = "0.8.5"
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = "1.0.61"
+tracing = { workspace = true }
+wasm-bindgen = "0.2.92"
+wasm-bindgen-futures = "0.4.42"
+web-sys = { version = "0.3.69", features = [
+  "Element",
+  "HtmlElement",
+  "HtmlAudioElement",
+] }
+
+# can't seem to customize these enough
+# dioxus-free-icons = { version = "0.8.5", features = ["hero-icons-outline"] }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.2.12", features = ["js"] }
+
+[features]
+default = []                          # "fullstack"
+server = ["dioxus/axum"]
+web = ["dioxus/web", "dep:async-std"]
+fullstack = ["dioxus/fullstack"]

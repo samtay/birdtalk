@@ -1,0 +1,36 @@
+[
+  {
+    "name": "Common I",
+    "description": "Common birds of North America; first pack in the series.",
+    "birds": [
+      "Cardinalis cardinalis",
+      "Strix varia",
+      "Cyanocitta cristata",
+      "Buteo jamaicensis",
+      "Bubo virginianus",
+      "Haemorhous mexicanus",
+      "Dumetella carolinensis",
+      "Zenaida macroura",
+      "Corvus brachyrhynchos",
+      "Turdus migratorius"
+    ],
+    "free": true
+  },
+  {
+    "name": "Common II",
+    "description": "Common birds of North America; second pack in the series.",
+    "birds": [
+      "Accipiter cooperii",
+      "Spinus tristis",
+      "Mimus polyglottos",
+      "Corvus corax",
+      "Passerina cyanea",
+      "Ardea herodias",
+      "Troglodytes aedon",
+      "Dryocopus pileatus",
+      "Colaptes auratus",
+      "Junco hyemalis"
+    ],
+    "free": true
+  }
+]
