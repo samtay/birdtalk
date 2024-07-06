@@ -1,8 +1,6 @@
+set dotenv-load
+
 default_platform := 'fullstack'
-default_seed_dir := './data/seed/'
-default_pg_url := 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
-# TODO I can use `supabase status --output env`
-default_env := 'local' # (| 'prod' | 'staging')
 
 # watch all (server, tailwind)
 watch:
@@ -45,23 +43,21 @@ supabase-up:
   just supabase-seed
 
 # seed supabase with bird data and media
-supabase-seed env=default_env seed_dir=default_seed_dir pg_url=default_pg_url:
+supabase-seed:
   #!/usr/bin/env bash
   # copy birds
-  psql {{pg_url}} -c \
+  psql "$DATABASE_URL" -c \
     "\copy birds (scientific_name, common_name)
-      from program 'cat {{seed_dir}}/birds.json | jq -r \".[] | [.scientific_name, .common_name] | @csv\"'
+      from program 'cat $SEED_DIR/birds.json | jq -r \".[] | [.scientific_name, .common_name] | @csv\"'
       csv"
   # copy packs
-  psql {{pg_url}} -c \
+  psql "$DATABASE_URL" -c \
     "\copy packs (name, description, free)
-      from program 'cat {{seed_dir}}/packs.json | jq -r \".[] | [.name, .description, .free] | @csv\"'
+      from program 'cat $SEED_DIR/packs.json | jq -r \".[] | [.name, .description, .free] | @csv\"'
       csv"
   # copy bird/pack relations
-  psql {{pg_url}} -c \
+  psql "$DATABASE_URL" -c \
     "\copy bird_pack (pack, bird)
       from program 'cat data/seed/packs.json | jq -r \".[] | {pack: .name, bird: .birds[]} | [.pack, .bird] | @csv\"'
       csv"
-  # TODO use .env to manage this?
-  # recipe can handle juggling prod/dev .envs.
-  ENV={{env}} SEED_DIR={{seed_dir}} DATABASE_URL={{pg_url}} cargo run -p birdtalk-data --bin seed
+  cargo run -p birdtalk-data --bin seed

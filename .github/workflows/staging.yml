@@ -1,4 +1,11 @@
-name: Deploy Migrations to Staging
+name: Deploy to Staging
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 on:
   push:
@@ -14,13 +21,67 @@ jobs:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
       SUPABASE_PROJECT_ID: ${{ secrets.STAGING_PROJECT_ID }}
+      SUPABASE_API_URL: "https://${{ secrets.STAGING_PROJECT_ID }}.supabase.co"
+      SUPABASE_ANON_KEY: ${{ secrets.STAGING_ANON_KEY }}
+      ENV: staging
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: Install npm
+        uses: actions/setup-node@v4
+
+        # Install Rust with the `rust-toolchain` action.
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+          targets: wasm32-unknown-unknown
+
+      # Use another action to cache our files when possible.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-all-crates: "true"
+          save-if: ${{ github.ref == 'refs/heads/develop' }}
+
+      # Install a tool that makes it quicker to install other tools.
+      - uses: cargo-bins/cargo-binstall@main
+
+      # Install the Dioxus CLI
+      - name: Install Dioxus
+        run: cargo binstall dioxus-cli -y --force
+
+      # Compile CSS
+      - name: Compile css
+        working-directory: app
+        run: npx tailwindcss --minify --input ./input.css --output ./assets/tailwind.css
+
+      # dotenvy requires this
+      - run: cp .env.example .env
+
+      # Build our Dioxus app in release.
+      - name: Build app
+        working-directory: app
+        run: dx build --release --platform web --features web
+
+      # Create our required `404.html` page.
+      - name: Create 404.html
+        working-directory: app
+        run: cp dist/index.html dist/404.html
 
       - uses: supabase/setup-cli@v1
         with:
           version: latest
-
       - run: supabase link --project-ref $SUPABASE_PROJECT_ID
-      - run: supabase db push
+      - name: "Deploy migrations to staging"
+        run: supabase db push
+
+      # Now we call for another GitHub action to run. This action copies our
+      # built site and pushes it to our `gh-pages` branch.
+      - name: Deploy app to Render
+        uses: JamesIves/github-pages-deploy-action@v4.2.3
+        with:
+          branch: static-develop # The branch we have GitHub pages setup in.
+          folder: app/dist # The folder we want to copy to the `gh-pages` branch.
+          target-folder: . # The destination we want our files copied to. In this case, we want them to be a the root level.
+          clean: true

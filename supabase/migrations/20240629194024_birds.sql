@@ -11,28 +11,30 @@ create table public.bird_images (
   bucket text not null,
   path text not null,
   default_ bool not null default false,
-  constraint unique_default_img unique (bird, default_),
   constraint fk_bird_images_bird
     foreign key (bird) references birds(id)
     on delete cascade,
   constraint fk_bird_images_storage_obj
     foreign key (bucket, path) references storage.objects(bucket_id, name)
-    on delete cascade
+    on delete cascade,
+  constraint bird_images_pkey primary key (bucket, path)
 );
+create index idx_bird_images_list on public.bird_images using btree (bird, default_);
 
 create table public.bird_sounds (
   bird integer not null,
   bucket text not null,
   path text not null,
   default_ bool not null default false,
-  constraint unique_default_sound unique (bird, default_),
   constraint fk_bird_sounds_bird
     foreign key (bird) references birds(id)
     on delete cascade,
   constraint fk_bird_images_storage_obj
     foreign key (bucket, path) references storage.objects(bucket_id, name)
-    on delete cascade
+    on delete cascade,
+  constraint bird_sounds_pkey primary key (bucket, path)
 );
+create index idx_bird_sounds_list on public.bird_sounds using btree (bird, default_);
 
 create table packs (
   id integer primary key generated always as identity,
@@ -53,7 +55,8 @@ create table bird_pack (
     on delete cascade,
   constraint fk_bird_pack_pack
     foreign key (pack) references packs(name)
-    on delete cascade
+    on delete cascade,
+  constraint bird_pack_pkey primary key (bird, pack)
 );
 
 create type sound as (

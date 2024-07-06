@@ -62,7 +62,7 @@ async fn upload_media() -> Result<()> {
     let sb_env = env::var("ENV")?;
     let flag = match sb_env.as_str() {
         "local" => "--local",
-        "prod" => "--linked",
+        "staging|production" => "--linked",
         _ => unimplemented!(),
     };
     let sb_args = vec!["--experimental", "storage", flag, "cp", "--recursive"];
