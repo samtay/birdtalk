@@ -1,7 +1,5 @@
 set dotenv-load
 
-default_platform := 'fullstack'
-
 # watch all (server, tailwind)
 watch:
   #!/usr/bin/env -S parallel --shebang --ungroup --jobs {{num_cpus()}} --retry-failed
@@ -9,7 +7,7 @@ watch:
   just watch-server
 
 # watch server
-watch-server platform=default_platform:
+watch-server platform='fullstack':
   #!/usr/bin/env bash
   set -euxo pipefail
   cd app
@@ -42,9 +40,11 @@ supabase-up:
   supabase db reset
   just supabase-seed
 
+# TODO fix so that we only need .env, not .env.local
 # seed supabase with bird data and media
-supabase-seed:
+supabase-seed env='local':
   #!/usr/bin/env bash
+  . '.env.{{env}}'
   # copy birds
   psql "$DATABASE_URL" -c \
     "\copy birds (scientific_name, common_name)
