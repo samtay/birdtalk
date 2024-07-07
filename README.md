@@ -87,12 +87,6 @@ See
 
 ### todo
 
-- [ ] Revise justfile to use environment variables
-- [ ] Ensure .env, github secrets, and justfile are consistent!
-- [ ] Call supabase-seed from staging CI
-
-- [ ] Edit `staging.yaml` to build staging and deploy to static branch
-- [ ] Push `develop` to push staging
 - [ ] Update `production.yaml` to match staging once working.
 - [ ] Need outer "courses" to order packs.
 - [ ] Make `app` the root package of the workspace? Then don't need to specify `-p` and probably works better with `dx`
