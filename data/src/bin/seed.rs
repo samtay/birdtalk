@@ -40,9 +40,24 @@ async fn upload_media() -> Result<()> {
         .map(|bird| (bird.scientific_name.clone(), bird))
         .collect();
 
-    // pull data from database
+    // connect to db
     let db_url = env::var("DATABASE_URL")?;
     let mut conn = PgConnection::connect(&db_url).await?;
+
+    // first insert buckets if necessary
+    sqlx::query!(
+        r#"insert into storage.buckets
+          (id, name, public)
+        values
+          ('bird_images', 'bird_images', true),
+          ('bird_sounds', 'bird_sounds', true)
+        on conflict (id)
+        do update set public = true"#
+    )
+    .execute(&mut conn)
+    .await?;
+
+    // pull data from database
     let db_birds = sqlx::query_as!(
         BirdRow,
         r#"select
@@ -62,7 +77,7 @@ async fn upload_media() -> Result<()> {
     let sb_env = env::var("ENV")?;
     let flag = match sb_env.as_str() {
         "local" => "--local",
-        "staging|production" => "--linked",
+        "staging" | "production" => "--linked",
         _ => unimplemented!(),
     };
     let sb_args = vec!["--experimental", "storage", flag, "cp", "--recursive"];
