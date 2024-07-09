@@ -19,52 +19,6 @@ use card::MultipleChoiceCard;
 use game_over::GameOverModal;
 use quiz::{Game, MULTIPLE_CHOICE_SIZE};
 
-// TODO: this might be unnecessary if Listen is a totally different route
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
-pub enum GameMode {
-    Listen,
-    #[default]
-    Learn,
-}
-
-impl Display for GameMode {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let s = match self {
-            GameMode::Listen => "Listen",
-            GameMode::Learn => "Learn",
-        };
-        write!(f, "{}", s)
-    }
-}
-
-impl FromStr for GameMode {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "Listen" => Ok(GameMode::Listen),
-            "Learn" => Ok(GameMode::Learn),
-            s => Err(format!("Invalid game mode: {s}")),
-        }
-    }
-}
-
-impl GameMode {
-    pub fn description(&self) -> &str {
-        match self {
-            GameMode::Listen => "Just listen to birds",
-            GameMode::Learn => "Listen to birds and identify them",
-        }
-    }
-
-    pub fn pressure(&self) -> &str {
-        match self {
-            GameMode::Listen => "no pressure",
-            GameMode::Learn => "a little pressure",
-        }
-    }
-}
-
 #[derive(Clone, Copy, PartialEq)]
 struct GameCtx {
     /// Game state
@@ -176,7 +130,7 @@ impl GameCtx {
 }
 
 #[component]
-pub fn GameView(pack: BirdPackDetailed, mode: GameMode) -> Element {
+pub fn GameView(pack: BirdPackDetailed) -> Element {
     let game_ctx = GameCtx::new(pack);
     let shuffle = game_ctx.shuffle_memo();
     let correct_bird = game_ctx.correct_bird_memo();
