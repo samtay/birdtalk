@@ -1,18 +1,12 @@
 //! This module contains progress functionality that is _permanent_ rather than per game session.
 
-#![allow(dead_code)] // TODO: remove
-
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
 /// The number of times a bird must be correctly identified consecutively to be considered learned.
 pub const LEARN_THRESHOLD: u32 = 3;
-pub const BIRD_PACK_SIZE: usize = 30;
 pub const BIRDS_PER_LEVEL: usize = 15;
-
-// TODO: stick Stats into a context, with storage backing!
-// Eventually there should be impls around this to handle storage / storage + db
 
 /// Learning progress for a user.
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
