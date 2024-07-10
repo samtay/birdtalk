@@ -12,7 +12,7 @@ use crate::{
     },
 };
 use game::GameView;
-use pages::{Achievements, Birds, Listen, Settings};
+use pages::{Achievements, Birds, Listen, Packs, Settings};
 
 const AUDIO_LOOP: bool = true;
 const AUDIO_AUTOPLAY: bool = true;
@@ -70,8 +70,8 @@ enum Route {
         #[route("/birds")]
         Birds {},
 
-        // #[route("/packs")]
-        // Packs {},
+        #[route("/packs")]
+        Packs {},
 
         #[route("/achievements")]
         Achievements {},
@@ -87,7 +87,7 @@ fn Navbar() -> Element {
         div {
             class: "flex sm:flex-row flex-col-reverse h-screen",
             div {
-                class: "grow-0 flex flex-col items-center bg-green-800 text-amber-50 py-2",
+                class: "grow-0 flex flex-col items-center bg-green-800 text-amber-50 sm:py-2",
                 img {
                     class: "w-24 mt-[-1rem] hidden sm:block",
                     src: "static_logo_transparent.png"
@@ -95,7 +95,7 @@ fn Navbar() -> Element {
                 nav {
                     id: "navbar",
                     // TODO: padding arond the elements rather than container will give a bigger hitbox for the icons on mobile
-                    class: "flex sm:flex-col gap-2 w-full justify-between sm:justify-start px-2 py-1 sm:py-4",
+                    class: "flex sm:flex-col gap-2 w-full justify-between sm:justify-start sm:py-1 sm:py-4",
                     NavbarLink {
                         to: Route::Learn {},
                         icon: rsx! {PlayIcon {}},
@@ -110,10 +110,9 @@ fn Navbar() -> Element {
                         to: Route::Birds {},
                         icon: rsx! {BirdIcon {}},
                         label: "Birds",
-                        desktop_only: true,
                     }
                     NavbarLink {
-                        to: Route::Birds {},
+                        to: Route::Packs {},
                         icon: rsx! {PacksIcon {}},
                         label: "Packs",
                         desktop_only: true,

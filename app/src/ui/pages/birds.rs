@@ -10,3 +10,14 @@ pub fn Birds() -> Element {
         }
     }
 }
+
+#[component]
+pub fn Packs() -> Element {
+    rsx! {
+        div {
+            class: "flex flex-col items-center justify-center h-full w-full",
+            h1 { "Packs; or other types of collections?" }
+            p { "Coming soon!" }
+        }
+    }
+}

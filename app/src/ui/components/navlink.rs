@@ -25,7 +25,8 @@ pub fn NavbarLink(props: NavLinkProps) -> Element {
         desktop_only,
     } = props;
     let mut class =
-        "items-center hover:text-amber-100 hover:bg-green-700 sm:px-4 sm:py-2".to_string();
+        "items-center hover:text-amber-100 hover:bg-green-700 px-3 py-2 sm:px-4 sm:py-2"
+            .to_string();
     if desktop_only {
         class.push_str(" hidden sm:flex");
     } else {
@@ -34,7 +35,7 @@ pub fn NavbarLink(props: NavLinkProps) -> Element {
     rsx! {
         Link {
             class,
-            active_class: "text-amber-100 bg-green-700",
+            active_class: "sm:text-amber-100 sm:bg-green-700",
             to,
             {icon},
             span {class: "hidden sm:inline", "{label}"}
