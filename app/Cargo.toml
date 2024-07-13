@@ -15,6 +15,7 @@ gloo-net = { version = "0.5.0", features = ["json"] }
 manganis = "0.2.2"
 rand = "0.8.5"
 serde = { workspace = true }
+serde-querystring = "0.2.1"
 serde_json = { workspace = true }
 thiserror = "1.0.61"
 tracing = { workspace = true }

@@ -7,8 +7,10 @@ use dioxus::prelude::*;
 
 use crate::{
     bird::BirdPackDetailed,
+    supabase::{AuthState, MagicLinkResponse},
     ui::components::{
-        BirdIcon, MusicNoteIcon, NavbarLink, PacksIcon, PlayIcon, SettingsIcon, TrophyIcon,
+        BirdIcon, LoginModal, LoginRedirect, MusicNoteIcon, NavbarLink, PacksIcon, PlayIcon,
+        SettingsIcon, TrophyIcon,
     },
 };
 use game::GameView;
@@ -28,17 +30,11 @@ pub enum GameStatus {
 
 impl GameStatus {
     pub fn playing(&self) -> bool {
-        match self {
-            Self::None => false,
-            _ => true,
-        }
+        !matches!(self, Self::None)
     }
 
     pub fn has_progress(&self) -> bool {
-        match self {
-            Self::PlayingWithProgress(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::PlayingWithProgress(_))
     }
 
     pub fn pack(&self) -> Option<&BirdPackDetailed> {
@@ -50,7 +46,21 @@ impl GameStatus {
     }
 }
 
+// TODO: this stuff will probably move. probably need user state to make db reqs
+#[derive(Clone)]
+pub struct AppCtx {
+    pub auth_state: AuthState,
+}
+
+impl AppCtx {
+    pub fn init() {
+        let auth_state = AuthState::init();
+        use_context_provider(|| Self { auth_state });
+    }
+}
+
 pub fn App() -> Element {
+    AppCtx::init();
     rsx! {
         Router::<Route> {
         }
@@ -60,25 +70,51 @@ pub fn App() -> Element {
 #[derive(Clone, Routable, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 #[rustfmt::skip]
 enum Route {
-    #[layout(Navbar)]
-        #[route("/")]
-        Learn {},
+    #[route("/login/#:fragment")]
+    LoginRedirect {
+        fragment: MagicLinkResponse
+    },
 
-        #[route("/listen")]
-        Listen {},
+    #[layout(LoginRequired)]
+        #[layout(Navbar)]
+            #[route("/")]
+            Learn {},
 
-        #[route("/birds")]
-        Birds {},
+            #[route("/listen")]
+            Listen {},
 
-        #[route("/packs")]
-        Packs {},
+            #[route("/birds")]
+            Birds {},
 
-        #[route("/achievements")]
-        Achievements {},
+            #[route("/packs")]
+            Packs {},
 
-        #[route("/settings")]
-        Settings {},
-    // #[end_layout]
+            #[route("/achievements")]
+            Achievements {},
+
+            #[route("/settings")]
+            Settings {},
+}
+
+#[component]
+fn LoginRequired() -> Element {
+    let ctx = use_context::<AppCtx>();
+    let logged_in = use_memo(move || ctx.auth_state.is_logged_in());
+    // TODO: Perhaps arbitrarily delay to second generation() for SSG?
+    // TODO: Only gate birds, packs, achievements, settings on login status
+    //       "Learn" should be available from the get-go with "anon" key and default free packs
+    //       Pending / refreshing -> Learn view shows placeholders
+    //       Signed out           -> Fetch free packs with anon key
+    //       Signed in            -> Fetch packs relevant to user
+    rsx! {
+        if !logged_in() {
+            LoginModal {}
+        }
+        div {
+            "inert": (!logged_in()).then_some(true),
+             Outlet::<Route> { }
+        }
+    }
 }
 
 #[component]
