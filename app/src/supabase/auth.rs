@@ -1,7 +1,7 @@
 use std::{fmt::Display, str::FromStr};
 
 use dioxus::prelude::*;
-use dioxus_sdk::storage::use_persistent;
+use dioxus_sdk::storage::{use_synced_storage, LocalStorage};
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_querystring::UrlEncodedQS;
 use thiserror::Error;
@@ -19,10 +19,7 @@ pub struct User {
 pub struct Tokens {
     access_token: String,
     refresh_token: String,
-    // TODO: translate to NaiveDateTime like thesurf.in
-    #[serde(deserialize_with = "via_string")]
     expires_at: u64,
-    #[serde(deserialize_with = "via_string")]
     expires_in: u64,
     token_type: String,
 }
@@ -65,7 +62,8 @@ impl AuthState {
         //  gate it on project ref like sb auth does:
         // const defaultStorageKey = `sb-${new URL(this.authUrl).hostname.split('.')[0]}-auth-token`
         // TODO: when we set "Refreshing" we lose persisted data. Is that ok?
-        let inner = use_persistent("sb-auth", || AuthStatus::None);
+        let inner =
+            use_synced_storage::<LocalStorage, _>("sb-auth".to_string(), || AuthStatus::None);
         Self(inner)
     }
 
@@ -102,10 +100,16 @@ impl AuthState {
 
     pub async fn complete_signin(&mut self, rsp: MagicLinkResponse) -> Result<(), AuthError> {
         self.0.set(AuthStatus::Refreshing);
-        let sb_user = self.get_user(&rsp.tokens.access_token).await?;
+        let sb_user = self.get_user(&rsp.access_token).await?;
         let user = User {
             sb_user,
-            tokens: rsp.tokens,
+            tokens: Tokens {
+                access_token: rsp.access_token,
+                refresh_token: rsp.refresh_token,
+                expires_at: rsp.expires_at,
+                expires_in: rsp.expires_in,
+                token_type: rsp.token_type,
+            },
         };
         self.0.set(AuthStatus::SignedIn(user));
         Ok(())
@@ -172,11 +176,19 @@ pub struct MetaSecurity {
 
 /// This login data is returned in a fragment following the redirect URL that the auth server
 /// redirects to.
+// NOTE: Would be nice to `flatten` a common `Token` struct here, however `deserialize_with` causes
+// the underlying sdk > storage > postcard deserialization to fail.. so that's fun.
 /// TODO: enum with error http://127.0.0.1:3000/#error=access_denied&error_code=403&error_description=Email+link+is+invalid+or+has+expired
 #[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct MagicLinkResponse {
-    #[serde(flatten)]
-    tokens: Tokens,
+    access_token: String,
+    refresh_token: String,
+    // TODO: translate to NaiveDateTime like thesurf.in
+    #[serde(deserialize_with = "via_string")]
+    expires_at: u64,
+    #[serde(deserialize_with = "via_string")]
+    expires_in: u64,
+    token_type: String,
     r#type: String,
 }
 
@@ -194,11 +206,11 @@ impl Display for MagicLinkResponse {
             "{}",
             [
                 ("type", &self.r#type),
-                ("access_token", &self.tokens.access_token),
-                ("refresh_token", &self.tokens.refresh_token),
-                ("expires_at", &self.tokens.expires_at.to_string()),
-                ("expires_in", &self.tokens.expires_in.to_string()),
-                ("token_type", &self.tokens.token_type)
+                ("access_token", &self.access_token),
+                ("refresh_token", &self.refresh_token),
+                ("expires_at", &self.expires_at.to_string()),
+                ("expires_in", &self.expires_in.to_string()),
+                ("token_type", &self.token_type)
             ]
             .map(|(k, v)| format!("{k}={v}"))
             .join("&")
