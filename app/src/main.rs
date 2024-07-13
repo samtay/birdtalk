@@ -1,3 +1,5 @@
+#![allow(dead_code)] // TODO: remove
+#![allow(unused_imports)] // TODO: remove
 #![allow(non_snake_case)]
 
 use dioxus::prelude::*;

@@ -24,6 +24,7 @@ jobs:
       SUPABASE_API_URL: "https://${{ secrets.STAGING_PROJECT_ID }}.supabase.co"
       SUPABASE_ANON_KEY: ${{ secrets.STAGING_ANON_KEY }}
       ENV: staging
+      APP_URL: https://staging.talkbirdyto.me
 
     steps:
       - uses: actions/checkout@v4

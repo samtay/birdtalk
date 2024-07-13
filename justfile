@@ -7,11 +7,11 @@ watch:
   just watch-server
 
 # watch server
-watch-server platform='fullstack':
+watch-server platform='web':
   #!/usr/bin/env bash
   set -euxo pipefail
   cd app
-  dx serve --platform {{platform}} --features {{platform}}
+  dx serve --platform {{platform}} --features {{platform}} --port 3000
 
 # watch tailwind
 watch-tailwind:
