@@ -9,7 +9,7 @@ use crate::{
     bird::BirdPackDetailed,
     supabase::{AuthState, MagicLinkResponse},
     ui::components::{
-        BirdIcon, LoginModal, LoginRedirect, MusicNoteIcon, NavbarLink, PacksIcon, PlayIcon,
+        BirdIcon, Login, LoginModal, LoginRedirect, MusicNoteIcon, NavbarLink, PacksIcon, PlayIcon,
         SettingsIcon, TrophyIcon,
     },
 };
@@ -75,8 +75,8 @@ enum Route {
         fragment: MagicLinkResponse
     },
 
-    #[layout(LoginRequired)]
-        #[layout(Navbar)]
+    #[layout(Navbar)]
+        #[layout(LoginGate)]
             #[route("/")]
             Learn {},
 
@@ -97,22 +97,23 @@ enum Route {
 }
 
 #[component]
-fn LoginRequired() -> Element {
+fn LoginGate() -> Element {
     let ctx = use_context::<AppCtx>();
+    let on_open_route = matches!(use_route(), Route::Learn {});
     let logged_in = use_memo(move || ctx.auth_state.is_logged_in());
+    let login_needed = !on_open_route && !logged_in();
     // TODO: Perhaps arbitrarily delay to second generation() for SSG?
-    // TODO: Only gate birds, packs, achievements, settings on login status
-    //       "Learn" should be available from the get-go with "anon" key and default free packs
     //       Pending / refreshing -> Learn view shows placeholders
     //       Signed out           -> Fetch free packs with anon key
     //       Signed in            -> Fetch packs relevant to user
     rsx! {
-        if !logged_in() {
-            LoginModal {}
-        }
-        div {
-            "inert": (!logged_in()).then_some(true),
-             Outlet::<Route> { }
+        if login_needed {
+            div {
+                class: "flex flex-col items-center justify-center h-full",
+                Login {}
+            }
+        } else {
+            Outlet::<Route> { }
         }
     }
 }
