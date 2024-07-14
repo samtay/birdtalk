@@ -1,34 +1,39 @@
 // use std::sync::OnceLock;
 // static SB_CLIENT: OnceLock<String> = OnceLock::new();
 
-use gloo_net::http::RequestBuilder;
+use once_cell::sync::Lazy;
+use postgrest::{Builder, Postgrest};
 use serde::de::DeserializeOwned;
 use thiserror::Error;
 
 use crate::conf::{SUPABASE_ANON_KEY, SUPABASE_API_URL};
 
+static POSTGREST_CLIENT: Lazy<Postgrest> = Lazy::new(|| {
+    Postgrest::new(format!("{SUPABASE_API_URL}/rest/v1"))
+        .insert_header("apikey", SUPABASE_ANON_KEY)
+        .insert_header("Authorization", format!("Bearer {SUPABASE_ANON_KEY}"))
+});
+
 #[derive(Error, Debug)]
 pub enum Error {
     #[error(transparent)]
     Gloo(#[from] gloo_net::Error),
+    #[error(transparent)]
+    Reqwest(#[from] reqwest::Error),
 }
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;
 
 pub struct SupabaseRequest<T> {
-    builder: RequestBuilder,
-    select: Option<String>, // TODO: use cow / something more flexible
+    builder: Builder,
     _response_type: std::marker::PhantomData<T>,
 }
 
 impl<T: DeserializeOwned> SupabaseRequest<T> {
     pub fn new(table_name: &str) -> Self {
-        let builder = RequestBuilder::new(&format!("{SUPABASE_API_URL}/rest/v1/{table_name}"))
-            .header("apikey", SUPABASE_ANON_KEY)
-            .header("Authorization", &format!("Bearer {SUPABASE_ANON_KEY}"));
+        let builder = POSTGREST_CLIENT.from(table_name);
         SupabaseRequest {
             builder,
-            select: None,
             _response_type: std::marker::PhantomData,
         }
     }
@@ -37,7 +42,6 @@ impl<T: DeserializeOwned> SupabaseRequest<T> {
     pub fn cast<V>(self) -> SupabaseRequest<V> {
         SupabaseRequest {
             builder: self.builder,
-            select: self.select,
             _response_type: std::marker::PhantomData,
         }
     }
@@ -47,20 +51,26 @@ impl<T: DeserializeOwned> SupabaseRequest<T> {
         self.cast()
     }
 
-    // TODO copy docs from postgrest-rs
-    pub fn select(mut self, select: &str) -> Self {
-        self.select = Some(select.to_string());
+    /// See [`Builder::select`]
+    pub fn select<C>(mut self, columns: C) -> Self
+    where
+        C: Into<String>,
+    {
+        self.builder = self.builder.select(columns);
+        self
+    }
+
+    /// See [`Builder::order`]
+    pub fn order<C>(mut self, columns: C) -> Self
+    where
+        C: Into<String>,
+    {
+        self.builder = self.builder.order(columns);
         self
     }
 
     pub async fn execute(self) -> Result<T, Error> {
-        let rsp = self
-            .builder
-            .query([("select", &self.select.expect("missing select"))])
-            .send()
-            .await?
-            .json()
-            .await?;
+        let rsp = self.builder.execute().await?.json().await?;
         Ok(rsp)
     }
 }

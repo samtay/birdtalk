@@ -78,6 +78,6 @@ impl BirdPackDetailed {
     /// Query db for free packs
     // TODO: filter free = true
     pub async fn fetch_free_packs() -> Result<Vec<Self>> {
-        Self::request().select("*").execute().await
+        Self::request().select("*").order("id.asc").execute().await
     }
 }
