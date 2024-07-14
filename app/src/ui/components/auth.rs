@@ -29,24 +29,26 @@ pub fn Login() -> Element {
     let mut magic_link_sent = use_signal(|| false);
 
     let auth = use_context::<AppCtx>().auth_state;
-    let signin = move |_| async move {
-        tracing::info!("Logging in with email: {}", email());
-        auth.sign_in_with_magic_link(email()).await.unwrap();
+    let signin = move |evt: FormEvent| async move {
+        let values = evt.values();
+        let email = values["email"][0].clone();
+        tracing::info!("Logging in with email: {}", email);
+        auth.sign_in_with_magic_link(email).await.unwrap();
         magic_link_sent.set(true);
     };
 
     rsx! {
-        div { class: "text-center flex flex-col justify-center items-center gap-4 mb-5 w-full",
+        form { class: "text-center flex flex-col justify-center items-center gap-4 mb-5 w-full",
+            onsubmit: signin,
             input {
                 class: "w-64 px-3 py-2 rounded-lg border-none text-amber-50 text-green-800",
                 "type": "email",
+                name: "email",
                 placeholder: "Enter your email",
-                value: "{email}",
                 oninput: move |event| email.set(event.value())
             }
             button {
                 class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-800 text-amber-50 rounded-full shadow",
-                onclick: signin,
                 disabled: magic_link_sent(),
                 "Login / Signup"
             }
