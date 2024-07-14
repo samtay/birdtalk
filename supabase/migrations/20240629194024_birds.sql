@@ -70,7 +70,9 @@ create type bird_detailed as (
   image text,
   sounds sound[]
 );
-create view birds_detailed as
+create view birds_detailed
+  with (security_invoker=on)
+  as
   select
       b.id,
       b.scientific_name,
@@ -91,7 +93,9 @@ create type bird_summary as (
   common_name text,
   image text
 );
-create view birds_summary as
+create view birds_summary
+  with (security_invoker=on)
+  as
   select
       b.id,
       b.scientific_name,
@@ -100,7 +104,9 @@ create view birds_summary as
   from birds b
   left join bird_images bi on bi.bird = b.id and bi.default_ = true;
 
-create view bird_packs_summary as
+create view bird_packs_summary
+  with (security_invoker=on)
+  as
   select
       p.id,
       p.name,
@@ -111,7 +117,9 @@ create view bird_packs_summary as
   left join birds_summary b on b.scientific_name = bp.bird
   group by p.id;
 
-create view bird_packs_detailed as
+create view bird_packs_detailed
+  with (security_invoker=on)
+  as
   select
       p.id,
       p.name,
