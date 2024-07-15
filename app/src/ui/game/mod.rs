@@ -13,13 +13,14 @@ use serde::{Deserialize, Serialize};
 use crate::{
     bird::{BirdDetailed, BirdPackDetailed},
     stats::Stats,
+    ui::AppCtx,
 };
 use audio::AudioPlayer;
 use card::MultipleChoiceCard;
 use game_over::GameOverModal;
 use quiz::{Game, MULTIPLE_CHOICE_SIZE};
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy)]
 struct GameCtx {
     /// Game state
     game: Signal<Game>,
@@ -37,15 +38,17 @@ struct GameCtx {
     /// occur as soon as the user selects the last bird. Perhaps we'll consider that later. For
     /// now, we trigger that flow after the user clicks the "next" button on the flipped card.
     game_completed: Signal<bool>,
+    /// For convenience
+    app_ctx: AppCtx,
 }
 
 impl GameCtx {
     /// Initialize a new game context (and provide it to children).
-    fn new(birdpack: BirdPackDetailed) -> Self {
+    fn init(birdpack: BirdPackDetailed) -> Self {
+        let app_ctx = use_context::<AppCtx>();
         let birdpack_id = use_signal(|| birdpack.id).into();
         let game = use_signal(|| Game::init(birdpack, true));
-        let stats =
-            use_synced_storage::<LocalStorage, _>("{user.email}".to_string(), Stats::default);
+        let stats = *app_ctx.stats;
         let stats_original = stats.with_peek(|og| {
             tracing::debug!("Generation: {}, Original stats: {:?}", generation(), og);
             Signal::new(og.clone()).into()
@@ -59,6 +62,7 @@ impl GameCtx {
             birdpack_id,
             game_completed,
             stats_original,
+            app_ctx,
         })
     }
 
@@ -111,6 +115,9 @@ impl GameCtx {
                 .write()
                 .add_pack_completed(*self.birdpack_id.read());
             self.game_completed.set(true);
+            if let Err(e) = self.app_ctx.stats.sync().await {
+                tracing::error!("Failed to sync stats: {:?}", e);
+            }
         } else {
             // Cards flip back to face up
             self.correct_chosen.set(false);
@@ -131,7 +138,7 @@ impl GameCtx {
 
 #[component]
 pub fn GameView(pack: BirdPackDetailed) -> Element {
-    let game_ctx = GameCtx::new(pack);
+    let game_ctx = GameCtx::init(pack);
     let shuffle = game_ctx.shuffle_memo();
     let correct_bird = game_ctx.correct_bird_memo();
 

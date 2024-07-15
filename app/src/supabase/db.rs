@@ -3,7 +3,7 @@
 
 use once_cell::sync::Lazy;
 use postgrest::{Builder, Postgrest};
-use serde::de::DeserializeOwned;
+use serde::{de::DeserializeOwned, Serialize};
 use thiserror::Error;
 
 use crate::conf::{SUPABASE_ANON_KEY, SUPABASE_API_URL};
@@ -13,6 +13,14 @@ static POSTGREST_CLIENT: Lazy<Postgrest> = Lazy::new(|| {
         .insert_header("apikey", SUPABASE_ANON_KEY)
         .insert_header("Authorization", format!("Bearer {SUPABASE_ANON_KEY}"))
 });
+
+pub fn rpc<T, U>(function: T, params: U) -> Builder
+where
+    T: AsRef<str>,
+    U: Serialize,
+{
+    POSTGREST_CLIENT.rpc(function, serde_json::to_string(&params).unwrap())
+}
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -69,6 +77,15 @@ impl<T: DeserializeOwned> SupabaseRequest<T> {
         self
     }
 
+    pub fn eq<C, D>(mut self, column: C, filter: D) -> Self
+    where
+        C: AsRef<str>,
+        D: AsRef<str>,
+    {
+        self.builder = self.builder.eq(column, filter);
+        self
+    }
+
     pub async fn execute(self) -> Result<T, Error> {
         let rsp = self.builder.execute().await?.json().await?;
         Ok(rsp)
@@ -78,7 +95,7 @@ impl<T: DeserializeOwned> SupabaseRequest<T> {
 pub trait SupabaseResource: Sized + DeserializeOwned {
     fn table_name() -> &'static str;
 
-    // When auth is implemented, there will probably be some state to reference the correct
+    // TODO: When auth is implemented, there will probably be some state to reference the correct
     // auth token.
     fn request() -> SupabaseRequest<Vec<Self>> {
         SupabaseRequest::new(Self::table_name())

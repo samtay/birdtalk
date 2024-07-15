@@ -7,7 +7,9 @@ use dioxus::prelude::*;
 
 use crate::{
     bird::BirdPackDetailed,
+    stats::Stats,
     supabase::{AuthState, MagicLinkResponse},
+    sync::Sync,
     ui::components::{
         BirdIcon, Login, LoginModal, LoginRedirect, MusicNoteIcon, NavbarLink, PacksIcon, PlayIcon,
         SettingsIcon, TrophyIcon,
@@ -47,15 +49,17 @@ impl GameStatus {
 }
 
 // TODO: this stuff will probably move. probably need user state to make db reqs
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct AppCtx {
     pub auth_state: AuthState,
+    pub stats: Sync<Stats>,
 }
 
 impl AppCtx {
     pub fn init() {
         let auth_state = AuthState::init();
-        use_context_provider(|| Self { auth_state });
+        let stats = Sync::<Stats>::init(auth_state);
+        use_context_provider(|| Self { auth_state, stats });
     }
 }
 
