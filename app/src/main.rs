@@ -9,6 +9,7 @@ mod bird;
 mod conf;
 mod stats;
 mod supabase;
+mod sync;
 mod ui;
 
 // These are automagically included in the <head>.

@@ -35,7 +35,6 @@ pub enum AuthStatus {
     Refreshing,
     InvalidToken,
     SignedIn(User),
-    Anonymous(User),
     SignedOut,
 }
 
@@ -68,21 +67,28 @@ impl AuthState {
     }
 
     pub fn is_logged_in(&self) -> bool {
-        matches!(
-            *self.0.read(),
-            AuthStatus::SignedIn(_) | AuthStatus::Anonymous(_)
-        )
+        matches!(*self.0.read(), AuthStatus::SignedIn(_))
     }
 
     pub fn is_anonymous(&self) -> bool {
-        matches!(*self.0.read(), AuthStatus::Anonymous(_))
+        self.with_user(|u| u.sb_user.is_anonymous).unwrap_or(false)
     }
 
     pub fn email(&self) -> Option<String> {
+        self.with_user(|u| u.sb_user.email.clone()).flatten()
+    }
+
+    pub fn user_id(&self) -> Option<String> {
+        self.with_user(|u| u.sb_user.id.clone())
+    }
+
+    pub fn user(&self) -> Option<User> {
+        self.with_user(Clone::clone)
+    }
+
+    pub fn with_user<T>(&self, f: impl FnOnce(&User) -> T) -> Option<T> {
         match *self.0.read() {
-            AuthStatus::SignedIn(ref user) | AuthStatus::Anonymous(ref user) => {
-                user.sb_user.email.clone()
-            }
+            AuthStatus::SignedIn(ref user) => Some(f(user)),
             _ => None,
         }
     }

@@ -2,7 +2,10 @@
 
 use std::collections::HashMap;
 
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+
+use crate::supabase::{self, AuthState, Result, SupabaseResource};
 
 /// The number of times a bird must be correctly identified consecutively to be considered learned.
 pub const LEARN_THRESHOLD: u32 = 3;
@@ -74,5 +77,59 @@ impl Stats {
     pub fn add_pack_completed(&mut self, pack_id: u64) {
         let pack_stat = self.pack_stats.entry(pack_id).or_default();
         pack_stat.times_completed += 1;
+    }
+}
+
+/// A type to match the public.stats table in the database.
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct UserStats {
+    user_id: String, // TODO: uuid
+    data: Stats,
+    updated_at: DateTime<Utc>,
+}
+
+impl SupabaseResource for UserStats {
+    fn table_name() -> &'static str {
+        "stats"
+    }
+}
+
+// TODO: these requests require overriding the anon jwt with the user's!
+impl UserStats {
+    pub fn new(auth: AuthState, data: Stats) -> Self {
+        Self {
+            user_id: auth.user_id().unwrap_or_default(),
+            data,
+            updated_at: Utc::now(),
+        }
+    }
+
+    pub async fn fetch(auth: AuthState) -> Result<Self> {
+        match auth.user_id() {
+            None => Ok(UserStats::default()),
+            Some(user_id) => {
+                let mut stats = Self::request()
+                    .select("*")
+                    .eq("user_id", user_id)
+                    .execute()
+                    .await?;
+                Ok(stats.pop().unwrap_or_default())
+            }
+        }
+    }
+
+    pub fn update_stats(&mut self, stats: Stats) -> &mut Self {
+        self.data = stats;
+        self
+    }
+
+    // TODO: throw error on non-200
+    pub async fn push(&mut self) -> Result<()> {
+        tracing::debug!("Pushing stats for user_id {:?}", self.user_id);
+        self.updated_at = Utc::now();
+        if !self.user_id.is_empty() {
+            let _rsp = supabase::rpc("upsert_stats", &self).execute().await?;
+        }
+        Ok(())
     }
 }
