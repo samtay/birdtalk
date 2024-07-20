@@ -116,6 +116,7 @@ impl GameCtx {
                 .add_pack_completed(*self.birdpack_id.read());
             self.game_completed.set(true);
             if let Err(e) = self.app_ctx.stats.sync().await {
+                // TODO: Display error to user
                 tracing::error!("Failed to sync stats: {:?}", e);
             }
         } else {
