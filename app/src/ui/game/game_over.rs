@@ -2,7 +2,11 @@ use dioxus::prelude::*;
 
 use crate::{
     stats::Stats,
-    ui::{components::Modal, game::GameCtx, GameStatus, GAME_STATUS},
+    ui::{
+        components::{Login, Modal},
+        game::GameCtx,
+        AppCtx, GameStatus, GAME_STATUS,
+    },
 };
 
 #[component]
@@ -17,6 +21,8 @@ pub fn GameOverModal() -> Element {
             *GAME_STATUS.write() = GameStatus::None;
         });
     });
+
+    let auth = use_context::<AppCtx>().auth_state;
 
     rsx! {
         Modal {
@@ -33,20 +39,49 @@ pub fn GameOverModal() -> Element {
                         Stat { name: "Birds Learned", f: Stats::birds_learned }
                     }
                 }
-                button {
-                    class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-800 text-amber-50 rounded-full shadow",
-                    // TODO: this handler doesn't have access to internal modal visibility
-                    // signal, that's why slide down doesn't work.
-                    // ... among other reasons.
-                    onclick: move |_| {
-                        game_over_dismissed_cb.call()
-                    },
-                    onmounted: move |mnt| async move {
-                        #[cfg(feature = "web")]
-                        async_std::task::sleep(std::time::Duration::from_millis(500)).await;
-                        mnt.set_focus(true).await.ok();
-                    },
-                    "Continue"
+                if auth.is_logged_in() {
+                    // normal case, logged in user
+                    if !auth.is_anonymous() {
+                        button {
+                            class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-800 text-amber-50 rounded-full shadow",
+                            // TODO: this handler doesn't have access to internal modal visibility
+                            // signal, that's why slide down doesn't work.
+                            // ... among other reasons.
+                            onclick: move |_| {
+                                game_over_dismissed_cb.call()
+                            },
+                            onmounted: move |mnt| async move {
+                                #[cfg(feature = "web")]
+                                async_std::task::sleep(std::time::Duration::from_millis(500)).await;
+                                mnt.set_focus(true).await.ok();
+                            },
+                            "Continue"
+                        }
+                    // user isn't logged in, encourage them to provide email
+                    } else {
+                        button {
+                            class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-800 text-amber-50 rounded-full shadow",
+                            onclick: move |_| {
+                                // TODO: handle anon case in game over dismissal?
+                                game_over_dismissed_cb.call()
+                            },
+                            onmounted: move |mnt| async move {
+                                #[cfg(feature = "web")]
+                                async_std::task::sleep(std::time::Duration::from_millis(500)).await;
+                                mnt.set_focus(true).await.ok();
+                            },
+                            "TODO prompt for email and do linking",
+                        }
+                    }
+                // user isn't logged in; this should only happen on first play
+                } else {
+                    div {
+                        h3 {
+                            class: "mb-2 text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-800 to-green-600",
+                            "Sign up to save your progress!"
+                        }
+                        Login {}
+                    }
                 }
             }
         }

@@ -54,7 +54,7 @@ pub fn Login() -> Element {
             }
             if magic_link_sent() {
                 div {
-                    class: "text-sm text-green-400",
+                    class: "text-sm text-green-800",
                     "We sent a magic link to your email! Check your inbox and click the link to login."
                 }
             }
@@ -63,6 +63,7 @@ pub fn Login() -> Element {
 }
 
 /// A component for receiving the magic link response and redirecting back to the main app.
+// TODO: sync stats (pull, merge, push) after login
 #[component]
 pub fn LoginRedirect(fragment: ReadOnlySignal<MagicLinkResponse>) -> Element {
     let mut auth = use_context::<AppCtx>().auth_state;
