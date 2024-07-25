@@ -1,11 +1,5 @@
 set dotenv-load
 
-# watch all (server, tailwind)
-watch:
-  #!/usr/bin/env -S parallel --shebang --ungroup --jobs {{num_cpus()}} --retry-failed
-  just watch-tailwind
-  just watch-server
-
 # watch server
 watch-server platform='web':
   #!/usr/bin/env bash
@@ -65,6 +59,6 @@ supabase-seed env='local':
   # copy bird/pack relations
   psql "$DATABASE_URL" -c \
     "\copy bird_pack (pack, bird)
-      from program 'cat data/seed/packs.json | jq -r \".[] | {pack: .name, bird: .birds[]} | [.pack, .bird] | @csv\"'
+      from program 'cat $SEED_DIR/packs.json | jq -r \".[] | {pack: .name, bird: .birds[]} | [.pack, .bird] | @csv\"'
       csv" || true
   cargo run -p birdtalk-data --bin seed
