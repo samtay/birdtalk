@@ -1,0 +1,7 @@
+[
+  {
+    "name": "Common Birds",
+    "description": "Common birds of North America.",
+    "packs": ["Common I", "Common II"]
+  }
+]

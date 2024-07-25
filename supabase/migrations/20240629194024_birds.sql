@@ -59,6 +59,32 @@ create table bird_pack (
   constraint bird_pack_pkey primary key (bird, pack)
 );
 
+create table courses (
+  id integer primary key generated always as identity,
+  name text not null,
+  description text not null,
+  free bool not null default false
+);
+
+create unique index course_name on public.courses using btree (name);
+
+-- These are easier to create and bulk upload when linking by name, so just do
+-- that for now. If perf is a problem, solve it later.
+create table course_pack (
+  course text not null,
+  pack text not null,
+  index integer not null,
+  constraint fk_course_pack_course
+    foreign key (course) references courses(name)
+    on delete cascade,
+  constraint fk_course_pack_pack
+    foreign key (pack) references packs(name)
+    on delete cascade,
+  constraint course_pack_pkey primary key (course, pack)
+);
+
+create unique index course_pack_index on public.course_pack using btree (course, index);
+
 create type sound as (
   path text,
   default_ bool
