@@ -63,12 +63,19 @@ impl Sync<Stats> {
             }
         });
 
-        Self {
+        let me = Self {
             remote,
             local,
             fut,
             auth,
-        }
+        };
+        // Super quick "sync" hack: just push whenever user logs in.
+        use_memo(move || {
+            if auth.is_logged_in() {
+                spawn(async move { me.sync().await.unwrap() });
+            }
+        });
+        me
     }
 
     pub async fn sync(&self) -> Result<()> {
