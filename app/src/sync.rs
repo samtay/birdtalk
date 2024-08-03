@@ -42,7 +42,7 @@ pub struct Sync<T: 'static> {
     local: Source<T>,
     /// Future to sync remote and local
     fut: UseFuture,
-    ///
+    /// Auth state
     auth: AuthState,
 }
 
