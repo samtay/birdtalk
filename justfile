@@ -74,3 +74,9 @@ supabase-seed env='local':
       csv" || true
 
   cargo run -p birdtalk-data --bin seed
+
+expo-android:
+  #!/usr/bin/env bash
+  set -euxo pipefail
+  cd native
+  npx expo run:android
