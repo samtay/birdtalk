@@ -12,10 +12,6 @@ mod supabase;
 mod sync;
 mod ui;
 
-// These are automagically included in the <head>.
-// Note that URLs are relative to your Cargo.toml file.
-const _TAILWIND_URL: &str = manganis::mg!(file("assets/tailwind.css"));
-
 fn main() {
     // Init storage
     dioxus_sdk::set_dir!();

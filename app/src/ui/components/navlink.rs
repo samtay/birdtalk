@@ -37,7 +37,7 @@ pub fn NavbarLink(props: NavLinkProps) -> Element {
             class,
             active_class: "sm:text-amber-100 sm:bg-green-700",
             to,
-            {icon},
+            {icon}
             span {class: "hidden sm:inline", "{label}"}
         }
     }

@@ -9,7 +9,7 @@ pub struct ModalProps {
     /// If dismissable, clicking the X button or backdrop will close the modal.
     #[props(default = true)]
     pub dismissable: bool,
-    pub on_dismiss: Option<UseCallback<()>>,
+    pub on_dismiss: Option<UseCallback<(), ()>>,
 }
 
 // NOTE: Moving this to a permanent location at a top level in the DOM would allow for us to swap
@@ -18,8 +18,8 @@ pub struct ModalProps {
 pub fn Modal(props: ModalProps) -> Element {
     let ModalProps {
         children,
-        extra_backdrop_classes,
-        extra_modal_classes,
+        extra_backdrop_classes: _,
+        extra_modal_classes: _,
         dismissable,
         on_dismiss,
     } = props;
@@ -32,7 +32,7 @@ pub fn Modal(props: ModalProps) -> Element {
             dismissed.set(true);
             if let Some(on_dismiss) = on_dismiss {
                 tracing::debug!("Calling on_dismiss");
-                on_dismiss.call();
+                on_dismiss.call(());
             }
         }
     };
@@ -40,9 +40,10 @@ pub fn Modal(props: ModalProps) -> Element {
     rsx! {
         div {
             class: "fixed inset-0 z-20 flex justify-center items-center backdrop-blur-sm bg-amber-50/20 overflow-hidden transition-[opacity,backdrop-blur] duration-1000",
-            class: if let Some(extra_backdrop_classes) = extra_backdrop_classes {
-                extra_backdrop_classes
-            },
+            // TODO: after fix, uncomment
+            // class: if let Some(extra_backdrop_classes) = extra_backdrop_classes {
+            //     extra_backdrop_classes
+            // },
             class: if dismissed() {
                 "invisible z-[-1] opacity-0 backdrop-blur-none"
             },
@@ -52,9 +53,10 @@ pub fn Modal(props: ModalProps) -> Element {
             },
             div {
                 class: "w-full h-auto bottom-0 absolute bg-amber-50 absolute animate-slide-up sm:static sm:w-3/5 sm:h-auto sm:min-w-[640px] sm:rounded-lg",
-                class: if let Some(extra_modal_classes) = extra_modal_classes {
-                    extra_modal_classes
-                },
+                // TODO: after fix, uncomment
+                // class: if let Some(extra_modal_classes) = extra_modal_classes {
+                //     extra_modal_classes
+                // },
                 class: if dismissed() {
                     "animate-slide-down"
                 },

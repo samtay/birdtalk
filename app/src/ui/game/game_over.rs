@@ -11,7 +11,7 @@ use crate::{
 
 #[component]
 pub fn GameOverModal() -> Element {
-    let game_over_dismissed_cb = use_callback(|| {
+    let game_over_dismissed_cb = use_callback(|_| {
         spawn(async move {
             // Let modal animation slide out of frame before dropping this screen.
             // tracing::debug!("Game over! Sleeping for 0.5s...");
@@ -48,7 +48,7 @@ pub fn GameOverModal() -> Element {
                             // signal, that's why slide down doesn't work.
                             // ... among other reasons.
                             onclick: move |_| {
-                                game_over_dismissed_cb.call()
+                                game_over_dismissed_cb.call(())
                             },
                             onmounted: move |mnt| async move {
                                 #[cfg(feature = "web")]
@@ -63,14 +63,14 @@ pub fn GameOverModal() -> Element {
                             class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-800 text-amber-50 rounded-full shadow",
                             onclick: move |_| {
                                 // TODO: handle anon case in game over dismissal?
-                                game_over_dismissed_cb.call()
+                                game_over_dismissed_cb.call(())
                             },
                             onmounted: move |mnt| async move {
                                 #[cfg(feature = "web")]
                                 async_std::task::sleep(std::time::Duration::from_millis(500)).await;
                                 mnt.set_focus(true).await.ok();
                             },
-                            "TODO prompt for email and do linking",
+                            "TODO prompt for email and do linking"
                         }
                     }
                 // user isn't logged in; this should only happen on first play
@@ -100,7 +100,7 @@ fn Stat(name: &'static str, f: fn(&Stats) -> u32) -> Element {
     rsx! {
         tr {
             td { class: "text-right px-1", "{name}:" }
-            td { class: "text-left px-1", "{value}", }
+            td { class: "text-left px-1", "{value}"  }
             if let Some(change) = change {
                 td { class: "text-left px-1 text-sm text-green-400 font-semibold", "+{change}"}
             }
