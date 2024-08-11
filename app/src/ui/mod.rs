@@ -66,6 +66,10 @@ impl AppCtx {
 pub fn App() -> Element {
     AppCtx::init();
     rsx! {
+        head::Link {
+            rel: "stylesheet",
+            href: asset!("assets/tailwind.css"),
+        }
         Router::<Route> {
         }
     }
@@ -131,7 +135,7 @@ fn Navbar() -> Element {
                 class: "grow-0 flex flex-col items-center bg-green-800 text-amber-50 sm:py-2",
                 img {
                     class: "w-24 mt-[-1rem] hidden sm:block",
-                    src: "static_logo_transparent.png"
+                    src: asset!("assets/static_logo_transparent.png")
                 }
                 nav {
                     id: "navbar",

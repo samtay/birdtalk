@@ -68,11 +68,11 @@ pub fn Login() -> Element {
 pub fn LoginRedirect(fragment: ReadOnlySignal<MagicLinkResponse>) -> Element {
     let mut auth = use_context::<AppCtx>().auth_state;
     let mut finished = use_signal(|| false);
-    let finish = use_callback(move || finished.set(true));
+    let finish = use_callback(move |_| finished.set(true));
     use_hook(|| {
         spawn(async move {
             auth.complete_signin(fragment()).await.unwrap();
-            finish();
+            finish(());
             tracing::debug!("Apparently success?");
             tracing::debug!("auth state: {:?}", auth.email());
             navigator().replace(Route::Learn {});
