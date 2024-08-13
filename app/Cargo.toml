@@ -37,7 +37,8 @@ web-sys = { version = "0.3.69", features = [
 getrandom = { version = "0.2.12", features = ["js"] }
 
 [features]
-default = []                          # "fullstack"
+default = []                                     # "fullstack"
 server = ["dioxus/axum"]
+static-generation = ["dioxus/static-generation"]
 web = ["dioxus/web", "dep:async-std"]
 fullstack = ["dioxus/fullstack"]

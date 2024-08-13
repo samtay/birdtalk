@@ -64,6 +64,8 @@ pub fn Login() -> Element {
 
 /// A component for receiving the magic link response and redirecting back to the main app.
 // TODO: sync stats (pull, merge, push) after login
+//       (possibly a view of local and remote stats, option to merge?)
+// TODO: don't redirect, just say "login successful, you can close this page now!"
 #[component]
 pub fn LoginRedirect(fragment: ReadOnlySignal<MagicLinkResponse>) -> Element {
     let mut auth = use_context::<AppCtx>().auth_state;
