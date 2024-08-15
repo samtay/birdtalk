@@ -8,7 +8,7 @@ pub fn BirdPack(pack: BirdPackDetailed, selection: Signal<Option<BirdPackDetaile
         li {
             label {
                 r#for: pack.id as i64,
-                class: "sm:flex-col gap-4 justify-between inline-flex h-full w-full bg-amber-50 border-2 border-amber-200 rounded-xl shadow p-3 sm:p-4 has-[:enabled]:hover:bg-amber-200 has-[:enabled]:hover:shadow-xl has-[:disabled]:opacity-50 focus-within:ring-2 focus-within:ring-green-400 has-[:checked]:border-green-400 has-[:checked]:bg-green-100/50 has-[:checked]:has-[:enabled]:hover:bg-green-100/50 has-[:checked]:text-green-800 cursor-pointer select-none relative",
+                class: "sm:flex-col gap-4 justify-between inline-flex h-full w-full border-2 rounded-xl shadow p-3 sm:p-4 transition-transform has-[:enabled]:hover:-translate-y-2 has-[:enabled]:hover:bg-yellow-light has-[:enabled]:hover:shadow-xl has-[:disabled]:opacity-50 focus-within:ring-2 focus-within:ring-purple-dark has-[:checked]:bg-purple-light has-[:checked]:has-[:enabled]:hover:bg-purple-light has-[:checked]:text-black cursor-pointer select-none relative",
                 input {
                     class: "absolute opacity-0 peer",
                     name: "pack",
@@ -35,7 +35,7 @@ pub fn BirdPack(pack: BirdPackDetailed, selection: Signal<Option<BirdPackDetaile
                     }}
                 }
                 svg {
-                    class: "w-6 h-6 text-green-400 inline-block absolute right-2 top-2 invisible sm:peer-checked:visible",
+                    class: "w-6 h-6 text-purple-dark inline-block absolute right-2 top-2 invisible sm:peer-checked:visible",
                     view_box: "0 0 24 24",
                     fill: "none",
                     xmlns: "http://www.w3.org/2000/svg",
@@ -49,7 +49,7 @@ pub fn BirdPack(pack: BirdPackDetailed, selection: Signal<Option<BirdPackDetaile
 
                 }
                 svg {
-                    class: "w-6 h-6 text-amber-950/50 inline-block absolute right-2 top-2 invisible sm:visible peer-checked:invisible",
+                    class: "w-6 h-6 text-black inline-block absolute right-2 top-2 invisible sm:visible peer-checked:invisible",
                     view_box: "0 0 24 24",
                     fill: "none",
                     xmlns: "http://www.w3.org/2000/svg",
@@ -72,7 +72,7 @@ pub fn BirdPack(pack: BirdPackDetailed, selection: Signal<Option<BirdPackDetaile
                         class: "flex gap-1 sm:grid sm:grid-cols-5 sm:gap-2.5 sm:min-w-52",
                         if pack.birds.is_empty() {
                             for _ in 0..10 {
-                                span {class: "max-sm:w-8 max-sm:h-8 sm:w-9 sm:h-9 rounded-full flex-none bg-amber-900/20"}
+                                span {class: "max-sm:w-8 max-sm:h-8 sm:w-9 sm:h-9 rounded-full flex-none bg-purple"}
                             }
                         } else {
                             for bird in pack.birds.iter().take(10) {

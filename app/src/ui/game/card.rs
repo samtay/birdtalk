@@ -56,7 +56,7 @@ fn CardFront(bird: Memo<BirdDetailed>, correct: bool) -> Element {
                 }
                 game_ctx.record_choice(correct);
             },
-            class: "group w-full h-full mx-auto border-2 border-amber-200 rounded-xl shadow enabled:hover:shadow-lg enabled:hover:bg-amber-200 enabled:hover:-translate-y-2 transition-transform space-y-2 bg-amber-50 focus:outline-none focus-visible:ring focus-visible:ring-amber-600 px-2 py-2 sm:py-4 sm:px-4 md:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 disabled:shadow-none disabled:border disabled:opacity-50 disabled:transition-opacity disabled:duration-1000",
+            class: "group w-full h-full mx-auto border border-black rounded-xl shadow enabled:hover:shadow-lg enabled:hover:bg-yellow enabled:hover:-translate-y-2 transition-transform space-y-2 bg-yellow-light focus:outline-none focus-visible:ring focus-visible:ring-amber-600 px-2 py-2 sm:py-4 sm:px-4 md:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 disabled:shadow-none disabled:border disabled:opacity-50 disabled:transition-opacity disabled:duration-1000",
             class: if mistakenly_chosen() { "animate-shake" },
             disabled: mistakenly_chosen() || correct_chosen(),
             img {
@@ -69,11 +69,11 @@ fn CardFront(bird: Memo<BirdDetailed>, correct: bool) -> Element {
                 div {
                     class: "space-y-0.5",
                     p {
-                        class: "text-lg text-amber-950 font-semibold group-enabled:group-hover:text-green-800",
+                        class: "text-lg font-semibold group-enabled:group-hover:text-black",
                         "{bird().common_name}"
                     }
                     p {
-                        class: "text-sm sm:text-base text-slate-500 font-medium group-enabled:group-hover:text-green-800/75",
+                        class: "text-sm sm:text-base font-medium group-enabled:group-hover:text-black",
                         "{bird().scientific_name}"
                     }
                 }
@@ -101,7 +101,7 @@ fn CardBack(bird: MappedSignal<BirdContext>, correct: bool) -> Element {
     });
     rsx! {
         div {
-            class: "w-full h-full mx-auto border-green-200 rounded-xl shadow space-y-2 bg-green-100/50 px-2 py-2 sm:py-4 sm:px-4 md:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 border-2",
+            class: "w-full h-full mx-auto border-green-dark rounded-xl shadow space-y-2 bg-green-light px-2 py-2 sm:py-4 sm:px-4 md:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 border-2",
             img {
                 class: "animate-[spin_1s_linear] block mx-auto w-24 h-24 rounded-full object-cover sm:mx-0 sm:shrink-0",
                 src: bird.read().bird.image_url(),
@@ -112,12 +112,12 @@ fn CardBack(bird: MappedSignal<BirdContext>, correct: bool) -> Element {
                 div {
                     class: "flex flex-col justify-between",
                     div {
-                        class: "text-lg font-semibold text-green-800 whitespace-nowrap",
+                        class: "text-lg font-semibold whitespace-nowrap",
                         "{bird().bird.common_name}"
                     }
                     BirdProgress { bird: bird.clone() }
                     button {
-                        class: "mt-2 px-4 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 font-semibold text-sm sm:text-base bg-green-800 text-amber-50 rounded-full shadow",
+                        class: "mt-2 px-2 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-extra-dark font-semibold text-sm sm:text-base bg-green-dark text-white rounded-xl shadow",
                         onclick: move |_| async move {
                             if correct {
                                 game_ctx.next().await;
@@ -147,13 +147,13 @@ fn BirdProgress(bird: MappedSignal<BirdContext>) -> Element {
             {(0..total).map(|ix| {
                 rsx! {
                     div {
-                        class: "w-3 h-3 rounded-full grow-0",
-                        class: if ix < progress { "bg-green-400" } else { "bg-stone-300/75" }
+                        class: "w-4 h-4 rounded-full grow-0",
+                        class: if ix < progress { "bg-green-dark" } else { "bg-offwhite" }
                     }
                     if ix + 1 < total {
                         div {
-                            class: "w-5 h-[0.2rem]",
-                            class: if ix + 1 < progress { "bg-green-400" } else { "bg-stone-300/75" }
+                            class: "w-8 h-[0.2rem]",
+                            class: if ix + 1 < progress { "bg-green-dark" } else { "bg-offwhite" }
                         }
                     }
                 }

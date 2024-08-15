@@ -39,7 +39,7 @@ pub fn Modal(props: ModalProps) -> Element {
 
     rsx! {
         div {
-            class: "fixed inset-0 z-20 flex justify-center items-center backdrop-blur-sm bg-amber-50/20 overflow-hidden transition-[opacity,backdrop-blur] duration-1000",
+            class: "fixed inset-0 z-20 flex justify-center items-center backdrop-blur-sm bg-offwhite-1/20 overflow-hidden transition-[opacity,backdrop-blur] duration-1000",
             // TODO: after fix, uncomment
             // class: if let Some(extra_backdrop_classes) = extra_backdrop_classes {
             //     extra_backdrop_classes
@@ -52,7 +52,7 @@ pub fn Modal(props: ModalProps) -> Element {
                 on_dismiss_handler(e);
             },
             div {
-                class: "w-full h-auto bottom-0 absolute bg-amber-50 absolute animate-slide-up sm:static sm:w-3/5 sm:h-auto sm:min-w-[640px] sm:rounded-lg",
+                class: "w-full h-auto bottom-0 absolute bg-offwhite-1 border absolute animate-slide-up sm:static sm:w-3/5 sm:h-auto sm:min-w-[640px] sm:rounded-lg",
                 // TODO: after fix, uncomment
                 // class: if let Some(extra_modal_classes) = extra_modal_classes {
                 //     extra_modal_classes

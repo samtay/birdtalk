@@ -181,12 +181,12 @@ fn ProgressBar() -> Element {
     const LOGO: &str = manganis::mg!("assets/static_logo_transparent.png");
     rsx! {
         div {
-            class: "h-2 w-3/4 m-4 mt-6 bg-stone-300/75 rounded-full max-w-screen-md",
+            class: "h-2 w-3/4 m-4 mt-6 bg-offwhite-2 rounded-full max-w-screen-md",
             div {
-                class: "bg-gradient-to-r from-green-200 to-green-700 min-w-7 h-full rounded-full relative transition-[width,transform]",
+                class: "bg-gradient-to-r from-green-light to-green-dark min-w-7 h-full rounded-full relative transition-[width,transform]",
                 style: "width: min(calc(100% + 0.5rem), calc({progress}% + 1rem))", // 2 rem == w-8
                 span {
-                    class: "absolute right-0 h-8 w-8 rounded-full object-cover top-[-0.75rem] bg-green-700 bg-cover",
+                    class: "absolute right-0 h-8 w-8 rounded-full object-cover top-[-0.75rem] bg-green-dark bg-cover",
                     background_image: "url({LOGO})"
                 }
             }

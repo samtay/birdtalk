@@ -30,7 +30,7 @@ pub fn GameOverModal() -> Element {
             div {
                 class: "p-2 sm:p-4 mx-auto my-2 flex flex-col items-center gap-4 sm:gap-8 text-center",
                 h1 {
-                    class: "text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-green-800",
+                    class: "text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green to-green-extra-dark",
                     "Nice work!"
                 }
                 table { class: "table-auto text-lg",
@@ -43,7 +43,7 @@ pub fn GameOverModal() -> Element {
                     // normal case, logged in user
                     if !auth.is_anonymous() {
                         button {
-                            class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-800 text-amber-50 rounded-full shadow",
+                            class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-dark text-white rounded-full shadow",
                             // TODO: this handler doesn't have access to internal modal visibility
                             // signal, that's why slide down doesn't work.
                             // ... among other reasons.
@@ -60,7 +60,7 @@ pub fn GameOverModal() -> Element {
                     // user isn't logged in, encourage them to provide email
                     } else {
                         button {
-                            class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-800 text-amber-50 rounded-full shadow",
+                            class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-dark text-white rounded-full shadow",
                             onclick: move |_| {
                                 // TODO: handle anon case in game over dismissal?
                                 game_over_dismissed_cb.call(())
@@ -77,7 +77,7 @@ pub fn GameOverModal() -> Element {
                 } else {
                     div {
                         h3 {
-                            class: "mb-2 text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-800 to-green-600",
+                            class: "mb-2 text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green to-green-extra-dark",
                             "Sign up to save your progress!"
                         }
                         Login {}
@@ -102,7 +102,7 @@ fn Stat(name: &'static str, f: fn(&Stats) -> u32) -> Element {
             td { class: "text-right px-1", "{name}:" }
             td { class: "text-left px-1", "{value}"  }
             if let Some(change) = change {
-                td { class: "text-left px-1 text-sm text-green-400 font-semibold", "+{change}"}
+                td { class: "text-left px-1 text-sm text-green font-semibold", "+{change}"}
             }
         }
     }

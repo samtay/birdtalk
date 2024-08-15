@@ -83,25 +83,26 @@ enum Route {
         fragment: MagicLinkResponse
     },
 
-    #[layout(Navbar)]
-        #[layout(LoginGate)]
-            #[route("/")]
-            Learn {},
+    // #[layout(Navbar)]
+    // #[layout(LoginGate)]
+    #[layout(HeaderFooter)]
+    #[route("/")]
+    Learn {},
 
-            #[route("/listen")]
-            Listen {},
+    #[route("/listen")]
+    Listen {},
 
-            #[route("/birds")]
-            Birds {},
+    #[route("/birds")]
+    Birds {},
 
-            #[route("/packs")]
-            Packs {},
+    #[route("/packs")]
+    Packs {},
 
-            #[route("/achievements")]
-            Achievements {},
+    #[route("/achievements")]
+    Achievements {},
 
-            #[route("/settings")]
-            Settings {},
+    #[route("/settings")]
+    Settings {},
 }
 
 #[component]
@@ -132,7 +133,7 @@ fn Navbar() -> Element {
         div {
             class: "flex sm:flex-row flex-col-reverse h-screen",
             div {
-                class: "grow-0 flex flex-col items-center bg-green-800 text-amber-50 sm:py-2",
+                class: "grow-0 flex flex-col items-center sm:py-2",
                 img {
                     class: "w-24 mt-[-1rem] hidden sm:block",
                     src: asset!("assets/static_logo_transparent.png")
@@ -183,15 +184,17 @@ fn Navbar() -> Element {
     }
 }
 
-// TODO: use this for landing page ( #[layout(HeaderFooter)] )
 #[component]
 fn HeaderFooter() -> Element {
+    const HEADER: &str = manganis::mg!(file("assets/heading.webp"));
+    // const HEADER: &str = manganis::mg!(file("assets/heading.gif")));
     rsx! {
         div {
             class: "flex flex-col sm:h-dvh pb-2 sm:max-lg:landscape:justify-center",
             header {
                 id: "header",
-                class: "text-green-800 shrink container h-32 sm:h-48 md:h-64 w-full max-w-screen-md mt-2 sm:mt-4 mb-[-2rem] mx-auto sm:max-lg:landscape:hidden bg-[url('heading-2.gif')] bg-cover bg-center bg-no-repeat",
+                class: "text-chartreuse-light shrink container h-24 max-w-screen-md mt-2 mx-auto bg-contain bg-center bg-no-repeat",
+                background_image: "url({HEADER})",
                 class: if GAME_STATUS.read().playing() {
                     "hidden"
                 },
@@ -206,7 +209,6 @@ fn HeaderFooter() -> Element {
                 id: "footer",
                 class: "shrink sticky top-[100vh] hidden sm:flex justify-items-center justify-center sm:max-lg:landscape:hidden",
                 div {
-                    class: "text-green-800/75",
                     "© 2024 birdtalk"
                 }
             }
@@ -241,7 +243,7 @@ fn GameSelector() -> Element {
             class: "container max-w-screen-lg m-auto mt-2 px-2 landscape:max-lg:px-1 sm:px-4 flex flex-col items-stretch gap-6",
             PackSelector {selected_pack}
             button {
-                class: "mt-2 px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-800 text-amber-50 rounded-full shadow",
+                class: "border border-black flex-none mt-2 px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-chartreuse-dark font-semibold text-base border bg-chartreuse rounded-xl shadow enabled:hover:bg-chartreuse-dark",
                 onclick: move |_| {
                     *GAME_STATUS.write() = GameStatus::Playing(selected_pack().unwrap());
                     tracing::debug!("GameStatus: {:?}", *GAME_STATUS.read())
