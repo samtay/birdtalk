@@ -69,7 +69,6 @@ jobs:
 
       # Create our required `404.html` page.
       - name: Create 404.html
-        working-directory: app
         run: cp dist/index.html dist/404.html
 
       - uses: supabase/setup-cli@v1
@@ -85,6 +84,6 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4.2.3
         with:
           branch: static-develop # The branch we have GitHub pages setup in.
-          folder: app/dist # The folder we want to copy to the `gh-pages` branch.
+          folder: dist # The folder we want to copy to the `gh-pages` branch.
           target-folder: . # The destination we want our files copied to. In this case, we want them to be a the root level.
           clean: true
