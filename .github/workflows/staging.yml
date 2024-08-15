@@ -50,7 +50,9 @@ jobs:
 
       # Install the Dioxus CLI
       - name: Install Dioxus
-        run: cargo binstall dioxus-cli -y --force
+        # TODO: rm this after new dx binstall released
+        # run: cargo binstall dioxus-cli -y --force
+        run: cargo install --git https://github.com/DioxusLabs/dioxus.git dioxus-cli --locked
 
       # Compile CSS
       - name: Compile css
