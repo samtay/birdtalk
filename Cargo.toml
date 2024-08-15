@@ -11,21 +11,12 @@ edition = "2021"
 
 [workspace.dependencies]
 anyhow = "1.0.86"
-dioxus = { path = "../dioxus/packages/dioxus", features = ["router"] }
-dioxus-sdk = { path = "../sdk/sdk", features = ["storage"] }
-# dioxus = { git = "https://github.com/DioxusLabs/dioxus", features = ["router"] }
-# dioxus-sdk = { git = "https://github.com/DioxusLabs/sdk", features = [
-#   "storage",
-# ] }
+dioxus = { version = "0.6.0-alpha.2", features = ["router"] }
+dioxus-sdk = { git = "https://github.com/samtay/dioxus-sdk", branch = "0.6", features = [
+  "storage",
+] }
 dioxus-logger = "0.5.1"
 serde = { version = "1.0.197", features = ["derive"] }
 serde_json = "1.0.117"
 tracing = "0.1.40"
 dotenvy_macro = "0.15.7"
-
-# since we're using git dioxus, inform dioxus-sdk to use it as well
-[patch.crates-io]
-# dioxus = { path = "../dioxus/packages/dioxus" }
-# dioxus-signals = { path = "../dioxus/packages/signals" }
-# dioxus = { git = "https://github.com/DioxusLabs/dioxus" }
-# dioxus-signals = { git = "https://github.com/DioxusLabs/dioxus" }
