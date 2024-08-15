@@ -41,20 +41,20 @@ pub fn Login() -> Element {
         form { class: "text-center flex flex-col justify-center items-center gap-4 mb-5 w-full",
             onsubmit: signin,
             input {
-                class: "w-64 px-3 py-2 rounded-lg border-none text-amber-50 text-green-800",
+                class: "w-64 px-3 py-2 rounded-lg border-none",
                 "type": "email",
                 name: "email",
                 placeholder: "Enter your email",
                 oninput: move |event| email.set(event.value())
             }
             button {
-                class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-800 text-amber-50 rounded-full shadow",
+                class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-dark text-white rounded-full shadow",
                 disabled: magic_link_sent(),
                 "Login / Signup"
             }
             if magic_link_sent() {
                 div {
-                    class: "text-sm text-green-800",
+                    class: "text-sm",
                     "We sent a magic link to your email! Check your inbox and click the link to login."
                 }
             }
@@ -84,7 +84,7 @@ pub fn LoginRedirect(fragment: ReadOnlySignal<MagicLinkResponse>) -> Element {
         div {
             class: "text-center flex flex-col justify-center items-center gap-4 mb-5 w-full",
             div {
-                class: "text-sm text-green-400",
+                class: "text-sm text-green",
                 if finished() {
                     "Login successful!"
                 } else {
