@@ -10,9 +10,12 @@ use crate::{
     stats::Stats,
     supabase::{AuthState, MagicLinkResponse},
     sync::Sync,
-    ui::components::{
-        BirdIcon, BirdPack, Login, LoginModal, LoginRedirect, MusicNoteIcon, NavbarLink, PacksIcon,
-        PlayIcon, SettingsIcon, TrophyIcon,
+    ui::{
+        components::{
+            BirdIcon, Login, LoginModal, LoginRedirect, MusicNoteIcon, NavbarLink, PackOfTheDay,
+            PacksIcon, PlayIcon, SettingsIcon, TrophyIcon,
+        },
+        game::GameViewPlaceholder,
     },
 };
 use game::GameView;
@@ -21,32 +24,7 @@ use pages::{Achievements, Birds, Listen, Packs, Settings};
 const AUDIO_LOOP: bool = true;
 const AUDIO_AUTOPLAY: bool = true;
 
-static GAME_STATUS: GlobalSignal<GameStatus> = Signal::global(|| GameStatus::None);
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum GameStatus {
-    None,
-    Playing(BirdPackDetailed),
-    PlayingWithProgress(BirdPackDetailed),
-}
-
-impl GameStatus {
-    pub fn playing(&self) -> bool {
-        !matches!(self, Self::None)
-    }
-
-    pub fn has_progress(&self) -> bool {
-        matches!(self, Self::PlayingWithProgress(_))
-    }
-
-    pub fn pack(&self) -> Option<&BirdPackDetailed> {
-        match self {
-            Self::Playing(pack) => Some(pack),
-            Self::PlayingWithProgress(pack) => Some(pack),
-            _ => None,
-        }
-    }
-}
+pub static PLAY_STATUS: GlobalSignal<Option<BirdPackDetailed>> = Signal::global(|| None);
 
 // TODO: this stuff will probably move. probably need user state to make db reqs
 #[derive(Clone, Copy)]
@@ -70,6 +48,8 @@ pub fn App() -> Element {
             rel: "stylesheet",
             href: asset!("assets/tailwind.css"),
         }
+        // TODO: remove
+        script { src: "https://cdn.tailwindcss.com" }
         Router::<Route> {
         }
     }
@@ -78,37 +58,43 @@ pub fn App() -> Element {
 #[derive(Clone, Routable, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 #[rustfmt::skip]
 enum Route {
-    #[route("/login/#:fragment")]
-    LoginRedirect {
-        fragment: MagicLinkResponse
-    },
-
     // #[layout(Navbar)]
     // #[layout(LoginGate)]
+
     #[layout(HeaderFooter)]
-    #[route("/")]
-    Learn {},
+        #[route("/login/#:fragment")]
+        LoginRedirect {
+            fragment: MagicLinkResponse
+        },
 
-    #[route("/listen")]
-    Listen {},
+        #[route("/")]
+        Index {},
 
-    #[route("/birds")]
-    Birds {},
+        #[route("/play/:pack_id")]
+        Play {
+            pack_id: u64
+        },
 
-    #[route("/packs")]
-    Packs {},
+        #[route("/listen")]
+        Listen {},
 
-    #[route("/achievements")]
-    Achievements {},
+        #[route("/birds")]
+        Birds {},
 
-    #[route("/settings")]
-    Settings {},
+        #[route("/packs")]
+        Packs {},
+
+        #[route("/achievements")]
+        Achievements {},
+
+        #[route("/settings")]
+        Settings {},
 }
 
 #[component]
 fn LoginGate() -> Element {
     let ctx = use_context::<AppCtx>();
-    let on_open_route = matches!(use_route(), Route::Learn {});
+    let on_open_route = matches!(use_route(), Route::Index {});
     let logged_in = use_memo(move || ctx.auth_state.is_logged_in());
     let login_needed = !on_open_route && !logged_in();
     // TODO: Perhaps arbitrarily delay to second generation() for SSG?
@@ -143,9 +129,9 @@ fn Navbar() -> Element {
                     // TODO: padding arond the elements rather than container will give a bigger hitbox for the icons on mobile
                     class: "flex sm:flex-col gap-2 w-full justify-between sm:justify-start sm:py-1 sm:py-4",
                     NavbarLink {
-                        to: Route::Learn {},
+                        to: Route::Index {},
                         icon: rsx! {PlayIcon {}},
-                        label: "Learn"
+                        label: "Play"
                     }
                     NavbarLink {
                         to: Route::Listen {},
@@ -188,16 +174,15 @@ fn Navbar() -> Element {
 fn HeaderFooter() -> Element {
     const HEADER: &str = manganis::mg!(file("assets/heading.webp"));
     // const HEADER: &str = manganis::mg!(file("assets/heading.gif")));
+    // const COFFEE: ImageAsset = manganis::mg!(image("assets/coffee.png"));
+    // const BIRDHOUSE: ImageAsset = manganis::mg!(image("assets/birdhouse.png"));
     rsx! {
         div {
             class: "flex flex-col sm:h-dvh pb-2 sm:max-lg:landscape:justify-center",
             header {
                 id: "header",
-                class: "text-chartreuse-light shrink container h-24 max-w-screen-md mt-2 mx-auto bg-contain bg-center bg-no-repeat",
+                class: "text-chartreuse-light shrink container h-24 max-w-screen-md mt-2 mx-auto bg-contain bg-center bg-no-repeat flex flex-row space-between items-center",
                 background_image: "url({HEADER})",
-                class: if GAME_STATUS.read().playing() {
-                    "hidden"
-                },
             }
             div {
                 id: "content",
@@ -217,82 +202,57 @@ fn HeaderFooter() -> Element {
 }
 
 #[component]
-fn Learn() -> Element {
-    match &*GAME_STATUS.read() {
-        GameStatus::None => {
-            rsx! {
-                GameSelector { }
-            }
-        }
-        GameStatus::Playing(pack) | GameStatus::PlayingWithProgress(pack) => {
-            rsx! {
-                GameView {
-                    pack: pack.clone(),
-                }
-            }
-        }
-    }
-}
-
-#[component]
-fn GameSelector() -> Element {
-    let selected_pack = use_signal(|| None);
-
+fn Index() -> Element {
     rsx! {
         div {
-            class: "container max-w-screen-lg m-auto mt-2 px-2 landscape:max-lg:px-1 sm:px-4 flex flex-col items-stretch gap-6",
-            PackSelector {selected_pack}
-            button {
-                class: "border border-black flex-none mt-2 px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-chartreuse-dark font-semibold text-base border bg-chartreuse rounded-xl shadow enabled:hover:bg-chartreuse-dark",
-                onclick: move |_| {
-                    *GAME_STATUS.write() = GameStatus::Playing(selected_pack().unwrap());
-                    tracing::debug!("GameStatus: {:?}", *GAME_STATUS.read())
-                },
-                disabled: selected_pack.read().is_none(),
-                "Let's Go!"
-            }
-        }
-    }
-}
-
-#[component]
-fn PackSelector(selected_pack: Signal<Option<BirdPackDetailed>>) -> Element {
-    let packs_resource = use_resource(BirdPackDetailed::fetch_free_packs);
-    let packs_value = packs_resource.value();
-    let packs_read = packs_value.read();
-    match *packs_read {
-        None => rsx! {PackSelectorPlaceholder {}},
-        Some(Err(ref e)) => rsx! {"TODO handle errors gracefully: {e}"},
-        Some(Ok(ref packs)) => rsx! {
-            fieldset {
-                legend {
-                    class: "font-semibold text-2xl text-center mb-2",
-                    "Pick a bird pack"
-                }
-                ul {
-                    class: "grid grid-cols-1 sm:grid-cols-3 w-full gap-2 sm:gap-6 items-stretch",
-                    for pack in packs.clone() {
-                        BirdPack {pack, selection: selected_pack}
-                    }
-                }
-            }
-        },
-    }
-}
-
-#[component]
-fn PackSelectorPlaceholder() -> Element {
-    rsx! { Loading { } }
-}
-
-#[component]
-fn Loading() -> Element {
-    rsx! {
-        div {
-            class: "mt-12 flex flex-col items-center justify-center",
+            class: "container max-w-screen-lg m-auto mt-2 px-2 grid grid-cols-5 gap-5",
             div {
-                class: "animate-spin w-24 h-24 border-t-4 border-green-800 rounded-full"
+                class: "col-span-5 text-2xl text-center place-self-center",
+                "Welcome to BirdTalk!"
+            }
+            div {
+                class: "col-span-5 text-lg text-center place-self-center",
+                "An app that helps you memorize bird calls"
+            }
+            div {
+                class: "col-span-3 text-lg",
+                "Try the Daily Bevy! Packs reset at midnight."
+            }
+            div {
+                class: "col-span-2",
+                PackOfTheDay { }
             }
         }
     }
+}
+
+#[component]
+fn Play(pack_id: u64) -> Element {
+    // Do I need reactivity on pack_id? https://docs.rs/dioxus-hooks/0.6.0-alpha.2/dioxus_hooks/fn.use_effect.html#with-non-reactive-dependencies
+
+    // Typically PLAY_STATUS is already loaded with the proper birdpack
+    let pack_to_play = use_memo(move || {
+        PLAY_STATUS
+            .read()
+            .as_ref()
+            .filter(|p| p.id == pack_id)
+            .cloned()
+    });
+
+    // But if not (perhaps a fresh page load on this route),
+    use_effect(move || {
+        if pack_to_play.read().is_none() {
+            spawn(async move {
+                // TODO: how to handle errors here?
+                let pack = BirdPackDetailed::fetch_by_id(pack_id).await.unwrap();
+                *PLAY_STATUS.write() = Some(pack);
+            });
+        }
+    });
+
+    let x = match pack_to_play.read().as_ref() {
+        Some(pack) => rsx! { GameView { pack: pack.clone() } },
+        _ => rsx! { GameViewPlaceholder {}},
+    };
+    x
 }

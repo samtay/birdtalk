@@ -5,7 +5,7 @@ use crate::{
     ui::{
         components::{Login, Modal},
         game::GameCtx,
-        AppCtx, GameStatus, GAME_STATUS,
+        AppCtx, PLAY_STATUS,
     },
 };
 
@@ -18,7 +18,7 @@ pub fn GameOverModal() -> Element {
             // #[cfg(feature = "web")]
             // async_std::task::sleep(std::time::Duration::from_millis(500)).await;
             tracing::debug!("Game over! Resetting game status...");
-            *GAME_STATUS.write() = GameStatus::None;
+            *PLAY_STATUS.write() = None;
         });
     });
 

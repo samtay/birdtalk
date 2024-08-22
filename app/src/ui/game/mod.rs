@@ -174,6 +174,13 @@ pub fn GameView(pack: BirdPackDetailed) -> Element {
 }
 
 #[component]
+pub fn GameViewPlaceholder() -> Element {
+    rsx! {
+        div { " nice place holder ! "}
+    }
+}
+
+#[component]
 fn ProgressBar() -> Element {
     let game_ctx = use_context::<GameCtx>();
     let progress = game_ctx.percent_complete();

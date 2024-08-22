@@ -77,7 +77,7 @@ pub fn LoginRedirect(fragment: ReadOnlySignal<MagicLinkResponse>) -> Element {
             finish(());
             tracing::debug!("Apparently success?");
             tracing::debug!("auth state: {:?}", auth.email());
-            navigator().replace(Route::Learn {});
+            navigator().replace(Route::Index {});
         });
     });
     rsx! {

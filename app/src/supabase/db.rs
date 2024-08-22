@@ -22,12 +22,30 @@ where
     POSTGREST_CLIENT.rpc(function, serde_json::to_string(&params).unwrap())
 }
 
+// TODO: Wtf do I need to Arc to get this clonable?
 #[derive(Error, Debug)]
 pub enum Error {
     #[error(transparent)]
     Gloo(#[from] gloo_net::Error),
     #[error(transparent)]
     Reqwest(#[from] reqwest::Error),
+    #[error("Uh oh! We couldn't find today's pack!")]
+    NoDailyPack,
+    #[error("{0}")]
+    ErrorMessage(String),
+}
+
+// Dioxus is very awkward without clonable errors, so unfortuantely we'll lose a bunch of info and turn things into just error messages.
+impl Clone for Error {
+    fn clone(&self) -> Self {
+        match self {
+            // TODO: or do we want "{:?}"
+            Self::Gloo(e) => Self::ErrorMessage(e.to_string()),
+            Self::Reqwest(e) => Self::ErrorMessage(format!("{:#?}", e)),
+            Self::NoDailyPack => Self::NoDailyPack,
+            Self::ErrorMessage(msg) => Self::ErrorMessage(msg.clone()),
+        }
+    }
 }
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;

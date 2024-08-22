@@ -1,45 +1,25 @@
-//! Synchronization logic: an "offline-first" esque approach to handling state. Immediate state is
-///helded in local storage signals, with async read/writes to remote DB.
-// TODO: Centralized user "model" that holds synced storage backing and cached remote data;
-// Writes can go through the model, first update the local storage, invalidate some caches, and kick off future to update remote.
-// If remote has later timestamp than most recently received cache, will need to pull in updates. (async non-blocking)
-// This will need to be done at time of local storage init too.
+//! Synchronization logic
+//!
+//! Immediate state is helded in local storage signals, with async read/writes to remote DB at
+//! certain times.
 use std::ops::{Deref, DerefMut};
 
-// Or just use React Native and get those sweet supabase integrations for local-first embedded
-// sqlite approaches.
 use chrono::{DateTime, Utc};
 use dioxus::prelude::*;
 use dioxus_sdk::storage::{use_synced_storage, LocalStorage};
+use serde::{Deserialize, Serialize};
 
 use crate::{
-    stats::{Stats, UserStats},
-    supabase::{AuthState, Result},
+    stats::Stats,
+    supabase::{self, AuthState, Result, SupabaseResource},
 };
-
-#[derive(Clone, Debug)]
-pub struct Source<T: 'static> {
-    /// State (e.g. storage backed / db backed)
-    inner: Signal<T>,
-    updated_at: Signal<DateTime<Utc>>,
-}
-
-impl<T: 'static + std::clone::Clone> Copy for Source<T> {}
-
-impl Source<Stats> {
-    pub fn local() -> Self {
-        let inner = use_synced_storage::<LocalStorage, _>("stats".to_string(), Stats::default);
-        let updated_at = use_signal(Utc::now);
-        Self { inner, updated_at }
-    }
-}
 
 #[derive(Clone)]
 pub struct Sync<T: 'static> {
     /// Remote backed state
-    remote: Source<T>,
+    // remote: Source<T>,
     /// Storage backed state
-    local: Source<T>,
+    local: Signal<T>,
     /// Future to sync remote and local
     fut: UseFuture,
     /// Auth state
@@ -51,36 +31,32 @@ impl<T: 'static + std::clone::Clone> Copy for Sync<T> {}
 impl Sync<Stats> {
     // TODO: pull auth from ctx?
     pub fn init(auth: AuthState) -> Self {
-        // let _key = auth.email().unwrap_or_else(|| "anon".to_string());
-        // let remote_stats = use_synced_storage::<RemoteStorage, _>("{user.email}".to_string(), Stats::default);
-        let local = Source::<Stats>::local();
-        let remote = Source::<Stats>::local(); // TODO: remote
+        let local = use_synced_storage::<LocalStorage, _>("stats".to_string(), Stats::default);
         let fut = use_future(move || async move {
-            loop {
-                // sync stuff
-                tracing::info!("Auto syncing from long-lived future... TODO");
-                break;
-            }
+            // loop {
+            // sync stuff
+            // tracing::info!("Auto syncing from long-lived future... TODO");
+            // break;
+            // }
+            ()
         });
 
-        let me = Self {
-            remote,
-            local,
-            fut,
-            auth,
-        };
+        let me = Self { local, fut, auth };
         // Super quick "sync" hack: just push whenever user logs in.
-        use_memo(move || {
-            if auth.is_logged_in() {
-                spawn(async move { me.sync().await.unwrap() });
-            }
-        });
+        // TODO: uncomment
+        // use_memo(move || {
+        //     if auth.is_logged_in() {
+        //         spawn(async move { me.sync().await.unwrap() });
+        //     }
+        // });
         me
     }
 
+    // TODO: function to insert stats with version, returning null|version,
+    //       merge and re-push if necessary
     pub async fn sync(&self) -> Result<()> {
-        let mut user_stats = UserStats::new(self.auth, self.local.inner.read().clone());
-        user_stats.push().await?;
+        // let mut user_stats = UserStats::new(self.auth, self.local.inner.read().clone());
+        // user_stats.push().await?;
         Ok(())
     }
 }
@@ -89,12 +65,66 @@ impl Deref for Sync<Stats> {
     type Target = Signal<Stats>;
 
     fn deref(&self) -> &Self::Target {
-        &self.local.inner
+        &self.local
     }
 }
 
 impl DerefMut for Sync<Stats> {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.local.inner
+        &mut self.local
+    }
+}
+
+/// A type to match the public.stats table in the database.
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
+struct UserStats {
+    user_id: String, // TODO: uuid
+    data: Stats,
+    updated_at: DateTime<Utc>,
+}
+
+impl SupabaseResource for UserStats {
+    fn table_name() -> &'static str {
+        "stats"
+    }
+}
+
+// TODO: these requests require overriding the anon jwt with the user's!
+impl UserStats {
+    pub fn new(auth: AuthState, data: Stats) -> Self {
+        Self {
+            user_id: auth.user_id().unwrap_or_default(),
+            data,
+            updated_at: Utc::now(),
+        }
+    }
+
+    pub async fn fetch(auth: AuthState) -> Result<Self> {
+        match auth.user_id() {
+            None => Ok(UserStats::default()),
+            Some(user_id) => {
+                let mut stats = Self::request()
+                    .select("*")
+                    .eq("user_id", user_id)
+                    .execute()
+                    .await?;
+                Ok(stats.pop().unwrap_or_default())
+            }
+        }
+    }
+
+    pub fn update_stats(&mut self, stats: Stats) -> &mut Self {
+        self.data = stats;
+        self
+    }
+
+    // TODO: throw error on non-200
+    pub async fn push(&mut self) -> Result<()> {
+        tracing::debug!("Pushing stats for user_id {:?}", self.user_id);
+        self.updated_at = Utc::now();
+        if !self.user_id.is_empty() {
+            let _rsp = supabase::rpc("upsert_stats", &self).execute().await?;
+        }
+        Ok(())
     }
 }
