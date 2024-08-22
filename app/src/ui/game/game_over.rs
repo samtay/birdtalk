@@ -5,7 +5,7 @@ use crate::{
     ui::{
         components::{Login, Modal},
         game::GameCtx,
-        AppCtx, PLAY_STATUS,
+        AppCtx, Route, PLAY_STATUS,
     },
 };
 
@@ -19,10 +19,11 @@ pub fn GameOverModal() -> Element {
             // async_std::task::sleep(std::time::Duration::from_millis(500)).await;
             tracing::debug!("Game over! Resetting game status...");
             *PLAY_STATUS.write() = None;
+            navigator().push(Route::Index {});
         });
     });
 
-    let auth = use_context::<AppCtx>().auth_state;
+    // let auth = use_context::<AppCtx>().auth_state;
 
     rsx! {
         Modal {
@@ -39,9 +40,11 @@ pub fn GameOverModal() -> Element {
                         Stat { name: "Birds Learned", f: Stats::birds_learned }
                     }
                 }
-                if auth.is_logged_in() {
+                if true {
+                // if auth.is_logged_in() { // TODO: uncomment when auth is fully implemented
                     // normal case, logged in user
-                    if !auth.is_anonymous() {
+                    if true {
+                    // if !auth.is_anonymous() { // TODO: uncomment when auth is fully implemented
                         button {
                             class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-dark text-white rounded-full shadow",
                             // TODO: this handler doesn't have access to internal modal visibility
@@ -57,12 +60,11 @@ pub fn GameOverModal() -> Element {
                             },
                             "Continue"
                         }
-                    // user isn't logged in, encourage them to provide email
+                    // user is anonymous, encourage them to provide email
                     } else {
                         button {
                             class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-dark text-white rounded-full shadow",
                             onclick: move |_| {
-                                // TODO: handle anon case in game over dismissal?
                                 game_over_dismissed_cb.call(())
                             },
                             onmounted: move |mnt| async move {

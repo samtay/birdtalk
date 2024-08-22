@@ -145,10 +145,10 @@ pub fn GameView(pack: BirdPackDetailed) -> Element {
 
     rsx! {
         div {
-            class: "container m-auto px-2 landscape:max-lg:px-1 sm:px-4",
+            class: "container m-auto px-2 sm:px-4",
             "inert": game_ctx.game_completed.read().then(|| true),
             div {
-                class: "flex flex-col sm:max-lg:landscape:flex-row justify-center items-center place-content-center gap-2 sm:gap-4",
+                class: "flex flex-col justify-center items-center place-content-center gap-2 sm:gap-4",
                 ProgressBar { }
                 div {
                     class: "",
@@ -157,7 +157,7 @@ pub fn GameView(pack: BirdPackDetailed) -> Element {
                     }
                 }
                 div {
-                    class: "grid grid-cols-2 gap-4 sm:gap-6 sm:max-lg:landscape:gap-2",
+                    class: "grid grid-cols-2 gap-4 sm:gap-6",
                     for ix in shuffle() {
                         MultipleChoiceCard {
                             bird: game_ctx.game.map(move |g| &g.choices()[ix]),

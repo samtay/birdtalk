@@ -35,6 +35,18 @@ pub enum Error {
     ErrorMessage(String),
 }
 
+impl From<String> for Error {
+    fn from(s: String) -> Self {
+        Self::ErrorMessage(s)
+    }
+}
+
+impl From<&str> for Error {
+    fn from(s: &str) -> Self {
+        Self::ErrorMessage(s.to_string())
+    }
+}
+
 // Dioxus is very awkward without clonable errors, so unfortuantely we'll lose a bunch of info and turn things into just error messages.
 impl Clone for Error {
     fn clone(&self) -> Self {

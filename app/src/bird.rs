@@ -1,7 +1,7 @@
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 
-use crate::supabase::{self, Result, SupabaseResource};
+use crate::supabase::{self, Error, Result, SupabaseResource};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Bird<S> {
@@ -74,11 +74,12 @@ impl BirdPackDetailed {
     /// Query db for bird pack by id
     pub async fn fetch_by_id(id: u64) -> Result<Self> {
         Self::request()
-            .cast::<BirdPackDetailed>()
             .select("*")
             .eq("id", id.to_string())
             .execute()
-            .await
+            .await?
+            .pop()
+            .ok_or_else(|| Error::from(format!("Drats! No pack found with id {id}")))
     }
 
     /// Query db for free packs

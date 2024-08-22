@@ -178,7 +178,7 @@ fn HeaderFooter() -> Element {
     // const BIRDHOUSE: ImageAsset = manganis::mg!(image("assets/birdhouse.png"));
     rsx! {
         div {
-            class: "flex flex-col sm:h-dvh pb-2 sm:max-lg:landscape:justify-center",
+            class: "flex flex-col sm:h-dvh pb-2",
             header {
                 id: "header",
                 class: "text-chartreuse-light shrink container h-24 max-w-screen-md mt-2 mx-auto bg-contain bg-center bg-no-repeat flex flex-row space-between items-center",
@@ -192,7 +192,7 @@ fn HeaderFooter() -> Element {
             }
             footer {
                 id: "footer",
-                class: "shrink sticky top-[100vh] hidden sm:flex justify-items-center justify-center sm:max-lg:landscape:hidden",
+                class: "shrink sticky top-[100vh] hidden sm:flex justify-items-center justify-center",
                 div {
                     "© 2024 birdtalk"
                 }

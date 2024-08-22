@@ -38,7 +38,7 @@ fn PackOfTheDayInner() -> Element {
         .clone()?;
     rsx! {
         div {
-            class: "sm:flex-col gap-4 justify-between inline-flex h-full w-full border-2 rounded-xl shadow p-3 sm:p-4 transition-transform hover:bg-yellow-light hover:shadow-xl cursor-pointer select-none relative items-center",
+            class: "sm:flex-col gap-4 justify-between inline-flex h-full w-full border-2 rounded-xl shadow p-3 sm:p-4 transition-transform hover:bg-yellow-light hover:shadow-xl select-none relative items-center",
             div {
                 class: "text-lg font-semibold text-center",
                 "Daily Bevy" // "{pack.name}"
