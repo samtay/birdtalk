@@ -5,9 +5,8 @@ use dioxus_sdk::storage::{use_synced_storage, LocalStorage};
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_querystring::UrlEncodedQS;
 use thiserror::Error;
-use wasm_bindgen::JsValue;
 
-use crate::conf::{self, APP_URL, SUPABASE_ANON_KEY, SUPABASE_API_URL};
+use crate::conf::{APP_URL, SUPABASE_ANON_KEY, SUPABASE_API_URL};
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct User {

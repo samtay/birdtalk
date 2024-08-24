@@ -3,12 +3,9 @@ mod card;
 mod game_over;
 pub mod quiz;
 
-use std::{fmt::Display, str::FromStr};
 
 use dioxus::prelude::*;
-use dioxus_sdk::storage::{use_synced_storage, LocalStorage};
 use rand::prelude::SliceRandom;
-use serde::{Deserialize, Serialize};
 
 use crate::{
     bird::{Bird, BirdPack},

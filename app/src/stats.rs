@@ -2,10 +2,8 @@
 
 use std::collections::HashMap;
 
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::supabase::{self, AuthState, Result, SupabaseResource};
 
 /// The number of times a bird must be correctly identified consecutively to be considered learned.
 pub const LEARN_THRESHOLD: u32 = 3;

@@ -8,6 +8,4 @@ mod navlink;
 
 pub use auth::*;
 pub use birdpack::*;
-pub use icons::*;
 pub use modal::*;
-pub use navlink::*;

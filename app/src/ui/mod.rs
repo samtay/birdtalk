@@ -7,16 +7,9 @@ use dioxus::prelude::*;
 use crate::{
     bird::BirdPack,
     stats::Stats,
-    supabase::{AuthState, MagicLinkResponse},
+    supabase::AuthState,
     sync::Sync,
-    ui::{
-        components::{
-            BirdIcon, Login, LoginModal, LoginRedirect, MusicNoteIcon, PackOfTheDay, PacksIcon,
-            PlayIcon, SettingsIcon, TrophyIcon,
-        },
-        game::{GameView, GameViewPlaceholder},
-        pages::{Birds, Index, Play},
-    },
+    ui::pages::{Birds, Index, Play},
 };
 
 pub static PLAY_STATUS: GlobalSignal<Option<BirdPack>> = Signal::global(|| None);

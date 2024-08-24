@@ -2,7 +2,6 @@ use dioxus::prelude::*;
 
 use crate::{
     bird::{BirdPack, BirdPackDaily},
-    supabase::Error,
     ui::{Route, PLAY_STATUS},
 };
 
