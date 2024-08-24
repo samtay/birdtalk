@@ -12,6 +12,7 @@ use sqlx::{Connection, PgConnection};
 struct BirdRow {
     id: i32,
     scientific_name: String,
+    #[allow(dead_code)]
     common_name: String,
     default_sound_file: Option<String>,
     default_image_file: Option<String>,
@@ -20,6 +21,7 @@ struct BirdRow {
 #[derive(serde::Deserialize)]
 struct Bird {
     scientific_name: String,
+    #[allow(dead_code)]
     common_name: String,
     default_sound_file: String,
     img_file: String,

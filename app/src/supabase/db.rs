@@ -1,5 +1,4 @@
-// use std::sync::OnceLock;
-// static SB_CLIENT: OnceLock<String> = OnceLock::new();
+// TODO: after everything's working, see if replacing reqwest & postgrest-rs with just gloo_net affects wasm size.
 
 use once_cell::sync::Lazy;
 use postgrest::{Builder, Postgrest};
@@ -22,7 +21,6 @@ where
     POSTGREST_CLIENT.rpc(function, serde_json::to_string(&params).unwrap())
 }
 
-// TODO: Wtf do I need to Arc to get this clonable?
 #[derive(Error, Debug)]
 pub enum Error {
     #[error(transparent)]
@@ -31,6 +29,7 @@ pub enum Error {
     Reqwest(#[from] reqwest::Error),
     #[error("Uh oh! We couldn't find today's pack!")]
     NoDailyPack,
+    #[allow(clippy::enum_variant_names)]
     #[error("{0}")]
     ErrorMessage(String),
 }
@@ -51,7 +50,6 @@ impl From<&str> for Error {
 impl Clone for Error {
     fn clone(&self) -> Self {
         match self {
-            // TODO: or do we want "{:?}"
             Self::Gloo(e) => Self::ErrorMessage(e.to_string()),
             Self::Reqwest(e) => Self::ErrorMessage(format!("{:#?}", e)),
             Self::NoDailyPack => Self::NoDailyPack,

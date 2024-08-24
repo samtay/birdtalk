@@ -57,7 +57,6 @@ impl Stats {
         1 + (self.bird_stats.values().filter(|bs| bs.learned).count() / BIRDS_PER_LEVEL) as u32
     }
 
-    // TODO: put this behind a trait that handles bumps to DB
     pub fn add_correct_id(&mut self, learned: bool, bird_id: u64) {
         self.current_streak += 1;
         if self.current_streak > self.record_streak {

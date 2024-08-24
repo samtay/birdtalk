@@ -23,7 +23,7 @@ pub fn GameOverModal() -> Element {
         });
     });
 
-    // let auth = use_context::<AppCtx>().auth_state;
+    let _auth = use_context::<AppCtx>().auth_state;
 
     rsx! {
         Modal {
@@ -40,42 +40,24 @@ pub fn GameOverModal() -> Element {
                         Stat { name: "Birds Learned", f: Stats::birds_learned }
                     }
                 }
+                // TODO: uncomment when auth is fully implemented
+                // if auth.is_logged_in() {
                 if true {
-                // if auth.is_logged_in() { // TODO: uncomment when auth is fully implemented
-                    // normal case, logged in user
-                    if true {
-                    // if !auth.is_anonymous() { // TODO: uncomment when auth is fully implemented
-                        button {
-                            class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-dark text-white rounded-full shadow",
-                            // TODO: this handler doesn't have access to internal modal visibility
-                            // signal, that's why slide down doesn't work.
-                            // ... among other reasons.
-                            onclick: move |_| {
-                                game_over_dismissed_cb.call(())
-                            },
-                            onmounted: move |mnt| async move {
-                                #[cfg(feature = "web")]
-                                async_std::task::sleep(std::time::Duration::from_millis(500)).await;
-                                mnt.set_focus(true).await.ok();
-                            },
-                            "Continue"
-                        }
-                    // user is anonymous, encourage them to provide email
-                    } else {
-                        button {
-                            class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-dark text-white rounded-full shadow",
-                            onclick: move |_| {
-                                game_over_dismissed_cb.call(())
-                            },
-                            onmounted: move |mnt| async move {
-                                #[cfg(feature = "web")]
-                                async_std::task::sleep(std::time::Duration::from_millis(500)).await;
-                                mnt.set_focus(true).await.ok();
-                            },
-                            "TODO prompt for email and do linking"
-                        }
+                    button {
+                        class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-dark text-white rounded-full shadow",
+                        // TODO: this handler doesn't have access to internal modal visibility
+                        // signal, that's why slide down doesn't work.
+                        // ... among other reasons.
+                        onclick: move |_| {
+                            game_over_dismissed_cb.call(())
+                        },
+                        onmounted: move |mnt| async move {
+                            #[cfg(feature = "web")]
+                            async_std::task::sleep(std::time::Duration::from_millis(500)).await;
+                            mnt.set_focus(true).await.ok();
+                        },
+                        "Continue"
                     }
-                // user isn't logged in; this should only happen on first play
                 } else {
                     div {
                         h3 {

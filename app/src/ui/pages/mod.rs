@@ -1,9 +1,7 @@
-mod achievements;
 mod birds;
-mod listen;
-mod settings;
+mod index;
+mod play;
 
-pub use achievements::*;
 pub use birds::*;
-pub use listen::*;
-pub use settings::*;
+pub use index::*;
+pub use play::*;

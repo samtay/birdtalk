@@ -11,7 +11,7 @@ use rand::prelude::SliceRandom;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    bird::{BirdDetailed, BirdPackDetailed},
+    bird::{Bird, BirdPack},
     stats::Stats,
     ui::AppCtx,
 };
@@ -44,7 +44,7 @@ struct GameCtx {
 
 impl GameCtx {
     /// Initialize a new game context (and provide it to children).
-    fn init(birdpack: BirdPackDetailed) -> Self {
+    fn init(birdpack: BirdPack) -> Self {
         let app_ctx = use_context::<AppCtx>();
         let birdpack_id = use_signal(|| birdpack.id).into();
         let game = use_signal(|| Game::init(birdpack, true));
@@ -67,13 +67,13 @@ impl GameCtx {
     }
 
     /// Create a new memo signal of the current challenge's birds
-    fn birds_memo(&self) -> Memo<Vec<BirdDetailed>> {
+    fn birds_memo(&self) -> Memo<Vec<Bird>> {
         let game = self.game;
         use_memo(move || game.read().birds())
     }
 
     /// Create a new memo signal of the current correct bird
-    fn correct_bird_memo(&self) -> Memo<BirdDetailed> {
+    fn correct_bird_memo(&self) -> Memo<Bird> {
         let game = self.game;
         use_memo(move || game.read().correct_choice().bird.clone())
     }
@@ -138,7 +138,7 @@ impl GameCtx {
 }
 
 #[component]
-pub fn GameView(pack: BirdPackDetailed) -> Element {
+pub fn GameView(pack: BirdPack) -> Element {
     let game_ctx = GameCtx::init(pack);
     let shuffle = game_ctx.shuffle_memo();
     let correct_bird = game_ctx.correct_bird_memo();
@@ -173,6 +173,7 @@ pub fn GameView(pack: BirdPackDetailed) -> Element {
     }
 }
 
+// TODO:
 #[component]
 pub fn GameViewPlaceholder() -> Element {
     rsx! {

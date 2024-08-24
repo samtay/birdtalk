@@ -4,17 +4,12 @@ use rand::{seq::SliceRandom, thread_rng};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    bird::{BirdDetailed, BirdPackDetailed},
+    bird::{Bird, BirdPack},
     stats::LEARN_THRESHOLD,
 };
 
 pub const MULTIPLE_CHOICE_SIZE: usize = 4;
 
-// TODO move to ui dir?
-// Keep persistent / db related stuff like progress outside of UI, put this "flow" stuff into
-// UI.
-
-// Game should maybe have some enum field with explains the state -> Next Challenge Ready, Finished Pack, etc.
 /// The game data.
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Game {
@@ -32,7 +27,7 @@ pub struct Game {
 
 impl Game {
     /// Initialize the game.
-    pub fn init(bird_pack: BirdPackDetailed, shuffle: bool) -> Self {
+    pub fn init(bird_pack: BirdPack, shuffle: bool) -> Self {
         let mut choices: Vec<_> = bird_pack.birds.into_iter().map(BirdContext::from).collect();
         if shuffle {
             choices.shuffle(&mut thread_rng());
@@ -52,7 +47,7 @@ impl Game {
     }
 
     /// Get the current multiple choice birds.
-    pub fn birds(&self) -> Vec<BirdDetailed> {
+    pub fn birds(&self) -> Vec<Bird> {
         self.choices.clone().into_iter().map(|bc| bc.bird).collect()
     }
 
@@ -78,11 +73,9 @@ impl Game {
         }
     }
 
-    // TODO: redo this. it doesn't allow any of the birds in a multi choice round to be repeated?
-    // The correct bird choice should be sorted appropriately, but the rest of choices should be
-    // either random or chosen with a different criteria.
-    // TODO: last seeen should probably only matter for the correct choice?
-    // I need to look up if there are standard algorithms for this kind of memorization game...
+    // TODO: redo this. it doesn't allow any of the birds in a multi choice round to be repeated
+    // TODO: last seen should probably only matter for the correct choice?
+    // TODO: look up if there are standard algorithms for this kind of memorization game...
     pub fn set_next_challenge(&mut self) {
         // Lil over engineered, but mem efficient. self.pack becomes the new choices
         let mut rest_of_pack = self.pack.split_off(MULTIPLE_CHOICE_SIZE);
@@ -108,15 +101,14 @@ impl Game {
             if ctx.learned() {
                 weight += 10;
             }
-            // TODO: this assumes context is for a given game round. is that what we're doing here?
             weight -= ctx.mistaken as i32;
             weight -= ctx.last_seen.map(|ls| ls.max(5) as i32).unwrap_or(5);
             weight
         });
     }
 
+    // NOTE: this assumes an even partition into choices/pack.
     pub fn percent_complete(&self) -> usize {
-        // TODO: this also assumes an even partition into choices/pack.
         let total = self.choices.len() + self.pack.len();
         let learned = self
             .choices
@@ -135,15 +127,12 @@ impl Game {
     }
 }
 
-/// A bird with surrounding game context.
-// TODO: contextual information should be separated out? now that the rendering is based on the
-// bird only and flow writes to context?
-// This would make for less complicated coupling between game and storage...
-// And game would simply need a read only signal into a Progress Context.
+/// A bird with surrounding game context. (Per individual game)
+// TODO: perhaps separate contextual information away from birds themselves? like a separate hashmap by bird id?
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct BirdContext {
     /// The bird.
-    pub bird: BirdDetailed,
+    pub bird: Bird,
     /// The number of times the bird has been correctly identified.
     pub identified: u32,
     /// The number of times the bird has been correctly identified consecutively.
@@ -156,8 +145,8 @@ pub struct BirdContext {
     pub last_seen: Option<u32>,
 }
 
-impl From<BirdDetailed> for BirdContext {
-    fn from(bird: BirdDetailed) -> Self {
+impl From<Bird> for BirdContext {
+    fn from(bird: Bird) -> Self {
         Self {
             bird,
             identified: 0,

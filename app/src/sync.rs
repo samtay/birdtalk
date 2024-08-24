@@ -29,7 +29,6 @@ pub struct Sync<T: 'static> {
 impl<T: 'static + std::clone::Clone> Copy for Sync<T> {}
 
 impl Sync<Stats> {
-    // TODO: pull auth from ctx?
     pub fn init(auth: AuthState) -> Self {
         let local = use_synced_storage::<LocalStorage, _>("stats".to_string(), Stats::default);
         let fut = use_future(move || async move {
@@ -38,18 +37,15 @@ impl Sync<Stats> {
             // tracing::info!("Auto syncing from long-lived future... TODO");
             // break;
             // }
-            ()
         });
 
-        let me = Self { local, fut, auth };
+        Self { local, fut, auth }
         // Super quick "sync" hack: just push whenever user logs in.
-        // TODO: uncomment
         // use_memo(move || {
         //     if auth.is_logged_in() {
         //         spawn(async move { me.sync().await.unwrap() });
         //     }
         // });
-        me
     }
 
     // TODO: function to insert stats with version, returning null|version,
@@ -123,7 +119,7 @@ impl UserStats {
         tracing::debug!("Pushing stats for user_id {:?}", self.user_id);
         self.updated_at = Utc::now();
         if !self.user_id.is_empty() {
-            let _rsp = supabase::rpc("upsert_stats", &self).execute().await?;
+            let _rsp = supabase::rpc("upsert_stats", self).execute().await?;
         }
         Ok(())
     }

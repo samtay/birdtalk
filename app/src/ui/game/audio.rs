@@ -1,12 +1,12 @@
 use dioxus::prelude::*;
 
-use crate::{
-    bird::BirdDetailed,
-    ui::{AUDIO_AUTOPLAY, AUDIO_LOOP},
-};
+use crate::bird::Bird;
+
+const AUDIO_LOOP: bool = true;
+const AUDIO_AUTOPLAY: bool = true;
 
 #[component]
-pub fn AudioPlayer(bird: Memo<BirdDetailed>) -> Element {
+pub fn AudioPlayer(bird: Memo<Bird>) -> Element {
     use wasm_bindgen::JsCast;
     use web_sys::HtmlAudioElement;
 

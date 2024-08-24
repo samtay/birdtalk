@@ -1,3 +1,8 @@
+# Dioxus stuff now seems to end up in the workspace root
+/dist/
+/static/
+/.dioxus/
+
 .neoconf.json
 
 # Potentially sensitive environment files

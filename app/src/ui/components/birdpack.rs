@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 
 use crate::{
-    bird::{BirdPackDaily, BirdPackDetailed},
+    bird::{BirdPack, BirdPackDaily},
     supabase::Error,
     ui::{Route, PLAY_STATUS},
 };
@@ -19,7 +19,7 @@ pub fn PackOfTheDay() -> Element {
                 }
             },
             SuspenseBoundary {
-                fallback: |context: SuspenseContext| rsx! {
+                fallback: |_context: SuspenseContext| rsx! {
                     div {"some pretty pulsing loading pack!"}
                 },
                 PackOfTheDayInner {}
@@ -30,6 +30,7 @@ pub fn PackOfTheDay() -> Element {
 
 // TODO: styles
 // TODO: mobile styles
+// TODO: "Next pack in ..."
 #[component]
 fn PackOfTheDayInner() -> Element {
     let BirdPackDaily { pack, day: _ } = use_resource(BirdPackDaily::fetch_today)
@@ -81,8 +82,8 @@ mod dead_code {
 
     /// A grid of all the free bird packs to choose from
     #[component]
-    pub fn BirdPackSelector(selected_pack: Signal<Option<BirdPackDetailed>>) -> Element {
-        let packs_resource = use_resource(BirdPackDetailed::fetch_free_packs);
+    pub fn BirdPackSelector(selected_pack: Signal<Option<BirdPack>>) -> Element {
+        let packs_resource = use_resource(BirdPack::fetch_free_packs);
         let packs_value = packs_resource.value();
         let packs_read = packs_value.read();
         match *packs_read {
@@ -120,10 +121,7 @@ mod dead_code {
 
     /// A bird pack radio input option, styled as a card
     #[component]
-    fn BirdPackOption(
-        pack: BirdPackDetailed,
-        selection: Signal<Option<BirdPackDetailed>>,
-    ) -> Element {
+    fn BirdPackOption(pack: BirdPack, selection: Signal<Option<BirdPack>>) -> Element {
         rsx! {
             li {
                 label {

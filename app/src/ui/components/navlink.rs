@@ -1,7 +1,8 @@
+// TODO: use this component for Katy's icons
 use dioxus::prelude::*;
 
 #[derive(Props, Clone, PartialEq)]
-pub struct NavLinkProps {
+struct NavLinkProps {
     #[props(into)]
     pub to: IntoRoutable,
     pub icon: Element,
@@ -16,7 +17,7 @@ pub struct NavLinkProps {
 }
 
 #[component]
-pub fn NavbarLink(props: NavLinkProps) -> Element {
+fn NavbarLink(props: NavLinkProps) -> Element {
     let NavLinkProps {
         // attributes,
         icon,

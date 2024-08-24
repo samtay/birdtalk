@@ -3,7 +3,7 @@ use std::rc::Rc;
 use dioxus::prelude::*;
 
 use super::{quiz::BirdContext, GameCtx};
-use crate::{bird::BirdDetailed, stats::LEARN_THRESHOLD};
+use crate::{bird::Bird, stats::LEARN_THRESHOLD};
 
 #[component]
 pub fn MultipleChoiceCard(bird: MappedSignal<BirdContext>, correct: bool) -> Element {
@@ -13,7 +13,6 @@ pub fn MultipleChoiceCard(bird: MappedSignal<BirdContext>, correct: bool) -> Ele
     let correct_chosen = game_ctx.correct_chosen;
     rsx! {
         div {
-            // TODO: try removing this with the other cubic, it might be better fitting vibe.
             class: "[perspective:1000px]",
             div {
                 class: "grid transition-transform duration-500 [transform-style:preserve-3d] h-full",
@@ -38,9 +37,9 @@ pub fn MultipleChoiceCard(bird: MappedSignal<BirdContext>, correct: bool) -> Ele
 }
 
 #[component]
-fn CardFront(bird: Memo<BirdDetailed>, correct: bool) -> Element {
+fn CardFront(bird: Memo<Bird>, correct: bool) -> Element {
     let mut game_ctx = use_context::<GameCtx>();
-    // TODO: note that this is assuming a different set of birds each round!
+    // NOTE: this is assuming a different set of birds each round!
     let mut mistakenly_chosen = use_signal(|| false);
     let correct_chosen = game_ctx.correct_chosen;
     use_effect(move || {

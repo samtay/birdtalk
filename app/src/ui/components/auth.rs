@@ -22,7 +22,7 @@ pub fn LoginModal() -> Element {
 /// Log in component; currently supports magic link via email.
 // TODO: basic email validation
 // TODO: display 60s disabled before user can hit "signin" with different email
-// TODO: allow annoymous signin
+// TODO: FB / Google / Apple
 #[component]
 pub fn Login() -> Element {
     let mut email = use_signal(String::new);
@@ -65,7 +65,12 @@ pub fn Login() -> Element {
 /// A component for receiving the magic link response and redirecting back to the main app.
 // TODO: sync stats (pull, merge, push) after login
 //       (possibly a view of local and remote stats, option to merge?)
-// TODO: don't redirect, just say "login successful, you can close this page now!"
+// TODO: don't redirect, just say "login successful, you can close this page now! Or go back [[home]]"
+// TODO: when ready, add back as a route:
+// #[route("/login/#:fragment")]
+// LoginRedirect {
+//     fragment: MagicLinkResponse
+// },
 #[component]
 pub fn LoginRedirect(fragment: ReadOnlySignal<MagicLinkResponse>) -> Element {
     let mut auth = use_context::<AppCtx>().auth_state;
@@ -91,6 +96,29 @@ pub fn LoginRedirect(fragment: ReadOnlySignal<MagicLinkResponse>) -> Element {
                     "Logging in..."
                 }
             }
+        }
+    }
+}
+
+// E.g. #[layout(LoginGate)]
+#[component]
+fn LoginGate() -> Element {
+    let ctx = use_context::<AppCtx>();
+    let on_open_route = matches!(use_route(), Route::Index {});
+    let logged_in = use_memo(move || ctx.auth_state.is_logged_in());
+    let login_needed = !on_open_route && !logged_in();
+    // TODO: Perhaps arbitrarily delay to second generation() for SSG?
+    //       Pending / refreshing -> Learn view shows placeholders
+    //       Signed out           -> Fetch free packs with anon key
+    //       Signed in            -> Fetch packs relevant to user
+    rsx! {
+        if login_needed {
+            div {
+                class: "flex flex-col items-center justify-center h-full",
+                Login {}
+            }
+        } else {
+            Outlet::<Route> { }
         }
     }
 }
