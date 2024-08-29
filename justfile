@@ -45,34 +45,6 @@ supabase-seed env='local':
     supabase link --project-ref "$SUPABASE_PROJECT_ID" --password "$SUPABASE_DB_PASSWORD"
   fi
 
-  # TODO this should all just move to seed.rs. or \copy to temp table and then resolve conflicts in seed.rs
-
-  # copy birds
-  psql "$DATABASE_URL" -c \
-    "\copy birds (scientific_name, common_name)
-      from program 'cat $SEED_DIR/birds.json | jq -r \".[] | [.scientific_name, .common_name] | @csv\"'
-      csv" || true
-  # copy packs
-  psql "$DATABASE_URL" -c \
-    "\copy packs (name, description, free)
-      from program 'cat $SEED_DIR/packs.json | jq -r \".[] | [.name, .description, .free] | @csv\"'
-      csv" || true
-  # copy bird/pack relations
-  psql "$DATABASE_URL" -c \
-    "\copy bird_pack (pack, bird)
-      from program 'cat $SEED_DIR/packs.json | jq -r \".[] | {pack: .name, bird: .birds[]} | [.pack, .bird] | @csv\"'
-      csv" || true
-  # copy courses
-  psql "$DATABASE_URL" -c \
-    "\copy courses (name, description, free)
-      from program 'cat $SEED_DIR/courses.json | jq -r \".[] | [.name, .description, .free] | @csv\"'
-      csv" || true
-  # copy course/pack relations
-  psql "$DATABASE_URL" -c \
-    "\copy course_pack (course, pack, index)
-      from program 'cat $SEED_DIR/courses.json | jq -r \".[] | {course: .name, packs: .packs | to_entries[] | {index: .key, pack: .value}} | [.course, .packs.pack, .packs.index] | @csv\"'
-      csv" || true
-
   cargo run -p birdtalk-data --bin seed
 
 expo-android:

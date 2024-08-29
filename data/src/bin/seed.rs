@@ -12,16 +12,13 @@ use sqlx::{Connection, PgConnection};
 struct BirdRow {
     id: i32,
     scientific_name: String,
-    #[allow(dead_code)]
-    common_name: String,
     default_sound_file: Option<String>,
     default_image_file: Option<String>,
 }
 
 #[derive(serde::Deserialize)]
-struct Bird {
+struct BirdSeed {
     scientific_name: String,
-    #[allow(dead_code)]
     common_name: String,
     default_sound_file: String,
     img_file: String,
@@ -29,15 +26,10 @@ struct Bird {
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<()> {
-    upload_media().await?;
-    Ok(())
-}
-
-async fn upload_media() -> Result<()> {
     // pull seed data from filesystem
     let seed_dir = env::var("SEED_DIR")?;
     let file = std::fs::File::open(format!("{seed_dir}/birds.json"))?;
-    let bird_seed: HashMap<String, Bird> = serde_json::from_reader::<_, Vec<Bird>>(file)?
+    let bird_seed: HashMap<String, BirdSeed> = serde_json::from_reader::<_, Vec<BirdSeed>>(file)?
         .into_iter()
         .map(|bird| (bird.scientific_name.clone(), bird))
         .collect();
@@ -46,6 +38,44 @@ async fn upload_media() -> Result<()> {
     let db_url = env::var("DATABASE_URL")?;
     let mut conn = PgConnection::connect(&db_url).await?;
 
+    upsert_birds(&bird_seed, &mut conn).await?;
+    upload_media(&bird_seed, &mut conn).await?;
+    Ok(())
+}
+
+async fn upsert_birds(
+    bird_seed: &HashMap<String, BirdSeed>,
+    conn: &mut PgConnection,
+) -> Result<()> {
+    println!("Upserting birds...");
+    let result = sqlx::query!(
+        "insert into birds (scientific_name, common_name)
+         select * from unnest($1::text[], $2::text[])
+         on conflict (scientific_name) do nothing
+        ",
+        &bird_seed
+            .values()
+            .map(|bird| bird.scientific_name.clone())
+            .collect::<Vec<String>>(),
+        &bird_seed
+            .values()
+            .map(|bird| bird.common_name.clone())
+            .collect::<Vec<String>>(),
+    )
+    .execute(conn)
+    .await?;
+    println!("Done! Inserted {} birds.", result.rows_affected());
+
+    Ok(())
+}
+
+async fn upload_media(
+    bird_seed: &HashMap<String, BirdSeed>,
+    conn: &mut PgConnection,
+) -> Result<()> {
+    let seed_dir = env::var("SEED_DIR")?;
+
+    println!("Upserting storage buckets...");
     // first insert buckets if necessary
     sqlx::query!(
         r#"insert into storage.buckets
@@ -56,26 +86,24 @@ async fn upload_media() -> Result<()> {
         on conflict (id)
         do update set public = true"#
     )
-    .execute(&mut conn)
+    .execute(&mut *conn)
     .await?;
 
-    // pull data from database
+    println!("Fetching birds from db...");
     let db_birds = sqlx::query_as!(
         BirdRow,
         r#"select
             birds.id as "id!",
             birds.scientific_name as "scientific_name!",
-            birds.common_name as "common_name!",
             sounds.bucket || '/' || sounds.path as default_sound_file,
             images.bucket || '/' || images.path as default_image_file
          from birds
          left join bird_images images on birds.id = images.bird
          left join bird_sounds sounds on birds.id = sounds.bird"#,
     )
-    .fetch_all(&mut conn)
+    .fetch_all(&mut *conn)
     .await?;
 
-    // upload media
     let sb_env = env::var("ENV")?;
     let flag = match sb_env.as_str() {
         "local" => "--local",
@@ -84,7 +112,9 @@ async fn upload_media() -> Result<()> {
     };
     let sb_args = vec!["--experimental", "storage", flag, "cp", "--recursive"];
 
-    for bird in db_birds {
+    println!("Uploading media...");
+    let total_birds = db_birds.len();
+    for (ix, bird) in db_birds.into_iter().enumerate() {
         let bird_seed = &bird_seed
             .get(&bird.scientific_name)
             .expect("missing bird in seed data");
@@ -108,7 +138,7 @@ async fn upload_media() -> Result<()> {
                 bird.id,
                 seed_path
             )
-            .execute(&mut conn)
+            .execute(&mut *conn)
             .await?;
         }
         if bird.default_image_file.is_none() {
@@ -131,10 +161,13 @@ async fn upload_media() -> Result<()> {
                 bird.id,
                 seed_path
             )
-            .execute(&mut conn)
+            .execute(&mut *conn)
             .await?;
         }
+        print!("\u{001b}[1000D Completed {}/{} birds", ix + 1, total_birds);
+        io::stdout().flush().ok();
     }
 
+    println!("\n\nDone!");
     Ok(())
 }
