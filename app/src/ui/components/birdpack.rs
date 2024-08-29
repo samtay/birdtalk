@@ -101,7 +101,7 @@ fn PackOfTheDayInner() -> Element {
                             },
 
                             div {
-                                class: "uppercase max-h-full self-end whitespace-nowrap text-ellipsis",
+                                class: "uppercase max-h-full self-end whitespace-nowrap text-ellipsis overflow-hidden",
                                 text_orientation: "upright",
                                 writing_mode: "vertical-lr",
                                 "{bird.scientific_name.split_whitespace().next().unwrap()}"
@@ -122,7 +122,7 @@ fn PackOfTheDayInner() -> Element {
                             }
 
                             div {
-                                class: "uppercase max-h-full self-start whitespace-nowrap text-ellipsis",
+                                class: "uppercase max-h-full self-start whitespace-nowrap text-ellipsis overflow-hidden",
                                 text_orientation: "upright",
                                 writing_mode: "vertical-lr",
                                 "{bird.scientific_name.split_whitespace().last().unwrap()}"

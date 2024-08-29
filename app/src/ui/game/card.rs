@@ -72,7 +72,7 @@ fn CardFront(bird: Memo<Bird>, correct: bool) -> Element {
                         "{bird().common_name}"
                     }
                     p {
-                        class: "text-sm sm:text-base font-medium sm:group-enabled:group-hover:text-black whitespace-nowrap text-ellipsis",
+                        class: "text-sm sm:text-base font-medium sm:group-enabled:group-hover:text-black whitespace-nowrap text-ellipsis overflow-hidden",
                         "{bird().scientific_name}"
                     }
                 }
