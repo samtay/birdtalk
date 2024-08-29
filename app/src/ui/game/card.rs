@@ -55,7 +55,7 @@ fn CardFront(bird: Memo<Bird>, correct: bool) -> Element {
                 }
                 game_ctx.record_choice(correct);
             },
-            class: "group w-full h-full mx-auto border border-black rounded-xl shadow enabled:hover:shadow-lg enabled:hover:bg-yellow enabled:hover:-translate-y-2 transition-transform space-y-2 bg-yellow-light focus:outline-none focus-visible:ring focus-visible:ring-amber-600 px-2 py-2 sm:py-4 sm:px-4 md:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 disabled:shadow-none disabled:border disabled:opacity-50 disabled:transition-opacity disabled:duration-1000",
+            class: "group w-full h-full mx-auto border border-black rounded-xl shadow sm:enabled:hover:shadow-lg sm:enabled:hover:bg-yellow sm:enabled:hover:-translate-y-2 transition-transform space-y-2 bg-yellow-light focus:outline-none focus-visible:ring focus-visible:ring-amber-600 px-2 py-2 sm:py-4 sm:px-4 md:px-8 sm:flex sm:items-center sm:space-y-0 sm:space-x-6 disabled:shadow-none disabled:border disabled:opacity-50 disabled:transition-opacity disabled:duration-1000",
             class: if mistakenly_chosen() { "animate-shake" },
             disabled: mistakenly_chosen() || correct_chosen(),
             img {
@@ -68,11 +68,11 @@ fn CardFront(bird: Memo<Bird>, correct: bool) -> Element {
                 div {
                     class: "space-y-0.5",
                     p {
-                        class: "text-lg font-semibold group-enabled:group-hover:text-black",
+                        class: "text-lg font-semibold sm:group-enabled:group-hover:text-black",
                         "{bird().common_name}"
                     }
                     p {
-                        class: "text-sm sm:text-base font-medium group-enabled:group-hover:text-black whitespace-nowrap text-ellipsis",
+                        class: "text-sm sm:text-base font-medium sm:group-enabled:group-hover:text-black whitespace-nowrap text-ellipsis",
                         "{bird().scientific_name}"
                     }
                 }

@@ -68,7 +68,7 @@ fn PackOfTheDayInner() -> Element {
         div {
             class: "grid grid-cols-5 items-center mx-auto overflow-x-clip sm:overflow-x-visible",
             button {
-                class: "col-span-1 w-12 h-12 focus:outline-none focus-visible:ring focus-visible:ring-black font-semibold bg-offwhite text-black rounded-full shadow hover:shadow-xl hover:scale-110 flex justify-center items-center z-40 justify-self-end sm:justify-self-center order-last sm:order-first",
+                class: "col-span-1 w-12 h-12 focus:outline-none focus-visible:ring focus-visible:ring-black font-semibold bg-offwhite text-black rounded-full shadow sm:hover:shadow-xl sm:hover:scale-110 flex justify-center items-center z-40 justify-self-end sm:justify-self-center order-last sm:order-first",
                 onclick: move |_| {
                     position.with_mut(|p| *p = (*p + 1) % pack_size);
                 },
@@ -114,7 +114,7 @@ fn PackOfTheDayInner() -> Element {
                                     alt: "{bird.common_name}",
                                 }
                                 div {
-                                    class: "text-lg text-center",
+                                    class: "text-lg text-center select-all",
                                     "{bird.common_name}"
                                 }
                             }
@@ -129,7 +129,7 @@ fn PackOfTheDayInner() -> Element {
                     }
                 }
                 button {
-                    class: "px-12 py-4 mt-2 focus:outline-none focus-visible:ring focus-visible:ring-green-dark font-semibold text-base bg-green-dark text-white rounded-xl shadow hover:shadow-xl hover:scale-125 hover:bg-gradient-to-r from-green to-green-dark transition-transform uppercase text-xl z-40",
+                    class: "px-12 py-4 mt-2 focus:outline-none focus-visible:ring focus-visible:ring-green-dark font-semibold text-base bg-green-dark text-white rounded-xl shadow sm:hover:shadow-xl sm:hover:scale-125 sm:hover:bg-gradient-to-r from-green to-green-dark transition-transform uppercase text-xl z-40",
                     onclick: move |_| {
                         *PLAY_STATUS.write() = Some(pack.clone());
                         navigator().push(Route::Play { pack_id: pack.id });
