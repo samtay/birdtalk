@@ -143,54 +143,54 @@ fn PackOfTheDayInner() -> Element {
     }
 }
 
-#[component]
-fn PackOfTheDayOld() -> Element {
-    let BirdPackDaily { pack, day: _ } = use_resource(BirdPackDaily::fetch_today)
-        .suspend()?
-        .read()
-        .clone()?;
-    rsx! {
-        div {
-            class: "flex-col gap-4 justify-between inline-flex sm:h-64 border-2 rounded-xl shadow p-3 sm:p-4 text-black bg-offwhite hover:bg-yellow-light hover:shadow-xl select-none relative items-center",
+// This may be useful in the future
+mod dead_code {
+    pub use super::*;
+
+    #[component]
+    fn PackOfTheDayOld() -> Element {
+        let BirdPackDaily { pack, day: _ } = use_resource(BirdPackDaily::fetch_today)
+            .suspend()?
+            .read()
+            .clone()?;
+        rsx! {
             div {
-                class: "text-lg font-semibold text-center",
-                "Daily Bevy" // "{pack.name}"
-            }
-            div {
-                class: "flex-initial sm:flex-none overflow-hidden",
+                class: "flex-col gap-4 justify-between inline-flex sm:h-64 border-2 rounded-xl shadow p-3 sm:p-4 text-black bg-offwhite hover:bg-yellow-light hover:shadow-xl select-none relative items-center",
                 div {
-                    class: "grid grid-cols-5 gap-2.5 min-w-52 justify-items-center",
-                    if pack.birds.is_empty() {
-                        for _ in 0..10 {
-                            span {class: "max-sm:w-8 max-sm:h-8 sm:w-9 sm:h-9 rounded-full flex-none bg-purple"}
-                        }
-                    } else {
-                        for bird in pack.birds.iter().take(10) {
-                            // TODO: tooltip with common name
-                            img {
-                                class: "max-sm:w-8 max-sm:h-8 sm:w-9 sm:h-9 rounded-full object-cover flex-none max-sm:min-w-8 max-sm:min-h-8 sm:min-w-9 sm:min-h-9 overflow-hidden",
-                                src: bird.image_url(),
-                                alt: bird.common_name.clone(),
+                    class: "text-lg font-semibold text-center",
+                    "Daily Bevy" // "{pack.name}"
+                }
+                div {
+                    class: "flex-initial sm:flex-none overflow-hidden",
+                    div {
+                        class: "grid grid-cols-5 gap-2.5 min-w-52 justify-items-center",
+                        if pack.birds.is_empty() {
+                            for _ in 0..10 {
+                                span {class: "max-sm:w-8 max-sm:h-8 sm:w-9 sm:h-9 rounded-full flex-none bg-purple"}
+                            }
+                        } else {
+                            for bird in pack.birds.iter().take(10) {
+                                // TODO: tooltip with common name
+                                img {
+                                    class: "max-sm:w-8 max-sm:h-8 sm:w-9 sm:h-9 rounded-full object-cover flex-none max-sm:min-w-8 max-sm:min-h-8 sm:min-w-9 sm:min-h-9 overflow-hidden",
+                                    src: bird.image_url(),
+                                    alt: bird.common_name.clone(),
+                                }
                             }
                         }
                     }
                 }
-            }
-            button {
-                class: "px-8 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-dark font-semibold text-base bg-green-dark text-white rounded-full shadow uppercase",
-                onclick: move |_| {
-                    *PLAY_STATUS.write() = Some(pack.clone());
-                    navigator().push(Route::Play { pack_id: pack.id });
-                },
-                "play"
+                button {
+                    class: "px-8 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-dark font-semibold text-base bg-green-dark text-white rounded-full shadow uppercase",
+                    onclick: move |_| {
+                        *PLAY_STATUS.write() = Some(pack.clone());
+                        navigator().push(Route::Play { pack_id: pack.id });
+                    },
+                    "play"
+                }
             }
         }
     }
-}
-
-// This may be useful in the future
-mod dead_code {
-    pub use super::*;
 
     /// A grid of all the free bird packs to choose from
     #[component]
