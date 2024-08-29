@@ -1,3 +1,6 @@
+//! In [`crate::ui`] we have all of the actual markup that makes up the app. I.e. usage of rsx!
+//! lives here.
+
 mod components;
 mod game;
 mod pages;
@@ -28,16 +31,18 @@ impl AppCtx {
     }
 }
 
+// TODO: add google fonts via asset! (see docs)
 pub fn App() -> Element {
     AppCtx::init();
+    const ARCADE_FONT: &str = asset!(font().families(["Bungee Shade"]));
+    const MONO_FONT: &str = asset!(font().families(["Space Mono"]).weights([400, 700]));
     rsx! {
         head::Link {
             rel: "stylesheet",
             href: asset!("assets/tailwind.css"),
         }
-        // TODO: remove
-        // TODO: manganis?
-        // script { src: "https://cdn.tailwindcss.com" }
+        head::Link { rel: "stylesheet",  href: ARCADE_FONT }
+        head::Link { rel: "stylesheet",  href: MONO_FONT }
         Router::<Route> {
         }
     }
@@ -66,14 +71,18 @@ enum Route {
 
 #[component]
 fn HeaderFooter() -> Element {
-    const HEADER: &str = manganis::mg!(file("assets/heading.webp"));
     rsx! {
         div {
             class: "flex flex-col sm:h-dvh pb-2",
             header {
                 id: "header",
-                class: "text-chartreuse-light shrink container h-24 max-w-screen-md mt-2 mx-auto bg-contain bg-center bg-no-repeat flex flex-row space-between items-center",
-                background_image: "url({HEADER})",
+                class: "text-green-dark shrink h-20 py-2 w-full flex flex-row justify-between items-center",
+                div {}
+                div {
+                    class: "text-5xl font-arcade font-semibold uppercase",
+                    "birdtalk"
+                }
+                div {}
             }
             div {
                 id: "content",

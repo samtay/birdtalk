@@ -115,3 +115,22 @@ pub fn SettingsIcon() -> Element {
         }
     }
 }
+
+#[component]
+pub fn ArrowUturnRightIcon() -> Element {
+    rsx! {
+        svg {
+            class: "w-8 h-8",
+            fill: "none",
+            stroke: "currentColor",
+            stroke_width: "1.5",
+            view_box: "0 0 24 24",
+            xmlns: "http://www.w3.org/2000/svg",
+            path {
+                stroke_linejoin: "round",
+                d: "m15 15 6-6m0 0-6-6m6 6H9a6 6 0 0 0 0 12h3",
+                stroke_linecap: "round"
+            }
+        }
+    }
+}

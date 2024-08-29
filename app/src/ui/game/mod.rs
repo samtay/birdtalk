@@ -1,8 +1,9 @@
+//! Here lives all of the game logic and markup.
+
 mod audio;
 mod card;
 mod game_over;
 pub mod quiz;
-
 
 use dioxus::prelude::*;
 use rand::prelude::SliceRandom;

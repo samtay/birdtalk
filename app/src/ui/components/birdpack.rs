@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 
 use crate::{
     bird::{BirdPack, BirdPackDaily},
-    ui::{Route, PLAY_STATUS},
+    ui::{components::icons::ArrowUturnRightIcon, Route, PLAY_STATUS},
 };
 
 /// Pack of the day
@@ -27,26 +27,137 @@ pub fn PackOfTheDay() -> Element {
     }
 }
 
-// TODO: styles
-// TODO: mobile styles
+// TODO: "Daily Bevy" in a half circle as title above?
+// TODO: audio play options on each card
+// TODO: arrow key shortcuts
 // TODO: "Next pack in ..."
+// TODO: favor ul/li over divs?
+// TODO: rm noisy curr/next/last closures
 #[component]
 fn PackOfTheDayInner() -> Element {
     let BirdPackDaily { pack, day: _ } = use_resource(BirdPackDaily::fetch_today)
         .suspend()?
         .read()
         .clone()?;
+    let pack_size = pack.birds.len();
+    let degree = |pos: usize| match pos {
+        0 => 0,
+        1 => 5,
+        2 => 8,
+        3 => 10,
+        i => i + 7,
+    };
+    let bg_color = |ix: usize| match ix % 8 {
+        0 => "bg-green",
+        1 => "bg-yellow",
+        2 => "bg-blue-light",
+        3 => "bg-orange",
+        4 => "bg-purple",
+        5 => "bg-red",
+        6 => "bg-chartreuse",
+        7 => "bg-pink",
+        _ => unreachable!(),
+    };
+    let mut position = use_signal(|| 0usize);
+    let pos = move |ix: usize| (ix + pack_size - position()) % pack_size;
+    let current = move |ix: usize| pos(ix) == 0;
+    let next = move |ix: usize| pos(ix) == 1;
+    let last = move |ix: usize| pos(ix) == pack_size - 1;
+
     rsx! {
         div {
-            class: "sm:flex-col gap-4 justify-between inline-flex h-full w-full border-2 rounded-xl shadow p-3 sm:p-4 transition-transform hover:bg-yellow-light hover:shadow-xl select-none relative items-center",
+            class: "grid grid-cols-5 items-center mx-auto overflow-x-clip sm:overflow-x-visible",
+            button {
+                class: "col-span-1 w-12 h-12 focus:outline-none focus-visible:ring focus-visible:ring-black font-semibold bg-offwhite text-black rounded-full shadow hover:shadow-xl hover:scale-110 flex justify-center items-center z-40 justify-self-end sm:justify-self-center order-last sm:order-first",
+                onclick: move |_| {
+                    position.with_mut(|p| *p = (*p + 1) % pack_size);
+                },
+                ArrowUturnRightIcon {}
+            }
+            div {
+                class: "col-start-2 col-span-3 justify-self-stretch flex flex-col gap-6 items-center justify-center",
+                div {
+                    class: "w-56 h-96 relative",
+                    for (ix, bird) in pack.birds.iter().enumerate() {
+                        div {
+                            key: ix,
+                            class: "absolute inset-0 border-2 border-offwhite-2 rounded-xl shadow py-3 sm:py-4 text-black {bg_color(ix)} flex flex-row justify-between transition-transform duration-700 origin-bottom select-none",
+                            transform: "rotate({degree(pos(ix))}deg) translateX({degree(pos(ix))}px)",
+                            z_index: "{pack_size - pos(ix)}",
+                            "data-position": "{pos(ix)}",
+
+                            class: if current(ix) {
+                                "select-text"
+                            },
+
+                            class: if next(ix) {
+                                "z"
+                            },
+
+                            class: if last(ix) {
+                                "animate-card-slide-out"
+                            },
+
+                            div {
+                                class: "uppercase max-h-full self-end whitespace-nowrap text-ellipsis",
+                                text_orientation: "upright",
+                                writing_mode: "vertical-lr",
+                                "{bird.scientific_name.split_whitespace().next().unwrap()}"
+                            }
+
+                            // center
+                            div {
+                                class: "flex flex-col gap-4 items-center",
+                                img {
+                                    class: "w-24 h-24 rounded-full object-cover flex-none overflow-hidden",
+                                    src: bird.image_url(),
+                                    alt: "{bird.common_name}",
+                                }
+                                div {
+                                    class: "text-lg text-center",
+                                    "{bird.common_name}"
+                                }
+                            }
+
+                            div {
+                                class: "uppercase max-h-full self-start whitespace-nowrap text-ellipsis",
+                                text_orientation: "upright",
+                                writing_mode: "vertical-lr",
+                                "{bird.scientific_name.split_whitespace().last().unwrap()}"
+                            }
+                        }
+                    }
+                }
+                button {
+                    class: "px-12 py-4 mt-2 focus:outline-none focus-visible:ring focus-visible:ring-green-dark font-semibold text-base bg-green-dark text-white rounded-xl shadow hover:shadow-xl hover:scale-125 hover:bg-gradient-to-r from-green to-green-dark transition-transform uppercase text-xl z-40",
+                    onclick: move |_| {
+                        *PLAY_STATUS.write() = Some(pack.clone());
+                        navigator().push(Route::Play { pack_id: pack.id });
+                    },
+                    "play"
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn PackOfTheDayOld() -> Element {
+    let BirdPackDaily { pack, day: _ } = use_resource(BirdPackDaily::fetch_today)
+        .suspend()?
+        .read()
+        .clone()?;
+    rsx! {
+        div {
+            class: "flex-col gap-4 justify-between inline-flex sm:h-64 border-2 rounded-xl shadow p-3 sm:p-4 text-black bg-offwhite hover:bg-yellow-light hover:shadow-xl select-none relative items-center",
             div {
                 class: "text-lg font-semibold text-center",
                 "Daily Bevy" // "{pack.name}"
             }
             div {
-                class: "flex-initial sm:flex-none overflow-hidden w-1/2 sm:w-full",
+                class: "flex-initial sm:flex-none overflow-hidden",
                 div {
-                    class: "flex gap-1 justify-items-center sm:grid sm:grid-cols-5 sm:gap-2.5 sm:min-w-52",
+                    class: "grid grid-cols-5 gap-2.5 min-w-52 justify-items-center",
                     if pack.birds.is_empty() {
                         for _ in 0..10 {
                             span {class: "max-sm:w-8 max-sm:h-8 sm:w-9 sm:h-9 rounded-full flex-none bg-purple"}
@@ -64,12 +175,12 @@ fn PackOfTheDayInner() -> Element {
                 }
             }
             button {
-                class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-dark text-white rounded-full shadow",
+                class: "px-8 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-dark font-semibold text-base bg-green-dark text-white rounded-full shadow uppercase",
                 onclick: move |_| {
                     *PLAY_STATUS.write() = Some(pack.clone());
                     navigator().push(Route::Play { pack_id: pack.id });
                 },
-                "Play Now!"
+                "play"
             }
         }
     }

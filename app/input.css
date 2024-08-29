@@ -10,4 +10,5 @@ https://tailwindcss.com/docs/reusing-styles#extracting-classes-with-apply
 html,
 body {
   @apply bg-offwhite text-black;
+  font-family: "Space Mono", ui-monospace, monospace;
 }

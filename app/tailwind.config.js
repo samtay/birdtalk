@@ -1,8 +1,14 @@
+const defaultTheme = require('tailwindcss/defaultTheme')
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   mode: "all",
   content: ["./src/**/*.{rs,html,css}", "./dist/**/*.html"],
   theme: {
+    fontFamily: {
+      'arcade': ['"Bungee Shade"', ...defaultTheme.fontFamily.serif],
+      'mono': ['"Space Mono"', ...defaultTheme.fontFamily.mono],
+    },
     colors: {
       'transparent': 'transparent',
       'black': '#000000',
@@ -299,7 +305,8 @@ module.exports = {
         'slide-up': 'slide-up 0.5s cubic-bezier(.36,.07,.19,.97) both',
         'slide-down': 'slide-down 0.5s cubic-bezier(.36,.07,.19,.97) both',
         'fly-in': 'fly-in 1s cubic-bezier(0.165, 0.840, 0.440, 1.000) forwards',
-        'fade-in': 'fly-in 0.5s cubic-bezier(0.165, 0.840, 0.440, 1.000) forwards',
+        'fade-in': 'fade-in 0.5s cubic-bezier(0.165, 0.840, 0.440, 1.000) forwards',
+        'card-slide-out': 'card-slide-out 0.75s cubic-bezier(.8,.2,.1,0.8)'
       },
       keyframes: {
         shake: {
@@ -369,10 +376,25 @@ module.exports = {
         },
         'fade-in': {
           '0%': {
-            opacity: '0%'
+            opacity: '0%',
           },
           '100%': {
-            opacity: '100%'
+            opacity: '100%',
+          }
+        },
+        'card-slide-out': {
+          '0%': {
+            'z-index': 50,
+            transform: 'translateY(0px) rotate(-4deg)'
+          },
+          '50%': {
+            transform: 'translateY(-120%) rotate(-5deg) translateX(-40px)'
+          },
+          '80%': {
+            'z-index': 0,
+          },
+          '100%': {
+            transform: 'translateY(-50px) rotate(8deg) translateX(55px) scale(0.95)'
           }
         }
       }

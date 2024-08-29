@@ -6,22 +6,31 @@ use crate::ui::components::PackOfTheDay;
 pub fn Index() -> Element {
     rsx! {
         div {
-            class: "container max-w-screen-lg m-auto mt-2 px-2 grid grid-cols-5 gap-5",
+            class: "m-auto grid grid-cols-5",
             div {
-                class: "col-span-5 text-2xl text-center place-self-center",
-                "Welcome to BirdTalk!"
-            }
-            div {
-                class: "col-span-5 text-lg text-center place-self-center",
-                "An app that helps you memorize bird calls"
-            }
-            div {
-                class: "col-span-3 text-lg",
-                "Try the Daily Bevy! Packs reset at midnight."
-            }
-            div {
-                class: "col-span-2",
+                class: "col-span-5 sm:col-span-3 flex flex-col justify-between p-2 sm:p-6 gap-5",
+                div {
+                    class: "text-4xl text-center uppercase",
+                    "10 new birds every day"
+                }
                 PackOfTheDay { }
+            }
+            div {
+                // TODO: px-1/3 i think should work? check tailwind docs when internet works
+                class: "col-span-5 sm:col-span-2 text-5xl text-left bg-red text-bold p-6 h-full sm:px-[33%]",
+                class: "flex flex-col justify-center uppercase",
+                "a game that helps you memorize bird calls"
+            }
+            div {
+                class: "text-5xl col-span-5 text-left bg-yellow-dark text p-6 sm:p-16",
+                span {
+                    class: "text-5xl",
+                    "Expert birders know "
+                }
+                span {
+                    class: "text-3xl",
+                    "the best way to find a bird is to hear it first. Practice here, and see you out there."
+                }
             }
         }
     }

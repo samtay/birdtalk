@@ -1,3 +1,5 @@
+//! Pages aka routes
+
 mod birds;
 mod index;
 mod play;
