@@ -50,6 +50,11 @@ begin
 end;
 $$;
 
+-- Might as well insert today's pack (which might be yesterday/tomorrow in UTC)
+select create_random_daily_pack(current_date - 1);
+select create_random_daily_pack(current_date);
+select create_random_daily_pack(current_date + 1);
+
 select cron.schedule(
   'next-pack-of-the-day',
   '1 0 * * *', -- everyday, just after midnight
