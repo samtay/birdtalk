@@ -48,19 +48,19 @@ jobs:
       # Install a tool that makes it quicker to install other tools.
       - uses: cargo-bins/cargo-binstall@main
 
+      # Compile CSS
+      - name: Compile css
+        working-directory: app
+        run: npm ci ; npx tailwindcss --minify --input ./input.css --output ./assets/tailwind.css
+
+      # dotenvy requires this
+      - run: cp .env.example .env
+
       # Install the Dioxus CLI
       - name: Install Dioxus
         # TODO: rm this after new dx binstall released
         # run: cargo binstall dioxus-cli -y --force
         run: cargo install --git https://github.com/DioxusLabs/dioxus.git dioxus-cli --locked
-
-      # Compile CSS
-      - name: Compile css
-        working-directory: app
-        run: npx tailwindcss --minify --input ./input.css --output ./assets/tailwind.css
-
-      # dotenvy requires this
-      - run: cp .env.example .env
 
       # Build our Dioxus app in release.
       - name: Build app
