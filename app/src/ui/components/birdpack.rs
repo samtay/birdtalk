@@ -81,13 +81,15 @@ fn PackOfTheDayInner() -> Element {
                     for (ix, bird) in pack.birds.iter().enumerate() {
                         div {
                             key: ix,
-                            class: "absolute inset-0 border-2 border-offwhite-2 rounded-xl shadow py-3 sm:py-4 text-black {bg_color(ix)} flex flex-row justify-between transition-transform duration-700 origin-bottom select-none",
+                            class: "absolute inset-0 border-2 border-offwhite-2 rounded-xl shadow py-3 sm:py-4 text-black {bg_color(ix)} flex flex-row justify-between transition-transform transform-gpu duration-700 origin-bottom select-none",
+                            // NOTE: this overwrites transform-gpu :/ I could make another closure
+                            // to compute hardcoded transform strings, so that its tailwind all the way down.
                             transform: "rotate({degree(pos(ix))}deg) translateX({degree(pos(ix))}px)",
                             z_index: "{pack_size - pos(ix)}",
                             "data-position": "{pos(ix)}",
 
                             class: if current(ix) {
-                                "select-text"
+                                "select-text will-change-transform"
                             },
 
                             class: if next(ix) {
