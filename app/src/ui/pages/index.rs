@@ -8,7 +8,7 @@ pub fn Index() -> Element {
         div {
             class: "m-auto grid grid-cols-5",
             div {
-                class: "col-span-5 sm:col-span-3 flex flex-col justify-between p-2 sm:p-6 gap-5",
+                class: "col-span-5 sm:col-span-3 flex flex-col justify-between p-2 pb-4 sm:p-6 gap-5",
                 div {
                     class: "text-4xl text-center uppercase",
                     "10 new birds every day"
@@ -16,10 +16,11 @@ pub fn Index() -> Element {
                 PackOfTheDay { }
             }
             div {
-                // TODO: px-1/3 i think should work? check tailwind docs when internet works
-                class: "col-span-5 sm:col-span-2 text-5xl text-left bg-red text-bold p-6 h-full sm:px-[33%]",
-                class: "flex flex-col justify-center uppercase",
-                "a game that helps you memorize bird calls"
+                class: "col-span-5 sm:col-span-2 bg-red p-6 h-full flex flex-col justify-center uppercase items-start sm:items-center",
+                div {
+                    class: "w-full sm:w-56 text-5xl text-left text-bold",
+                    "A game that helps you memorize bird calls."
+                }
             }
             div {
                 class: "text-5xl col-span-5 text-left bg-yellow-dark text p-6 sm:p-16",
