@@ -16,14 +16,14 @@ pub fn Index() -> Element {
                 PackOfTheDay { }
             }
             div {
-                class: "col-span-5 sm:col-span-2 bg-red p-6 h-full flex flex-col justify-center uppercase items-start sm:items-center",
+                class: "col-span-5 sm:col-span-2 bg-red p-8 h-full flex flex-col justify-center uppercase items-start sm:items-center",
                 div {
-                    class: "w-full sm:w-56 text-5xl text-left text-bold",
+                    class: "w-full sm:w-56 text-5xl text-left text-bold leading-normal sm:leading-tight",
                     "A game that helps you memorize bird calls."
                 }
             }
             div {
-                class: "text-5xl col-span-5 text-left bg-yellow-dark text p-6 sm:p-16",
+                class: "text-5xl col-span-5 text-left bg-yellow-dark text p-8 sm:p-16",
                 span {
                     class: "text-5xl",
                     "Expert birders know "
