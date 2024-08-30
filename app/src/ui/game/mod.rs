@@ -143,9 +143,10 @@ pub fn GameView(pack: BirdPack) -> Element {
 
     rsx! {
         div {
-            class: "container m-auto px-2 sm:px-4",
+            class: "m-auto px-2 sm:px-4",
             "inert": game_ctx.game_completed.read().then(|| true),
             div {
+                // TODO: put progrss and audio side by side on mobile?
                 class: "flex flex-col justify-center items-center place-content-center gap-2 sm:gap-4",
                 ProgressBar { }
                 div {
@@ -155,7 +156,7 @@ pub fn GameView(pack: BirdPack) -> Element {
                     }
                 }
                 div {
-                    class: "grid grid-cols-2 gap-4 sm:gap-6",
+                    class: "grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6",
                     for ix in shuffle() {
                         MultipleChoiceCard {
                             bird: game_ctx.game.map(move |g| &g.choices()[ix]),

@@ -48,7 +48,7 @@ pub fn Login() -> Element {
                 oninput: move |event| email.set(event.value())
             }
             button {
-                class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-dark text-white rounded-full shadow",
+                class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-extra-dark font-semibold text-base bg-green-dark text-white rounded-full shadow",
                 disabled: magic_link_sent(),
                 "Login / Signup"
             }

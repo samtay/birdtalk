@@ -44,7 +44,7 @@ pub fn GameOverModal() -> Element {
                 // if auth.is_logged_in() {
                 if true {
                     button {
-                        class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-400 font-semibold text-base bg-green-dark text-white rounded-full shadow",
+                        class: "px-4 py-2 focus:outline-none focus-visible:ring focus-visible:ring-green-extra-dark font-semibold text-base bg-green-dark text-white rounded-full shadow",
                         // TODO: this handler doesn't have access to internal modal visibility
                         // signal, that's why slide down doesn't work.
                         // ... among other reasons.
