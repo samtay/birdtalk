@@ -26,11 +26,11 @@ pub fn Index() -> Element {
                 class: "text-5xl col-span-5 text-left bg-yellow-dark text p-8 sm:p-16",
                 span {
                     class: "text-5xl",
-                    "Expert birders know "
+                    "The wild speaks. "
                 }
                 span {
                     class: "text-3xl",
-                    "the best way to find a bird is to hear it first. Practice here, and see you out there."
+                    "One of the best ways to spot a bird is to hear it first. Learn to recognize new calls here for your next adventure out in the field."
                 }
             }
         }
