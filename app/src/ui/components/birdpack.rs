@@ -38,7 +38,7 @@ fn PackOfTheDayInner() -> Element {
         .clone()?;
     let pack_size = pack.birds.len();
     let mut position = use_signal(|| 0usize);
-    let mut playing = use_signal(|| false);
+    let playing = use_signal(|| false);
 
     rsx! {
         div {
@@ -182,21 +182,46 @@ pub fn Audio(url: String, user_playing: Signal<bool>, visible: ReadOnlySignal<bo
     let mut audio_element: Signal<Option<HtmlAudioElement>> = use_signal(|| None);
     let mut this_playing = use_signal(|| false);
 
-    // TODO: when visible changes to false, delay 1-2s, then pause audio
-    // TODO: when visible changes to true AND user_playing, don't delay, just play audio
-    use_effect(move || ());
+    use_effect(move || {
+        // When this card becomes invisible its audio is playing, pause it after 750 ms.
+        // The effect is that the card keeps playing until the animation to put it at the back of
+        // the deck is finished.
+        if this_playing() && !visible() {
+            spawn(async move {
+                #[cfg(feature = "web")]
+                async_std::task::sleep(std::time::Duration::from_millis(750)).await;
+                if let Some(audio) = audio_element.read().as_ref() {
+                    audio.pause().ok();
+                }
+            });
+        }
+        // When this card becomes visible and the user is already playing audio, don't delay, just
+        // start playing this card. There's a small but pleasant overlap in audio.
+        if user_playing() && visible() {
+            spawn(async move {
+                if let Some(audio) = audio_element.read().as_ref() {
+                    if let Ok(promise) = audio.play() {
+                        wasm_bindgen_futures::JsFuture::from(promise).await.ok();
+                    }
+                }
+            });
+        }
+    });
 
     rsx! {
         button {
             class: "border-2 p-2 rounded-full focus:outline-none focus-visible:ring focus-visible:ring-black text-black/80",
+            disabled: !visible(),
             onclick: move |_| async move {
                 if let Some(audio) = audio_element.read().as_ref() {
                     if audio.paused() {
                         if let Ok(promise) = audio.play() {
                             wasm_bindgen_futures::JsFuture::from(promise).await.ok();
+                            user_playing.set(true);
                         }
                     } else {
                         audio.pause().ok();
+                        user_playing.set(false);
                     }
                 }
             },
