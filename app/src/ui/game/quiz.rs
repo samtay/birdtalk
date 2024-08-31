@@ -107,8 +107,9 @@ impl Game {
         });
     }
 
+    /// Get the count of learned birds out of total birds.
     // NOTE: this assumes an even partition into choices/pack.
-    pub fn percent_complete(&self) -> usize {
+    pub fn progress(&self) -> (usize, usize) {
         let total = self.choices.len() + self.pack.len();
         let learned = self
             .choices
@@ -116,7 +117,7 @@ impl Game {
             .chain(self.pack.iter())
             .filter(|bc| bc.learned())
             .count();
-        learned * 100 / total
+        (learned, total)
     }
 
     pub fn is_complete(&self) -> bool {

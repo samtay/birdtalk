@@ -89,9 +89,9 @@ impl GameCtx {
         })
     }
 
-    fn percent_complete(&self) -> Memo<usize> {
+    fn progress(&self) -> Memo<(usize, usize)> {
         let game = self.game;
-        use_memo(move || game.read().percent_complete())
+        use_memo(move || game.read().progress())
     }
 
     fn record_choice(&mut self, correct: bool) {
@@ -183,18 +183,18 @@ pub fn GameViewPlaceholder() -> Element {
 #[component]
 fn ProgressBar() -> Element {
     let game_ctx = use_context::<GameCtx>();
-    let progress = game_ctx.percent_complete();
-    tracing::debug!("Progress: {}", progress);
-    const LOGO: &str = manganis::mg!("assets/static_logo_transparent.png");
+    let progress_memo = game_ctx.progress();
+    let (progress, total) = progress_memo();
+
+    let progress = progress * 100 / total;
     rsx! {
         div {
-            class: "h-2 w-3/4 m-4 sm:mt-6 bg-offwhite-2 rounded-full max-w-screen-md",
+            class: "h-2 w-3/4 m-2 sm:m-4 sm:mt-6 bg-offwhite-2 rounded-full max-w-screen-md",
             div {
-                class: "bg-gradient-to-r from-green-light to-green-dark min-w-7 h-full rounded-full relative transition-[width,transform]",
-                style: "width: min(calc(100% + 0.5rem), calc({progress}% + 1rem))", // 2 rem == w-8
+                class: "bg-gradient-to-r from-green-light to-green-dark min-w-2 h-full rounded-full relative transition-[width,transform]",
+                style: "width: min(calc(100% + 0.5rem), calc({progress}% + 0.5rem))", // 2 rem == w-8
                 span {
-                    class: "absolute right-0 h-8 w-8 rounded-full object-cover top-[-0.75rem] bg-green-dark bg-cover",
-                    background_image: "url({LOGO})"
+                    class: "absolute right-0 top-[-0.25rem] h-4 w-4 sm:top-[-0.5rem] sm:h-6 sm:w-6 rounded-full bg-green-dark",
                 }
             }
         }
