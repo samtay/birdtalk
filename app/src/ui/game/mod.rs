@@ -138,7 +138,6 @@ impl GameCtx {
 #[component]
 pub fn GameView(pack: BirdPack) -> Element {
     let game_ctx = GameCtx::init(pack);
-    inject_before_unload();
     let shuffle = game_ctx.shuffle_memo();
     let correct_bird = game_ctx.correct_bird_memo();
 
@@ -186,6 +185,7 @@ fn ProgressBar() -> Element {
     let game_ctx = use_context::<GameCtx>();
     let progress_memo = game_ctx.progress();
     let (progress, total) = progress_memo();
+
     let progress = progress * 100 / total;
     rsx! {
         div {
@@ -199,30 +199,4 @@ fn ProgressBar() -> Element {
             }
         }
     }
-}
-
-fn inject_before_unload() {
-    const PROMPT_BEFORE_UNLOAD: &str = r#"
-        window.onbeforeunload = function() {
-            return true;
-        };
-    "#;
-
-    const REMOVE_PROMPT_BEFORE_UNLOAD: &str = r#"
-        window.onbeforeunload = null;
-    "#;
-
-    let game_ctx = use_context::<GameCtx>();
-    let progress_memo = game_ctx.progress();
-    use_effect(move || {
-        let (progress, total) = progress_memo();
-        spawn(async move {
-            if progress > 0 && progress < total {
-                eval(PROMPT_BEFORE_UNLOAD).await.ok();
-            }
-            if progress == total {
-                eval(REMOVE_PROMPT_BEFORE_UNLOAD).await.ok();
-            }
-        });
-    });
 }
