@@ -27,7 +27,7 @@ pub fn AudioPlayer(bird: Memo<Bird>) -> Element {
             class: "rounded-full focus:outline-none focus-visible:ring focus-visible:ring-green-dark",
             onclick: move |_| async move {
                 if let Some(audio) = audio_element.read().as_ref() {
-                    tracing::debug!("audio_element.src(): {:?}", audio.current_src());
+                    tracing::trace!("audio_element.src(): {:?}", audio.current_src());
                     if audio.paused() {
                         if let Ok(promise) = audio.play() {
                             wasm_bindgen_futures::JsFuture::from(promise).await.ok();
