@@ -189,7 +189,7 @@ fn ProgressBar() -> Element {
     let progress = progress * 100 / total;
     rsx! {
         div {
-            class: "h-2 w-3/4 m-2 sm:m-4 sm:mt-6 bg-offwhite-2 rounded-full max-w-screen-md",
+            class: "h-2 w-10/12 max-w-xs sm:max-w-xl m-2 sm:m-4 sm:mt-6 bg-offwhite-2 rounded-full",
             div {
                 class: "bg-gradient-to-r from-green-light to-green-dark min-w-2 h-full rounded-full relative transition-[width,transform]",
                 style: "width: min(calc(100% + 0.5rem), calc({progress}% + 0.5rem))", // 2 rem == w-8
