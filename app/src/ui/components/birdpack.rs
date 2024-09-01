@@ -210,7 +210,7 @@ pub fn Audio(url: String, user_playing: Signal<bool>, visible: ReadOnlySignal<bo
 
     rsx! {
         button {
-            class: "border-2 p-2 rounded-full focus:outline-none focus-visible:ring focus-visible:ring-black text-black/80",
+            class: "border-2 p-2 rounded-full focus:outline-none focus-visible:ring focus-visible:ring-black sm:hover:scale-110 sm:hover:shadow-xl text-black/80",
             disabled: !visible(),
             onclick: move |_| async move {
                 if let Some(audio) = audio_element.read().as_ref() {
