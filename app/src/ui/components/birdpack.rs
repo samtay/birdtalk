@@ -19,7 +19,7 @@ pub fn PackOfTheDay() -> Element {
             },
             SuspenseBoundary {
                 fallback: |_context: SuspenseContext| rsx! {
-                    div {"some pretty pulsing loading pack!"}
+                    PackOfTheDayPlaceholder {}
                 },
                 PackOfTheDayInner {}
             }
@@ -85,13 +85,6 @@ fn Card(
     pack_size: usize,
     position: Signal<usize>,
 ) -> Element {
-    let degree = |pos: usize| match pos {
-        0 => 0,
-        1 => 5,
-        2 => 8,
-        3 => 10,
-        i => i + 7,
-    };
     let bg_color = |ix: usize| match ix % 8 {
         0 => "bg-green",
         1 => "bg-yellow",
@@ -285,5 +278,70 @@ fn PauseIcon() -> Element {
                 clip_rule: "evenodd"
             }
         }
+    }
+}
+
+#[component]
+fn PackOfTheDayPlaceholder() -> Element {
+    let pack_size = 10;
+    rsx! {
+        div {
+            class: "animate-pulse grid grid-cols-5 items-center mx-auto overflow-x-clip sm:overflow-x-visible",
+            div {
+                class: "col-span-1 w-12 h-12 bg-offwhite-2 border border-black/10 rounded-full z-40 justify-self-end sm:justify-self-center order-last sm:order-first"
+            }
+            div {
+                class: "col-start-2 col-span-3 justify-self-stretch flex flex-col gap-6 items-center justify-center",
+                ul {
+                    class: "w-56 h-96 relative",
+                    for ix in 0..pack_size {
+                        CardPlaceholder { ix, pack_size }
+                    }
+                }
+                div {
+                    class: "px-12 py-6 mt-2 border border-black/10 bg-offwhite-2 rounded-xl z-40",
+                    div { class: "h-3 w-16 bg-black/20 rounded-full" }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn CardPlaceholder(ix: usize, pack_size: usize) -> Element {
+    rsx! {
+        li {
+            key: ix,
+            class: "absolute inset-0 bg-offwhite-2 border border-black/10 rounded-xl py-3 sm:py-4 flex flex-row justify-between origin-bottom",
+            transform: "rotate({degree(ix)}deg) translateX({degree(ix)}px)",
+            z_index: "{pack_size - ix}",
+
+            // left
+            div { class: "ml-2 w-2.5 h-32 self-end bg-black/20 rounded-full" }
+
+            // center
+            div {
+                class: "flex flex-col gap-4 items-center",
+                div { class: "w-24 h-24 rounded-full flex-none bg-black/10" }
+                div { class: "h-2.5 w-20 bg-black/20 rounded-full" }
+                div {
+                    class: "mt-auto mb-8",
+                    div { class: "w-12 h-12 bg-black/10 rounded-full" }
+                }
+            }
+
+            // right
+            div { class: "mr-2 w-2.5 h-40 self-start bg-black/20 rounded-full" }
+        }
+    }
+}
+
+fn degree(pos: usize) -> usize {
+    match pos {
+        0 => 0,
+        1 => 5,
+        2 => 8,
+        3 => 10,
+        i => i + 7,
     }
 }
