@@ -7,9 +7,7 @@ create table public.stats (
     on delete cascade
 );
 
--- TODO protect this function with a role!!
--- TODO check updated_at so user doesn't lose progress!
--- It might even be better for the client to send a diff
+-- TODO: we'll add an incremental version # here to facilitate merging local/remote
 create or replace function upsert_stats(user_id uuid, data jsonb, updated_at timestamptz)
 returns void
 language plpgsql
