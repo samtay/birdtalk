@@ -60,7 +60,7 @@ fn CardFront(bird: Memo<Bird>, correct: bool) -> Element {
             class: if mistakenly_chosen() { "animate-shake" },
             disabled: mistakenly_chosen() || correct_chosen(),
             img {
-                class: "block w-20 h-20 sm:w-28 sm:h-28 rounded-full object-cover",
+                class: "border block w-20 h-20 sm:w-28 sm:h-28 rounded-full object-cover",
                 src: bird.read().image_url(),
                 alt: bird.read().common_name.clone()
             }
@@ -100,7 +100,7 @@ fn CardBack(bird: MappedSignal<BirdContext>, correct: bool) -> Element {
             class: "w-full h-full mx-auto border-green-dark rounded-xl shadow bg-green-light border-2",
             class: "p-2 sm:p-4 flex flex-row sm:max-2xl:flex-col space-between items-center gap-1",
             img {
-                class: "block w-20 h-20 sm:w-28 sm:h-28 rounded-full object-cover",
+                class: "border block w-20 h-20 sm:w-28 sm:h-28 rounded-full object-cover",
                 src: bird.read().bird.image_url(),
                 alt: bird.read().bird.common_name.clone(),
             }
