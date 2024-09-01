@@ -156,3 +156,36 @@ fn BirdProgress(bird: MappedSignal<BirdContext>) -> Element {
         }
     }
 }
+
+#[component]
+pub fn MultipleChoiceCardPlaceholder(ix: usize) -> Element {
+    let common_name_width_class = match ix {
+        0 => "w-32",
+        1 => "w-40",
+        2 => "w-24",
+        _ => "w-28",
+    };
+    let scientific_name_width_class = match ix {
+        0 => "w-40",
+        1 => "w-48",
+        2 => "w-36",
+        _ => "w-32",
+    };
+    rsx! {
+        div {
+            class: "w-80 h-24 sm:w-64 sm:h-56 mx-auto bg-offwhite-2 border border-black/10 rounded-xl",
+            class: "p-2 sm:p-4 flex flex-row sm:max-2xl:flex-col space-between items-center gap-2 sm:gap-4",
+            // img
+            div { class: "bg-black/10 block w-20 h-20 sm:w-28 sm:h-28 rounded-full" }
+            div {
+                class: "grow flex flex-col justify-center items-center gap-4",
+                div {
+                    class: "h-2.5 bg-black/20 rounded-full {common_name_width_class}"
+                }
+                div {
+                    class: "h-2 w-28 bg-black/10 rounded-full {scientific_name_width_class}"
+                }
+            }
+        }
+    }
+}

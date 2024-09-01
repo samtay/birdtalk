@@ -309,6 +309,12 @@ fn PackOfTheDayPlaceholder() -> Element {
 
 #[component]
 fn CardPlaceholder(ix: usize, pack_size: usize) -> Element {
+    let scientific_second_width_class = match ix {
+        0 => "h-40",
+        1 => "h-32",
+        2 => "h-48",
+        _ => "h-40",
+    };
     rsx! {
         li {
             key: ix,
@@ -317,13 +323,17 @@ fn CardPlaceholder(ix: usize, pack_size: usize) -> Element {
             z_index: "{pack_size - ix}",
 
             // left
-            div { class: "ml-2 w-2.5 h-32 self-end bg-black/20 rounded-full" }
+            div { class: "ml-2 w-2 h-32 self-end bg-black/10 rounded-full" }
 
             // center
             div {
                 class: "flex flex-col gap-4 items-center",
                 div { class: "w-24 h-24 rounded-full flex-none bg-black/10" }
-                div { class: "h-2.5 w-20 bg-black/20 rounded-full" }
+                div {
+                    class: "flex flex-col justify-center items-center gap-4",
+                    div { class: "h-2.5 w-24 bg-black/20 rounded-full" }
+                    div { class: "h-2.5 w-28 bg-black/20 rounded-full" }
+                }
                 div {
                     class: "mt-auto mb-8",
                     div { class: "w-12 h-12 bg-black/10 rounded-full" }
@@ -331,7 +341,7 @@ fn CardPlaceholder(ix: usize, pack_size: usize) -> Element {
             }
 
             // right
-            div { class: "mr-2 w-2.5 h-40 self-start bg-black/20 rounded-full" }
+            div { class: "mr-2 w-2 {scientific_second_width_class} self-start bg-black/10 rounded-full" }
         }
     }
 }

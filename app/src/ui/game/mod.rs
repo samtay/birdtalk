@@ -14,7 +14,7 @@ use crate::{
     ui::AppCtx,
 };
 use audio::AudioPlayer;
-use card::MultipleChoiceCard;
+use card::{MultipleChoiceCard, MultipleChoiceCardPlaceholder};
 use game_over::GameOverModal;
 use quiz::{Game, MULTIPLE_CHOICE_SIZE};
 
@@ -172,14 +172,6 @@ pub fn GameView(pack: BirdPack) -> Element {
     }
 }
 
-// TODO:
-#[component]
-pub fn GameViewPlaceholder() -> Element {
-    rsx! {
-        div { " nice place holder ! "}
-    }
-}
-
 #[component]
 fn ProgressBar() -> Element {
     let game_ctx = use_context::<GameCtx>();
@@ -195,6 +187,28 @@ fn ProgressBar() -> Element {
                 style: "width: min(calc(100% + 0.5rem), calc({progress}% + 0.5rem))", // 2 rem == w-8
                 span {
                     class: "absolute right-0 top-[-0.25rem] h-4 w-4 sm:top-[-0.5rem] sm:h-6 sm:w-6 rounded-full bg-green-dark",
+                }
+            }
+        }
+    }
+}
+
+#[component]
+pub fn GameViewPlaceholder() -> Element {
+    rsx! {
+        div {
+            class: "animate-pulse m-auto px-2 sm:px-4",
+            div {
+                class: "flex flex-col justify-center items-center place-content-center gap-4 sm:gap-6",
+                // progress bar
+                div { class: "h-2 w-10/12 max-w-xs sm:max-w-xl m-2 sm:m-4 sm:mt-6 bg-offwhite-2 rounded-full" }
+                // audio icon
+                div { class: "rounded-full w-14 h-14 sm:w-20 sm:h-20 bg-offwhite-2 p-2" }
+                div {
+                    class: "grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6",
+                    for ix in 0..MULTIPLE_CHOICE_SIZE {
+                        MultipleChoiceCardPlaceholder { ix }
+                    }
                 }
             }
         }
