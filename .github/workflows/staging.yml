@@ -58,8 +58,8 @@ jobs:
 
       # Install the Dioxus CLI
       - name: Install Dioxus
-        run: cargo binstall dioxus-cli -y --force
-        # run: cargo install --git https://github.com/DioxusLabs/dioxus.git dioxus-cli --locked
+        # run: cargo binstall dioxus-cli -y --force
+        run: cargo install --git https://github.com/DioxusLabs/dioxus.git dioxus-cli --locked
 
       # Build our Dioxus app in release.
       - name: Build app
@@ -68,8 +68,8 @@ jobs:
 
       # Fixup index.html (see https://github.com/DioxusLabs/dioxus/issues/2847)
       - name: Fixup index.html
-        working-directory: app/dist
         run: |
+          cd dist
           for f in *.css; do
             sed -i "/<\/head>/i <link rel=\"stylesheet\" href=\"/$(basename "$f")\">" index.html
           done
@@ -77,7 +77,6 @@ jobs:
 
       # Create our required `404.html` page.
       - name: Create 404.html
-        working-directory: app
         run: cp dist/index.html dist/404.html
 
       - uses: supabase/setup-cli@v1
@@ -93,6 +92,6 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4.2.3
         with:
           branch: static-develop # The branch we have GitHub pages setup in.
-          folder: app/dist # The folder we want to copy to the `gh-pages` branch.
+          folder: dist # The folder we want to copy to the `gh-pages` branch.
           target-folder: . # The destination we want our files copied to. In this case, we want them to be a the root level.
           clean: true
