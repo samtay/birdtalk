@@ -67,6 +67,15 @@ jobs:
         working-directory: app
         run: dx build --release --platform web --features web
 
+      # Fixup index.html (see https://github.com/DioxusLabs/dioxus/issues/2847)
+      - name: Fixup index.html
+        working-directory: dist
+        run: |
+          for f in *.css; do
+            sed -i "/<\/head>/i <link rel=\"stylesheet\" href=\"/$(basename "$f")\">" index.html
+          done
+          sed -i 's/<html>/<html lang="en">/' index.html
+
       # Create our required `404.html` page.
       - name: Create 404.html
         run: cp dist/index.html dist/404.html
