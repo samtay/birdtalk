@@ -2,6 +2,7 @@ use dioxus::prelude::*;
 
 use crate::{
     bird::BirdPack,
+    supabase::Error,
     ui::{
         game::{GameView, GameViewPlaceholder},
         PLAY_STATUS,
@@ -21,21 +22,38 @@ pub fn Play(pack_id: u64) -> Element {
             .filter(|p| p.id == pack_id)
             .cloned()
     });
+    let mut error = use_signal(|| None);
 
     // But if not (perhaps a fresh page load on this route),
     use_effect(move || {
         if pack_to_play.read().is_none() {
             spawn(async move {
-                // TODO: how to handle errors here?
-                let pack = BirdPack::fetch_by_id(pack_id).await.unwrap();
-                *PLAY_STATUS.write() = Some(pack);
+                let result = BirdPack::fetch_by_id(pack_id).await;
+                match result {
+                    Ok(pack) => *PLAY_STATUS.write() = Some(pack),
+                    Err(e) => error.set(Some(e)),
+                }
             });
         }
     });
 
-    let x = match pack_to_play.read().as_ref() {
-        Some(pack) => rsx! { GameView { pack: pack.clone() } },
+    match (pack_to_play(), error()) {
+        (Some(pack), _) => rsx! { GameView { pack } },
+        (_, Some(error)) => rsx! { ErrorView { error_msg: "{error}" } },
         _ => rsx! { GameViewPlaceholder {}},
-    };
-    x
+    }
+}
+
+#[component]
+fn ErrorView(error_msg: String) -> Element {
+    rsx! {
+        div {
+            class: "text-red-dark text-center flex flex-col items-center justify-center gap-6 mb-auto mt-4",
+            div { class: "text-3xl", "Uh oh! 😱" }
+            div {
+                class: "text-lg",
+                "{error_msg}"
+            }
+        }
+    }
 }

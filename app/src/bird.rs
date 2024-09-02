@@ -65,7 +65,7 @@ impl BirdPack {
             .execute()
             .await?
             .pop()
-            .ok_or_else(|| Error::from(format!("Drats! No pack found with id {id}")))
+            .ok_or_else(|| Error::from(format!("No pack found with id {id} 🙈")))
     }
 
     /// Query db for pack of the day (respects local time)
