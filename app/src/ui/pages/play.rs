@@ -2,7 +2,6 @@ use dioxus::prelude::*;
 
 use crate::{
     bird::BirdPack,
-    supabase::Error,
     ui::{
         game::{GameView, GameViewPlaceholder},
         PLAY_STATUS,

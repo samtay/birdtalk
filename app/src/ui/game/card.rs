@@ -62,7 +62,7 @@ fn CardFront(bird: Memo<Bird>, correct: bool) -> Element {
             img {
                 class: "border block w-20 h-20 sm:w-28 sm:h-28 rounded-full object-cover",
                 src: bird.read().image_url(),
-                alt: bird.read().common_name.clone()
+                alt: "",
             }
             div {
                 class: "grow justify-center flex flex-col text-center",
@@ -102,7 +102,7 @@ fn CardBack(bird: MappedSignal<BirdContext>, correct: bool) -> Element {
             img {
                 class: "border block w-20 h-20 sm:w-28 sm:h-28 rounded-full object-cover",
                 src: bird.read().bird.image_url(),
-                alt: bird.read().bird.common_name.clone(),
+                alt: "",
             }
             div {
                 class: "grow flex flex-col text-center justify-between",

@@ -80,7 +80,7 @@ fn HeaderFooter() -> Element {
                 div {}
                 div {
                     class: "text-5xl font-arcade font-semibold uppercase",
-                    "birdtalk"
+                    h1 { "birdtalk" }
                 }
                 div {}
             }

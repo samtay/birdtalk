@@ -38,12 +38,14 @@ pub fn AudioPlayer(bird: Memo<Bird>) -> Element {
                 }
             },
             svg {
+                class: "text-green-dark w-16 h-16 sm:w-24 sm:h-24",
                 view_box: "0 0 24 24",
                 fill: "none",
                 stroke_width: "1.5",
                 stroke: "currentColor",
                 xmlns: "http://www.w3.org/2000/svg",
-                class: "text-green-dark w-16 h-16 sm:w-24 sm:h-24",
+                "aria-hidden": "true",
+                "focusable": "false",
                 path {
                     stroke_linejoin: "round",
                     stroke_linecap: "round",
@@ -54,6 +56,10 @@ pub fn AudioPlayer(bird: Memo<Bird>) -> Element {
                                                          M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z"
                     }
                 }
+            }
+            span {
+                class: "sr-only",
+                if playing() { "Pause" } else { "Play" }
             }
         }
         audio {

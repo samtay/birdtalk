@@ -73,22 +73,25 @@ pub fn Modal(props: ModalProps) -> Element {
                         "invisible"
                     },
                     onclick: move |e| {
-                        tracing::debug!("Modal button pressed; dismissing!");
+                        tracing::trace!("Modal button pressed; dismissing!");
                         on_dismiss_handler(e);
                     },
                     svg {
+                        class: "w-6 h-6",
                         xmlns: "http://www.w3.org/2000/svg",
                         stroke: "currentColor",
                         view_box: "0 0 24 24",
                         fill: "none",
                         stroke_width: "1.5",
-                        class: "w-6 h-6",
+                        "aria-hidden": "true",
+                        "focusable": "false",
                         path {
                             stroke_linejoin: "round",
                             d: "M6 18 18 6M6 6l12 12",
                             stroke_linecap: "round"
                         }
                     }
+                    span { class: "sr-only", "Close Modal" }
 
                 }
                 {children}

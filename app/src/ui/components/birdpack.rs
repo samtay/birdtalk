@@ -67,6 +67,7 @@ fn PackOfTheDayInner() -> Element {
                     position.with_mut(|p| *p = (*p + 1) % pack_size);
                 },
                 ArrowUturnRightIcon {}
+                span { class: "sr-only", "Next Bird" }
             }
             div {
                 class: "col-start-2 col-span-3 justify-self-stretch flex flex-col gap-6 items-center justify-center",
@@ -154,7 +155,7 @@ fn Card(
                 img {
                     class: "border-2 w-24 h-24 rounded-full object-cover flex-none overflow-hidden",
                     src: bird.image_url(),
-                    alt: "{bird.common_name}",
+                    alt: "",
                 }
                 div {
                     class: "text-lg text-center select-all",
@@ -183,8 +184,7 @@ fn Card(
 /// audio-playing & card-visible status.
 ///
 /// We use effects to change the play status on changes to these signals, rather than the signals
-/// themselves. This is to ensure that a screen reader user (for which "visible" doesn't mean
-/// anything here) can still use any card's audio button at any time.
+/// themselves. This is just to allow a nice transition from one card to the next.
 #[component]
 pub fn Audio(url: String, user_playing: Signal<bool>, visible: ReadOnlySignal<bool>) -> Element {
     use wasm_bindgen::JsCast;
@@ -238,8 +238,10 @@ pub fn Audio(url: String, user_playing: Signal<bool>, visible: ReadOnlySignal<bo
             },
             if this_playing() {
                 PauseIcon {}
+                span { class: "sr-only", "Pause" }
             } else {
                 SoundIcon {}
+                span { class: "sr-only", "Play" }
             }
         }
         audio {
@@ -272,6 +274,8 @@ fn SoundIcon() -> Element {
             view_box: "0 0 24 24",
             fill: "currentColor",
             class: "w-8 h-8",
+            "aria-hidden": "true",
+            "focusable": "false",
             path {
                 d: "M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 0 0 1.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905h1.93l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06ZM18.584 5.106a.75.75 0 0 1 1.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 0 1-1.06-1.06 8.25 8.25 0 0 0 0-11.668.75.75 0 0 1 0-1.06Z"
             }
@@ -290,6 +294,8 @@ fn PauseIcon() -> Element {
             view_box: "0 0 24 24",
             fill: "currentColor",
             class: "w-8 h-8",
+            "aria-hidden": "true",
+            "focusable": "false",
             path {
                 fill_rule: "evenodd",
                 d: "M6.75 5.25a.75.75 0 0 1 .75-.75H9a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25Zm7.5 0A.75.75 0 0 1 15 4.5h1.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H15a.75.75 0 0 1-.75-.75V5.25Z",
