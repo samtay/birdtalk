@@ -1,6 +1,4 @@
 -- allow packs to just be called "Daily Bevy"
--- TODO: ugh, already have tech debt and need changes before this can happen
--- drop index if exists pack_name;
 
 -- enable cron extension
 create extension if not exists pg_cron with schema extensions;
