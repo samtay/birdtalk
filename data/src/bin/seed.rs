@@ -8,6 +8,8 @@ use std::{
 use anyhow::Result;
 use sqlx::{Connection, PgConnection};
 
+const BLACKLIST: &[&str] = &["Egretta tricolor", "Tympanuchus pallidicinctus"];
+
 #[derive(sqlx::FromRow)]
 struct BirdRow {
     id: i32,
@@ -31,7 +33,13 @@ async fn main() -> Result<()> {
     let file = std::fs::File::open(format!("{seed_dir}/birds.json"))?;
     let bird_seed: HashMap<String, BirdSeed> = serde_json::from_reader::<_, Vec<BirdSeed>>(file)?
         .into_iter()
-        .map(|bird| (bird.scientific_name.clone(), bird))
+        .filter_map(|bird| {
+            if BLACKLIST.contains(&bird.scientific_name.as_str()) {
+                None
+            } else {
+                Some((bird.scientific_name.clone(), bird))
+            }
+        })
         .collect();
 
     // connect to db
