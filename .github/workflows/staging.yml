@@ -58,9 +58,8 @@ jobs:
 
       # Install the Dioxus CLI
       - name: Install Dioxus
-        # TODO: rm this after new dx binstall released
-        # run: cargo binstall dioxus-cli -y --force
-        run: cargo install --git https://github.com/DioxusLabs/dioxus.git dioxus-cli --locked
+        run: cargo binstall dioxus-cli -y --force
+        # run: cargo install --git https://github.com/DioxusLabs/dioxus.git dioxus-cli --locked
 
       # Build our Dioxus app in release.
       - name: Build app
