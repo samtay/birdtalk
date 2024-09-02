@@ -41,6 +41,7 @@ pub struct BirdPack {
     pub name: String,
     pub description: String,
     pub birds: Vec<Bird>,
+    pub day: Option<NaiveDate>,
 }
 
 impl PartialEq for BirdPack {
@@ -67,43 +68,15 @@ impl BirdPack {
             .ok_or_else(|| Error::from(format!("Drats! No pack found with id {id}")))
     }
 
-    /// Query db for free packs
-    // TODO: filter free = true
-    pub async fn fetch_free_packs() -> Result<Vec<Self>> {
-        Self::request().select("*").order("id.asc").execute().await
-    }
-}
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct BirdPackDaily {
-    pub pack: BirdPack,
-    pub day: NaiveDate,
-}
-
-impl SupabaseResource for BirdPackDaily {
-    fn table_name() -> &'static str {
-        "daily_packs"
-    }
-}
-
-impl BirdPackDaily {
     /// Query db for pack of the day (respects local time)
     pub async fn fetch_today() -> Result<Self> {
-        #[derive(Debug, Deserialize)]
-        pub struct WrappedPack {
-            bird_packs_detailed: BirdPack,
-        }
-
         let day = chrono::offset::Local::now().date_naive();
-        let pack = Self::request()
-            .cast::<Vec<WrappedPack>>()
-            .select("bird_packs_detailed(*)")
+        Self::request()
+            .select("*")
             .eq("day", day.format("%Y-%m-%d").to_string())
             .execute()
             .await?
             .pop()
-            .ok_or_else(|| supabase::Error::NoDailyPack)?
-            .bird_packs_detailed;
-        Ok(Self { pack, day })
+            .ok_or_else(|| supabase::Error::NoDailyPack)
     }
 }

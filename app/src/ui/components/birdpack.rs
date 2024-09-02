@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 
 use crate::{
-    bird::{Bird, BirdPackDaily},
+    bird::{Bird, BirdPack},
     ui::{components::icons::ArrowUturnRightIcon, Route, PLAY_STATUS},
 };
 
@@ -32,7 +32,7 @@ pub fn PackOfTheDay() -> Element {
 // TODO: "Next pack in ..."
 #[component]
 fn PackOfTheDayInner() -> Element {
-    let BirdPackDaily { pack, day: _ } = use_resource(BirdPackDaily::fetch_today)
+    let pack = use_resource(BirdPack::fetch_today)
         .suspend()?
         .read()
         .clone()?;
