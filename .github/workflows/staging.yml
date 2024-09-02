@@ -68,8 +68,8 @@ jobs:
 
       # Fixup index.html (see https://github.com/DioxusLabs/dioxus/issues/2847)
       - name: Fixup index.html
-        working-directory: dist
         run: |
+          cd dist
           for f in *.css; do
             sed -i "/<\/head>/i <link rel=\"stylesheet\" href=\"/$(basename "$f")\">" index.html
           done
