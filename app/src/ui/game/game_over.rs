@@ -38,6 +38,7 @@ pub fn GameOverModal() -> Element {
                     tbody {
                         Stat { name: "XP", f: Stats::xp }
                         Stat { name: "Birds Learned", f: Stats::birds_learned }
+                        Stat { name: "Daily Pack Streak", f: Stats::daily_pack_streak }
                     }
                 }
                 // TODO: uncomment when auth is fully implemented

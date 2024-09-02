@@ -22,45 +22,39 @@ use quiz::{Game, MULTIPLE_CHOICE_SIZE};
 struct GameCtx {
     /// Game state
     game: Signal<Game>,
+    /// Birdpack
+    birdpack: CopyValue<BirdPack>,
     /// Storage backed stats state
     stats: Signal<Stats>,
     /// Value of `stats` at the game start (so we can diff at the end).
-    stats_original: ReadOnlySignal<Stats>,
+    stats_original: CopyValue<Stats>,
     /// Has a correct choice been made for this multiple choice yet?
     correct_chosen: Signal<bool>,
-    /// Birdpack ID
-    birdpack_id: ReadOnlySignal<u64>,
     /// Signal that the game has been completed
     ///
     /// This could be derived from the game signal, but that would have the completed game flow
     /// occur as soon as the user selects the last bird. Perhaps we'll consider that later. For
     /// now, we trigger that flow after the user clicks the "next" button on the flipped card.
     game_completed: Signal<bool>,
-    /// For convenience
-    app_ctx: AppCtx,
 }
 
 impl GameCtx {
     /// Initialize a new game context (and provide it to children).
     fn init(birdpack: BirdPack) -> Self {
         let app_ctx = use_context::<AppCtx>();
-        let birdpack_id = use_signal(|| birdpack.id).into();
-        let game = use_signal(|| Game::init(birdpack, true));
+        let game = use_signal(|| Game::init(birdpack.birds.clone(), true));
+        let birdpack = CopyValue::new(birdpack);
         let stats = *app_ctx.stats;
-        let stats_original = stats.with_peek(|og| {
-            tracing::debug!("Generation: {}, Original stats: {:?}", generation(), og);
-            Signal::new(og.clone()).into()
-        });
+        let stats_original = stats.with_peek(|og| CopyValue::new(og.clone()));
         let correct_chosen = use_signal(|| false);
         let game_completed = use_signal(|| false);
         use_context_provider(|| Self {
             game,
             stats,
             correct_chosen,
-            birdpack_id,
+            birdpack,
             game_completed,
             stats_original,
-            app_ctx,
         })
     }
 
@@ -109,14 +103,9 @@ impl GameCtx {
 
     async fn next(&mut self) {
         if self.game.read().is_complete() {
-            self.stats
-                .write()
-                .add_pack_completed(*self.birdpack_id.read());
+            self.stats.write().add_pack_completed(&self.birdpack.read());
             self.game_completed.set(true);
-            if let Err(e) = self.app_ctx.stats.sync().await {
-                // TODO: Display error to user
-                tracing::error!("Failed to sync stats: {:?}", e);
-            }
+            // TODO: sync stats on game completed
         } else {
             // Cards flip back to face up
             self.correct_chosen.set(false);
