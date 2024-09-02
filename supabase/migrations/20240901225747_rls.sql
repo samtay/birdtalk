@@ -1,6 +1,6 @@
 -- Drop these for now
-drop table "course_pack";
-drop table "courses";
+drop table if exists "course_pack";
+drop table if exists "courses";
 
 -- Enable RLS
 alter table "birds" enable row level security;
