@@ -31,7 +31,6 @@ impl AppCtx {
     }
 }
 
-// TODO: add google fonts via asset! (see docs)
 pub fn App() -> Element {
     AppCtx::init();
     const ARCADE_FONT: &str = asset!(font().families(["Bungee Shade"]));

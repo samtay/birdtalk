@@ -36,7 +36,6 @@ pub fn MultipleChoiceCard(bird: MappedSignal<BirdContext>, correct: bool) -> Ele
     }
 }
 
-// NOTE: The "sm:max-2xl" is really just "sm:". Just easier for me to keep those styles marked as such so that if I want to revert it back to sm:max-md I know what to edit.
 #[component]
 fn CardFront(bird: Memo<Bird>, correct: bool) -> Element {
     let mut game_ctx = use_context::<GameCtx>();
@@ -56,7 +55,7 @@ fn CardFront(bird: Memo<Bird>, correct: bool) -> Element {
                 game_ctx.record_choice(correct);
             },
             class: "group w-full h-full mx-auto border border-black rounded-xl shadow sm:enabled:hover:shadow-lg sm:enabled:hover:bg-yellow sm:enabled:hover:-translate-y-2 transition-transform bg-yellow-light focus:outline-none focus-visible:ring focus-visible:ring-yellow-dark disabled:shadow-none disabled:border disabled:opacity-50 disabled:transition-opacity disabled:duration-1000",
-            class: "p-2 sm:p-4 flex flex-row sm:max-2xl:flex-col space-between items-center gap-1 sm:gap-4",
+            class: "p-2 sm:p-4 flex flex-row sm:flex-col space-between items-center gap-1 sm:gap-4",
             class: if mistakenly_chosen() { "animate-shake" },
             disabled: mistakenly_chosen() || correct_chosen(),
             img {
@@ -98,7 +97,7 @@ fn CardBack(bird: MappedSignal<BirdContext>, correct: bool) -> Element {
     rsx! {
         div {
             class: "w-full h-full mx-auto border-green-dark rounded-xl shadow bg-green-light border-2",
-            class: "p-2 sm:p-4 flex flex-row sm:max-2xl:flex-col space-between items-center gap-1",
+            class: "p-2 sm:p-4 flex flex-row sm:flex-col space-between items-center gap-1",
             img {
                 class: "border block w-20 h-20 sm:w-28 sm:h-28 rounded-full object-cover",
                 src: bird.read().bird.image_url(),
@@ -174,7 +173,7 @@ pub fn MultipleChoiceCardPlaceholder(ix: usize) -> Element {
     rsx! {
         div {
             class: "w-80 h-24 sm:w-64 sm:h-56 mx-auto bg-offwhite-2 border border-black/10 rounded-xl",
-            class: "p-2 sm:p-4 flex flex-row sm:max-2xl:flex-col space-between items-center gap-2 sm:gap-4",
+            class: "p-2 sm:p-4 flex flex-row sm:flex-col space-between items-center gap-2 sm:gap-4",
             // img
             div { class: "bg-black/10 block w-20 h-20 sm:w-28 sm:h-28 rounded-full" }
             div {
