@@ -415,7 +415,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "birdtalk-app"
+name = "birdtalk"
 version = "0.1.0"
 dependencies = [
  "anyhow",

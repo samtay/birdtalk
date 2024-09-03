@@ -6,8 +6,10 @@ resolver = "2"
 [workspace.package]
 version = "0.1.0"
 authors = ["Sam Tay <samctay@pm.me>"]
-description = "birdtalk: an app to help you learn bird calls"
+license = "AGPL-3.0-only"
 edition = "2021"
+homepage = "https://talkbirdyto.me"
+repository = "https://github.com/samtay/birdtalk"
 
 [workspace.dependencies]
 anyhow = "1.0.86"
