@@ -1,23 +1,31 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>birdtalk</title>
-  <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta charset="UTF-8" />
-  <link rel="stylesheet" href="/tailwindcss80f44b084b12c72d.css">
-
-</head>
-<body>
-  <div id="main"></div>
-  <script type="module">
-    import init from "/./assets/dioxus/birdtalk.js";
-    init("/./assets/dioxus/birdtalk_bg.wasm").then(wasm => {
-      if (wasm.__wbindgen_start == undefined) {
-        wasm.main();
-      }
-    });
-  </script>
-  
-</body>
+<html lang="en">
+  <head>
+    <title>birdtalk</title>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8" />
+  <link rel="preload" href="/./assets/dioxus/birdtalk_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
+            <link rel="preload" href="/./assets/dioxus/birdtalk.js" as="script">
+<link rel="stylesheet" href="/css23aed77d17106b32f.css">
+<link rel="stylesheet" href="/css27d842644d19e0f70.css">
+<link rel="stylesheet" href="/tailwind.css">
+<link rel="stylesheet" href="/tailwindcss5a7d60fe57e7de73.css">
+            </head>
+  <body>
+    <div id="main"></div>
+  <script>
+            // We can't use a module script here because we need to start the script immediately when streaming
+            import("/./assets/dioxus/birdtalk.js").then(
+                ({ default: init }) => {
+                init("/./assets/dioxus/birdtalk_bg.wasm").then((wasm) => {
+                    if (wasm.__wbindgen_start == undefined) {
+                    wasm.main();
+                    }
+                });
+                }
+            );
+            </script>
+            
+            </body>
 </html>
