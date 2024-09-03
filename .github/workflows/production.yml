@@ -1,4 +1,11 @@
-name: Deploy Migrations to Production
+name: Deploy to Production
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 on:
   push:
@@ -14,13 +21,77 @@ jobs:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.PRODUCTION_DB_PASSWORD }}
       SUPABASE_PROJECT_ID: ${{ secrets.PRODUCTION_PROJECT_ID }}
+      SUPABASE_API_URL: "https://${{ secrets.PRODUCTION_PROJECT_ID }}.supabase.co"
+      SUPABASE_ANON_KEY: ${{ secrets.PRODUCTION_ANON_KEY }}
+      ENV: production
+      APP_URL: https://talkbirdyto.me
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: Install npm
+        uses: actions/setup-node@v4
+
+        # Install Rust with the `rust-toolchain` action.
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+          targets: wasm32-unknown-unknown
+
+      # Use another action to cache our files when possible.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-all-crates: "true"
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      # Install a tool that makes it quicker to install other tools.
+      - uses: cargo-bins/cargo-binstall@main
+
+      # Compile CSS
+      - name: Compile css
+        working-directory: app
+        run: npm ci ; npx tailwindcss --minify --input ./input.css --output ./assets/tailwind.css
+
+      # dotenvy requires this
+      - run: cp .env.example .env
+
+      # Install the Dioxus CLI
+      - name: Install Dioxus
+        # run: cargo binstall dioxus-cli -y --force
+        run: cargo install --git https://github.com/DioxusLabs/dioxus.git dioxus-cli --locked
+
+      # Build our Dioxus app in release.
+      - name: Build app
+        working-directory: app
+        run: dx build --release --platform web --features web
+
+      # Fixup index.html (see https://github.com/DioxusLabs/dioxus/issues/2847)
+      - name: Fixup index.html
+        run: |
+          cd dist
+          for f in *.css; do
+            sed -i "/<\/head>/i <link rel=\"stylesheet\" href=\"/$(basename "$f")\">" index.html
+          done
+          sed -i 's/<html>/<html lang="en">/' index.html
+
+      # Create our required `404.html` page.
+      - name: Create 404.html
+        run: cp dist/index.html dist/404.html
 
       - uses: supabase/setup-cli@v1
         with:
           version: latest
-
       - run: supabase link --project-ref $SUPABASE_PROJECT_ID
-      - run: supabase db push
+      - name: "Deploy migrations to production"
+        run: supabase db push
+
+      # Now we call for another GitHub action to run. This action copies our
+      # built site and pushes it to our `gh-pages` branch.
+      - name: Deploy app to Render
+        uses: JamesIves/github-pages-deploy-action@v4.2.3
+        with:
+          branch: static-production # The branch we have GitHub pages setup in.
+          folder: dist # The folder we want to copy to the `gh-pages` branch.
+          target-folder: . # The destination we want our files copied to. In this case, we want them to be a the root level.
+          clean: true
