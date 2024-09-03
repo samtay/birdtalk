@@ -1,5 +1,5 @@
 <div align="center">
-  <h1 align="center"> birdtalk </h1>
+  <h1 align="center"> <img height="50" src="https://github.com/user-attachments/assets/d6d8849e-2c2c-4d8c-b94d-4cf3356fb894" alt="birdtalk"> </h1>
   <p align="center">
     <a href="https://www.rust-lang.org/">
       <img height="30" src="https://img.shields.io/badge/Rust-f75208?style=for-the-badge&logo=rust&logoColor=white">
@@ -19,7 +19,7 @@
   </p>
 </div>
 
-# development
+## development
 
 ### dependencies
 
