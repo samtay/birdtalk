@@ -54,7 +54,7 @@ fn CardFront(bird: Memo<Bird>, correct: bool) -> Element {
                 }
                 game_ctx.record_choice(correct);
             },
-            class: "group w-full h-full mx-auto border border-black rounded-xl shadow sm:enabled:hover:shadow-lg sm:enabled:hover:bg-yellow sm:enabled:hover:-translate-y-2 transition-transform bg-yellow-light focus:outline-none focus-visible:ring focus-visible:ring-yellow-dark disabled:shadow-none disabled:border disabled:opacity-50 disabled:transition-opacity disabled:duration-1000",
+            class: "group w-full sm:max-md:max-w-xs h-full mx-auto border border-black rounded-xl shadow sm:enabled:hover:shadow-lg sm:enabled:hover:bg-yellow sm:enabled:hover:-translate-y-2 transition-transform bg-yellow-light focus:outline-none focus-visible:ring focus-visible:ring-yellow-dark disabled:shadow-none disabled:border disabled:opacity-50 disabled:transition-opacity disabled:duration-1000",
             class: "p-2 sm:p-4 flex flex-row sm:flex-col space-between items-center gap-1 sm:gap-4",
             class: if mistakenly_chosen() { "animate-shake" },
             disabled: mistakenly_chosen() || correct_chosen(),
@@ -64,14 +64,14 @@ fn CardFront(bird: Memo<Bird>, correct: bool) -> Element {
                 alt: "",
             }
             div {
-                class: "grow justify-center flex flex-col text-center",
+                class: "grow justify-center flex flex-col gap-1 text-center",
                 span {
-                    class: "text-lg font-semibold",
+                    class: "text-base sm:text-lg font-semibold",
                     // "American Three-toed Woodpecker"
                     "{bird().common_name}"
                 }
                 span {
-                    class: "text-sm font-medium whitespace-nowrap text-ellipsis overflow-hidden",
+                    class: "text-sm font-medium",
                     // "Campylorhynchus brunneicapillus"
                     "{bird().scientific_name}"
                 }
@@ -96,7 +96,7 @@ fn CardBack(bird: MappedSignal<BirdContext>, correct: bool) -> Element {
     });
     rsx! {
         div {
-            class: "w-full h-full mx-auto border-green-dark rounded-xl shadow bg-green-light border-2",
+            class: "w-full sm:max-md:max-w-xs h-full mx-auto border-green-dark rounded-xl shadow bg-green-light border-2",
             class: "p-2 sm:p-4 flex flex-row sm:flex-col space-between items-center gap-1",
             img {
                 class: "border block w-20 h-20 sm:w-28 sm:h-28 rounded-full object-cover",
@@ -104,9 +104,9 @@ fn CardBack(bird: MappedSignal<BirdContext>, correct: bool) -> Element {
                 alt: "",
             }
             div {
-                class: "grow flex flex-col text-center justify-between",
+                class: "grow flex flex-col justify-between gap-1 text-center",
                 div {
-                    class: "text-lg font-semibold whitespace-nowrap",
+                    class: "text-base sm:text-lg font-semibold",
                     // "American Three-toed Woodpecker"
                     "{bird().bird.common_name}"
                 }

@@ -132,7 +132,7 @@ pub fn GameView(pack: BirdPack) -> Element {
 
     rsx! {
         div {
-            class: "m-auto px-2 sm:px-4",
+            class: "m-auto px-1",
             "inert": game_ctx.game_completed.read().then(|| true),
             div {
                 // TODO: put progrss and audio side by side on mobile?
