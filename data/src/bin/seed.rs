@@ -8,7 +8,11 @@ use std::{
 use anyhow::Result;
 use sqlx::{Connection, PgConnection};
 
-const BLACKLIST: &[&str] = &["Egretta tricolor", "Tympanuchus pallidicinctus"];
+const BLACKLIST: &[&str] = &[
+    "Egretta tricolor",
+    "Tympanuchus pallidicinctus",
+    "Setophaga striata",
+];
 
 #[derive(sqlx::FromRow)]
 struct BirdRow {
