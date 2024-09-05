@@ -112,7 +112,7 @@ fn CardBack(bird: MappedSignal<BirdContext>, correct: bool) -> Element {
                 }
                 BirdProgress { bird: bird.clone() }
                 button {
-                    class: "mt-2 px-2 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-extra-dark font-semibold text-sm sm:text-base bg-green-dark text-white rounded-xl shadow",
+                    class: "mt-2 px-2 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-extra-dark font-semibold text-sm sm:text-base bg-green-dark text-white rounded-xl shadow sm:hover:scale-[1.05] sm:hover:shadow-xl transition-transform",
                     onclick: move |_| async move {
                         if correct {
                             game_ctx.next().await;

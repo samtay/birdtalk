@@ -53,7 +53,7 @@ fn PackOfTheDayInner(pack: BirdPack) -> Element {
         div {
             class: "grid grid-cols-5 items-center mx-auto overflow-x-clip sm:overflow-x-visible",
             button {
-                class: "col-span-1 w-12 h-12 focus:outline-none focus-visible:ring focus-visible:ring-black font-semibold bg-offwhite text-black border-2 rounded-full shadow sm:hover:shadow-xl sm:hover:scale-110 flex justify-center items-center z-40 justify-self-end sm:justify-self-center order-last sm:order-first",
+                class: "col-span-1 w-12 h-12 focus:outline-none focus-visible:ring focus-visible:ring-black font-semibold bg-offwhite text-black border-2 rounded-full shadow sm:hover:shadow-xl sm:hover:scale-110 transition-transform flex justify-center items-center z-40 justify-self-end sm:justify-self-center order-last sm:order-first",
                 onclick: move |_| {
                     position.with_mut(|p| *p = (*p + 1) % pack_size);
                 },
@@ -212,7 +212,7 @@ pub fn Audio(url: String, user_playing: Signal<bool>, visible: ReadOnlySignal<bo
 
     rsx! {
         button {
-            class: "border-2 p-2 rounded-full focus:outline-none focus-visible:ring focus-visible:ring-black sm:hover:scale-110 sm:hover:shadow-xl text-black/80",
+            class: "border-2 p-2 rounded-full focus:outline-none focus-visible:ring focus-visible:ring-black sm:hover:scale-110 transition-transform sm:hover:shadow-xl text-black/80",
             disabled: !visible(),
             onclick: move |_| async move {
                 if let Some(audio) = audio_element.read().as_ref() {

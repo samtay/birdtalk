@@ -24,7 +24,7 @@ pub fn AudioPlayer(bird: Memo<Bird>) -> Element {
 
     rsx! {
         button {
-            class: "rounded-full focus:outline-none focus-visible:ring focus-visible:ring-green-dark",
+            class: "rounded-full focus:outline-none focus-visible:ring focus-visible:ring-green-dark sm:hover:scale-110 transition-transform",
             onclick: move |_| async move {
                 if let Some(audio) = audio_element.read().as_ref() {
                     tracing::trace!("audio_element.src(): {:?}", audio.current_src());
