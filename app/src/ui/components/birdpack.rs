@@ -8,40 +8,35 @@ use crate::{
 /// Pack of the day
 #[component]
 pub fn PackOfTheDay() -> Element {
-    rsx! {
-        ErrorBoundary {
-            handle_error: |errors: ErrorContext| rsx! {
+    let pack = use_resource(BirdPack::fetch_today);
+    match &*pack.read_unchecked() {
+        None => rsx! { PackOfTheDayPlaceholder {} },
+        Some(Ok(pack)) => rsx! { PackOfTheDayInner {pack: pack.clone()} },
+        Some(Err(e)) => rsx! {
+            div {
+                class: "text-red-dark text-center flex flex-col items-center justify-center gap-6 mb-auto",
+                div { class: "text-3xl", "Uh oh! 😱" }
                 div {
-                    class: "text-red-dark text-center flex flex-col items-center justify-center gap-6 mb-auto",
-                    div { class: "text-3xl", "Uh oh! 😱" }
-                    div {
-                        class: "text-lg",
-                        span {
-                            "Something went wrong fetching today's challenge. Please open a "
-                        }
-                        a {
-                            class: "underline text-purple-dark",
-                            href: "https://github.com/samtay/birdtalk/issues/new",
-                            target: "_blank",
-                            "GitHub issue"
-                        }
-                        span { " with the following error:" }
+                    class: "text-lg",
+                    span {
+                        "Something went wrong fetching today's challenge. Please open a "
                     }
-                    div {
-                        code {
-                            class: "select-all",
-                            "{errors:?}"
-                        }
+                    a {
+                        class: "underline text-purple-dark",
+                        href: "https://github.com/samtay/birdtalk/issues/new",
+                        target: "_blank",
+                        "GitHub issue"
+                    }
+                    span { " with the following error:" }
+                }
+                div {
+                    code {
+                        class: "select-all",
+                        "{e}"
                     }
                 }
-            },
-            SuspenseBoundary {
-                fallback: |_context: SuspenseContext| rsx! {
-                    PackOfTheDayPlaceholder {}
-                },
-                PackOfTheDayInner {}
             }
-        }
+        },
     }
 }
 
@@ -49,11 +44,7 @@ pub fn PackOfTheDay() -> Element {
 // TODO: arrow key shortcuts
 // TODO: "Next pack in ..."
 #[component]
-fn PackOfTheDayInner() -> Element {
-    let pack = use_resource(BirdPack::fetch_today)
-        .suspend()?
-        .read()
-        .clone()?;
+fn PackOfTheDayInner(pack: BirdPack) -> Element {
     let pack_size = pack.birds.len();
     let mut position = use_signal(|| 0usize);
     let playing = use_signal(|| false);
