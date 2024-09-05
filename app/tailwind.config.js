@@ -39,7 +39,7 @@ module.exports = {
       'red-dark': '#F43B2F',
       'green-light': '#DAFBDA',
       'green': '#A1DFA1',
-      'green-dark': '#61B261',
+      'green-dark': '#51A451',
       'green-extra-dark': '#234E32',
       'blue': '#3954e3',
       'blue-light': '#A4D3E5',
