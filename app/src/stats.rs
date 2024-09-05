@@ -79,12 +79,23 @@ impl Stats {
     pub fn add_pack_completed(&mut self, pack: &BirdPack) {
         let pack_stat = self.pack_stats.entry(pack.id).or_default();
         pack_stat.times_completed += 1;
+
         // If this is a daily pack
         if let Some(day) = pack.day {
-            // that hasn't been completed yet
-            if self.daily_packs_completed.last() != Some(&day) {
-                // then record it
-                self.daily_packs_completed.push(day);
+            // that is actually today's pack (or yesterday's, allowing for fetched/finished
+            // before/after midnight)
+            let today = chrono::offset::Local::now().date_naive();
+            if day == today || day == today.pred_opt().unwrap() {
+                // that hasn't been completed yet
+                if self
+                    .daily_packs_completed
+                    .last()
+                    .filter(|d| **d >= day)
+                    .is_none()
+                {
+                    // then record it
+                    self.daily_packs_completed.push(day);
+                }
             }
         }
     }
