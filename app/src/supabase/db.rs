@@ -1,32 +1,15 @@
-// TODO: after everything's working, see if replacing reqwest & postgrest-rs with just gloo_net affects wasm size.
+use std::fmt::Display;
 
-use once_cell::sync::Lazy;
-use postgrest::{Builder, Postgrest};
+use gloo_net::http::RequestBuilder;
 use serde::{de::DeserializeOwned, Serialize};
 use thiserror::Error;
 
 use crate::conf::{SUPABASE_ANON_KEY, SUPABASE_API_URL};
 
-static POSTGREST_CLIENT: Lazy<Postgrest> = Lazy::new(|| {
-    Postgrest::new(format!("{SUPABASE_API_URL}/rest/v1"))
-        .insert_header("apikey", SUPABASE_ANON_KEY)
-        .insert_header("Authorization", format!("Bearer {SUPABASE_ANON_KEY}"))
-});
-
-pub fn rpc<T, U>(function: T, params: U) -> Builder
-where
-    T: AsRef<str>,
-    U: Serialize,
-{
-    POSTGREST_CLIENT.rpc(function, serde_json::to_string(&params).unwrap())
-}
-
 #[derive(Error, Debug)]
 pub enum Error {
     #[error(transparent)]
     Gloo(#[from] gloo_net::Error),
-    #[error(transparent)]
-    Reqwest(#[from] reqwest::Error),
     #[error("Uh oh! We couldn't find today's pack!")]
     NoDailyPack,
     #[allow(clippy::enum_variant_names)]
@@ -51,7 +34,6 @@ impl Clone for Error {
     fn clone(&self) -> Self {
         match self {
             Self::Gloo(e) => Self::ErrorMessage(e.to_string()),
-            Self::Reqwest(e) => Self::ErrorMessage(format!("{:#?}", e)),
             Self::NoDailyPack => Self::NoDailyPack,
             Self::ErrorMessage(msg) => Self::ErrorMessage(msg.clone()),
         }
@@ -60,24 +42,53 @@ impl Clone for Error {
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;
 
-pub struct SupabaseRequest<T> {
-    builder: Builder,
+pub struct SupabaseRequest<T = serde_json::Value> {
+    builder: RequestBuilder,
+    /// Gloonet annoyingly turns a RequestBuilder into a Request when setting the body, so we
+    /// postpone this until the end (to support adding filters before executing).
+    body: Option<String>,
     _response_type: std::marker::PhantomData<T>,
 }
 
 impl<T: DeserializeOwned> SupabaseRequest<T> {
-    pub fn new(table_name: &str) -> Self {
-        let builder = POSTGREST_CLIENT.from(table_name);
+    /// Create a REST request _from_ the specified Supabase table/view.
+    pub fn from(table_name: &str) -> Self {
+        let builder = gloo_net::http::RequestBuilder::new(&format!(
+            "{SUPABASE_API_URL}/rest/v1/{table_name}"
+        ))
+        .header("apikey", SUPABASE_ANON_KEY)
+        .header("Authorization", &format!("Bearer {SUPABASE_ANON_KEY}"));
         SupabaseRequest {
             builder,
+            body: None,
             _response_type: std::marker::PhantomData,
         }
+    }
+
+    /// Call a Postgres function.
+    pub fn rpc<F, U>(function: F, params: &U) -> Result<Self>
+    where
+        F: Display,
+        U: Serialize,
+    {
+        let builder = gloo_net::http::RequestBuilder::new(&format!(
+            "{SUPABASE_API_URL}/rest/v1/rpc/{function}"
+        ))
+        .header("apikey", SUPABASE_ANON_KEY)
+        .header("Authorization", &format!("Bearer {SUPABASE_ANON_KEY}"));
+        let json = serde_json::to_string(params).map_err(gloo_net::Error::from)?;
+        Ok(SupabaseRequest {
+            builder,
+            body: Some(json),
+            _response_type: std::marker::PhantomData,
+        })
     }
 
     /// If doing some join or complex query, this can be used to manually cast to the expected type.
     pub fn cast<V>(self) -> SupabaseRequest<V> {
         SupabaseRequest {
             builder: self.builder,
+            body: self.body,
             _response_type: std::marker::PhantomData,
         }
     }
@@ -87,45 +98,44 @@ impl<T: DeserializeOwned> SupabaseRequest<T> {
         self.cast()
     }
 
-    /// See [`Builder::select`]
+    /// Select columns
     pub fn select<C>(mut self, columns: C) -> Self
     where
-        C: Into<String>,
+        C: AsRef<str>,
     {
-        self.builder = self.builder.select(columns);
-        self
-    }
-
-    /// See [`Builder::order`]
-    pub fn order<C>(mut self, columns: C) -> Self
-    where
-        C: Into<String>,
-    {
-        self.builder = self.builder.order(columns);
+        self.builder = self.builder.query([("select", columns)]);
         self
     }
 
     pub fn eq<C, D>(mut self, column: C, filter: D) -> Self
     where
         C: AsRef<str>,
-        D: AsRef<str>,
+        D: Display,
     {
-        self.builder = self.builder.eq(column, filter);
+        self.builder = self
+            .builder
+            .query([(column.as_ref(), &format!("eq.{}", filter))]);
         self
     }
 
     pub async fn execute(self) -> Result<T, Error> {
-        let rsp = self.builder.execute().await?.json().await?;
+        let req = if let Some(body) = self.body {
+            self.builder.body(body)
+        } else {
+            self.builder.build()
+        }?;
+        let rsp = req.send().await?.json().await?;
         Ok(rsp)
     }
 }
 
+/// Indicates a type corresponds to a RESTful resource, i.e. a table in Supabase.
 pub trait SupabaseResource: Sized + DeserializeOwned {
     fn table_name() -> &'static str;
 
     // TODO: When auth is implemented, there will probably be some state to reference the correct
     // auth token.
     fn request() -> SupabaseRequest<Vec<Self>> {
-        SupabaseRequest::new(Self::table_name())
+        SupabaseRequest::from(Self::table_name())
     }
 }
