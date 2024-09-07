@@ -52,7 +52,14 @@ impl Stats {
             .sum()
     }
 
-    pub fn birds_learned(&self) -> u32 {
+    pub fn birds_learned(&self) -> Vec<u64> {
+        self.bird_stats
+            .iter()
+            .filter_map(|(id, bs)| if bs.learned { Some(*id) } else { None })
+            .collect()
+    }
+
+    pub fn total_birds_learned(&self) -> u32 {
         self.bird_stats.values().filter(|bs| bs.learned).count() as u32
     }
 

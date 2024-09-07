@@ -37,7 +37,7 @@ pub fn GameOverModal() -> Element {
                 table { class: "table-auto text-lg",
                     tbody {
                         Stat { name: "XP", f: Stats::xp }
-                        Stat { name: "Birds Learned", f: Stats::birds_learned }
+                        Stat { name: "Birds Learned", f: Stats::total_birds_learned }
                         Stat { name: "Daily Pack Streak", f: Stats::daily_pack_streak }
                     }
                 }
