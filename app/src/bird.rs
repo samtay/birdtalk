@@ -33,6 +33,21 @@ impl Bird {
     pub fn default_sound_url(&self) -> String {
         supabase::storage_object_url(&self.sounds[0].path)
     }
+
+    /// Query db for birds by id
+    // TODO: enforce global limit? I think supabase limits 1000 by default.
+    pub async fn fetch_by_ids<I>(ids: I) -> Result<Vec<Self>>
+    where
+        I: IntoIterator<Item = u64>,
+    {
+        Self::request().select("*").in_("id", ids).execute().await
+    }
+}
+
+impl SupabaseResource for Bird {
+    fn table_name() -> &'static str {
+        "birds_detailed"
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

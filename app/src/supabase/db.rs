@@ -107,6 +107,7 @@ impl<T: DeserializeOwned> SupabaseRequest<T> {
         self
     }
 
+    /// Add equality filter
     pub fn eq<C, D>(mut self, column: C, filter: D) -> Self
     where
         C: AsRef<str>,
@@ -118,6 +119,20 @@ impl<T: DeserializeOwned> SupabaseRequest<T> {
         self
     }
 
+    /// Add IN array filter
+    pub fn in_<C, I, D>(mut self, column: C, values: I) -> Self
+    where
+        C: AsRef<str>,
+        I: IntoIterator<Item = D>,
+        D: Display,
+    {
+        self.builder = self
+            .builder
+            .query([(column.as_ref(), &format!("in.({})", join(values, ",")))]);
+        self
+    }
+
+    /// Execute request
     pub async fn execute(self) -> Result<T, Error> {
         let req = if let Some(body) = self.body {
             self.builder.body(body)
@@ -138,4 +153,18 @@ pub trait SupabaseResource: Sized + DeserializeOwned {
     fn request() -> SupabaseRequest<Vec<Self>> {
         SupabaseRequest::from(Self::table_name())
     }
+}
+
+fn join(values: impl IntoIterator<Item = impl Display>, sep: &str) -> String {
+    use std::fmt::Write;
+
+    let mut s = String::new();
+    let mut iter = values.into_iter();
+    if let Some(v) = iter.next() {
+        write!(s, "{v}").unwrap();
+        for v in iter {
+            write!(s, "{sep}{v}").unwrap();
+        }
+    }
+    s
 }
