@@ -73,7 +73,7 @@ impl BirdPack {
         let day = chrono::offset::Local::now().date_naive();
         Self::request()
             .select("*")
-            .eq("day", day.format("%Y-%m-%d").to_string())
+            .eq("day", day.format("%Y-%m-%d"))
             .execute()
             .await?
             .pop()

@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     stats::Stats,
-    supabase::{self, AuthState, Result, SupabaseResource},
+    supabase::{AuthState, Result, SupabaseRequest, SupabaseResource},
 };
 
 #[derive(Clone)]
@@ -119,7 +119,9 @@ impl UserStats {
         tracing::debug!("Pushing stats for user_id {:?}", self.user_id);
         self.updated_at = Utc::now();
         if !self.user_id.is_empty() {
-            let _rsp = supabase::rpc("upsert_stats", self).execute().await?;
+            SupabaseRequest::rpc("upsert_stats", self)?
+                .execute()
+                .await?;
         }
         Ok(())
     }
