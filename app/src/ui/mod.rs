@@ -72,7 +72,7 @@ enum Route {
 fn HeaderFooter() -> Element {
     rsx! {
         div {
-            class: "flex flex-col sm:h-dvh pb-2",
+            class: "flex flex-col sm:h-dvh pb-2 selection:bg-purple-dark",
             header {
                 id: "header",
                 class: "text-green-dark shrink h-20 py-2 w-full flex flex-row justify-between items-center",
