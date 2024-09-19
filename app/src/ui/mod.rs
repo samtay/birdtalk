@@ -70,16 +70,23 @@ enum Route {
 
 #[component]
 fn HeaderFooter() -> Element {
+    let route: Route = use_route();
+    let is_index = matches!(route, Route::Index {});
     rsx! {
         div {
             class: "flex flex-col sm:h-dvh pb-2 selection:bg-purple-dark overflow-x-clip sm:overflow-x-visible",
             header {
                 id: "header",
-                class: "text-green-dark shrink h-20 py-2 w-full flex flex-row justify-between items-center",
+                class: "text-green-dark shrink py-2 w-full flex flex-row justify-between items-center",
+                class: if is_index {
+                    "h-20 text-5xl"
+                } else {
+                    "h-16 sm:h-20 text-4xl sm:text-5xl"
+                },
                 div {}
                 div {
-                    class: "text-5xl font-arcade font-semibold uppercase",
-                    h1 { "birdtalk" }
+                    class: "font-arcade font-semibold uppercase",
+                    h1 { Link { to: Route::Index {}, "birdtalk" } }
                 }
                 div {}
             }
