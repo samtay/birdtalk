@@ -283,7 +283,7 @@ fn PackOfTheDayPlaceholder() -> Element {
     let pack_size = 10;
     rsx! {
         div {
-            class: "animate-pulse grid grid-cols-5 items-center mx-auto overflow-x-clip sm:overflow-x-visible",
+            class: "animate-pulse grid grid-cols-5 items-center mx-auto",
             div {
                 class: "col-span-1 w-12 h-12 bg-offwhite-2 border border-black/10 rounded-full z-40 justify-self-end sm:justify-self-center order-last sm:order-first"
             }
@@ -306,7 +306,7 @@ fn PackOfTheDayPlaceholder() -> Element {
 
 #[component]
 fn CardPlaceholder(ix: usize, pack_size: usize) -> Element {
-    let scientific_second_width_class = match ix {
+    let scientific_second_height_class = match ix {
         0 => "h-40",
         1 => "h-32",
         2 => "h-48",
@@ -338,7 +338,7 @@ fn CardPlaceholder(ix: usize, pack_size: usize) -> Element {
             }
 
             // right
-            div { class: "mr-2 w-2 {scientific_second_width_class} self-start bg-black/10 rounded-full" }
+            div { class: "mr-2 w-2 {scientific_second_height_class} self-start bg-black/10 rounded-full" }
         }
     }
 }

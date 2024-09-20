@@ -4,7 +4,10 @@ use dioxus::prelude::*;
 
 use crate::{
     bird::Bird,
-    ui::{components::BirdCard, AppCtx, Route},
+    ui::{
+        components::{BirdCard, BirdCardPlaceholder},
+        AppCtx, Route,
+    },
 };
 
 static SIMULTANEOUS_CALLS: GlobalSignal<usize> = Signal::global(|| 1);
@@ -36,7 +39,7 @@ pub fn Birds() -> Element {
                     }
                 }
                 div {
-                    class: "fixed bottom-0 left-0 right-0 pt-2 pb-4 border-t bg-offwhite sm:static sm:mt-auto flex flex-col gap-2 items-center",
+                    class: "fixed bottom-0 left-0 right-0 z-10 pt-2 pb-4 border-t bg-offwhite sm:static sm:mt-auto flex flex-col gap-2 items-center",
                     span { "Select 10 birds to review"}
                     button {
                         class: "px-12 py-4 mt-2 border-2 border-green-extra-dark focus:outline-none focus-visible:ring focus-visible:ring-green-dark font-semibold text-base bg-green-dark text-white rounded-xl shadow sm:hover:shadow-xl sm:hover:scale-125 sm:hover:bg-gradient-to-r from-green to-green-dark transition-transform uppercase text-xl z-40",
@@ -116,9 +119,12 @@ fn BirdsInner(birds: Vec<Bird>) -> Element {
     let mut birds_playing = use_signal(|| VecDeque::<u64>::new());
     rsx! {
         ul {
-            class: "grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,_minmax(14rem,_1fr))] gap-4 sm:gap-8 sm:overflow-auto sm:max-h-[calc(100vh-160px)] sm:pr-2 mb-[8.25rem] sm:mb-0",
+            class: "grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,_minmax(14rem,_1fr))] gap-4 sm:gap-8 sm:overflow-auto sm:h-[calc(100vh-176px)] sm:pr-2 mb-[8.25rem] sm:mb-0",
             for bird in birds {
-                BirdCard { bird, extra_classes: "sm:h-72 sm:max-w-56 bg-yellow" }
+                li {
+                    key: bird.id,
+                    BirdCard { bird, extra_classes: "sm:h-72 sm:max-w-56 bg-yellow" }
+                }
             }
         }
     }
@@ -127,11 +133,26 @@ fn BirdsInner(birds: Vec<Bird>) -> Element {
 #[component]
 // TODO: update this to match the finished aviary design
 fn BirdsPlaceholder(bird_ids: ReadOnlySignal<Vec<u64>>) -> Element {
+    let height_first = |ix| match ix % 3 {
+        0 => "h-40",
+        1 => "h-32",
+        _ => "h-48",
+    };
+    let height_second = |ix| match ix % 4 {
+        0 => "h-48",
+        1 => "h-36",
+        2 => "h-44",
+        _ => "h-40",
+    };
     rsx! {
         div {
-            class: "animate-pulse grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4",
-            for _ in bird_ids.iter() {
-                div {class: "h-2.5 w-2.5 bg-black/20 rounded-sm"}
+            class: "animate-pulse grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,_minmax(14rem,_1fr))] gap-4 sm:gap-8 sm:overflow-auto sm:h-[calc(100vh-176px)] sm:pr-2 mb-[8.25rem] sm:mb-0",
+            for (ix, _id) in bird_ids.iter().enumerate() {
+                BirdCardPlaceholder {
+                    extra_classes: "sm:h-72 sm:max-w-56",
+                    extra_scientific_first_class: height_first(ix),
+                    extra_scientific_second_class: height_second(ix),
+                }
             }
         }
     }
