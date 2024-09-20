@@ -1,8 +1,9 @@
 use dioxus::prelude::*;
 
+use super::{bird::BirdCard, icons::ArrowUturnRightIcon};
 use crate::{
     bird::{Bird, BirdPack},
-    ui::{components::icons::ArrowUturnRightIcon, Route, PLAY_STATUS},
+    ui::{Route, PLAY_STATUS},
 };
 
 /// Pack of the day
@@ -65,7 +66,7 @@ fn PackOfTheDayInner(pack: BirdPack) -> Element {
                 ul {
                     class: "w-56 h-96 relative",
                     for (ix, bird) in pack.birds.clone().into_iter().enumerate() {
-                        Card { bird, playing, ix, pack_size, position }
+                        CardContainer { bird, playing, ix, pack_size, position }
                     }
                 }
                 button {
@@ -88,30 +89,33 @@ fn PackOfTheDayInner(pack: BirdPack) -> Element {
 /// - `position` is the index of the card from the user's perspective.
 ///    This changes when the user clicks to view the next card.
 #[component]
-fn Card(
+fn CardContainer(
     bird: Bird,
     playing: Signal<bool>,
     ix: usize,
     pack_size: usize,
     position: Signal<usize>,
 ) -> Element {
-    let bg_color = |ix: usize| match ix % 8 {
+    let bg_color = |ix: usize| match ix % 10 {
         0 => "bg-green",
-        1 => "bg-yellow",
-        2 => "bg-blue-light",
-        3 => "bg-orange",
-        4 => "bg-purple",
-        5 => "bg-red",
+        1 => "bg-blue-light",
+        2 => "bg-yellow",
+        3 => "bg-purple",
+        4 => "bg-orange",
+        5 => "bg-brown",
         6 => "bg-chartreuse",
-        7 => "bg-pink",
+        7 => "bg-red",
+        8 => "bg-chartreuse-dark",
+        9 => "bg-pink",
         _ => unreachable!(),
     };
     let pos = use_memo(move || (ix + pack_size - position()) % pack_size);
     let visible = use_memo(move || pos() == 0);
+    let sound_url = bird.default_sound_url();
     rsx! {
         li {
             key: ix,
-            class: "absolute inset-0 border rounded-xl shadow py-3 sm:py-4 text-black {bg_color(ix)} flex flex-row justify-between transition-transform transform-gpu duration-700 origin-bottom select-none",
+            class: "absolute inset-0 transition-transform transform-gpu duration-700 origin-bottom select-none",
             // NOTE: this overwrites transform-gpu :/ I could make another closure
             // to compute hardcoded transform strings, so that its tailwind all the way down.
             transform: "rotate({degree(pos())}deg) translateX({degree(pos())}px)",
@@ -133,36 +137,14 @@ fn Card(
                 "animate-card-slide-out"
             },
 
-            div {
-                class: "uppercase max-h-full self-end whitespace-nowrap text-ellipsis overflow-hidden",
-                text_orientation: "upright",
-                writing_mode: "vertical-lr",
-                "{bird.scientific_name.split_whitespace().next().unwrap()}"
-            }
-
-            // center
-            div {
-                class: "flex flex-col gap-4 items-center",
-                img {
-                    class: "border-2 w-24 h-24 rounded-full object-cover flex-none overflow-hidden",
-                    src: bird.image_url(),
-                    alt: "",
-                }
-                div {
-                    class: "text-lg text-center select-all",
-                    "{bird.common_name}"
-                }
+            BirdCard {
+                extra_classes: "h-full w-full {bg_color(ix)}",
+                responsive: false,
+                bird,
                 div {
                     class: "mt-auto mb-8",
-                    Audio { url: bird.default_sound_url(), user_playing: playing, visible }
+                    Audio { url: sound_url, user_playing: playing, visible }
                 }
-            }
-
-            div {
-                class: "uppercase max-h-full self-start whitespace-nowrap text-ellipsis overflow-hidden",
-                text_orientation: "upright",
-                writing_mode: "vertical-lr",
-                "{bird.scientific_name.split_whitespace().last().unwrap()}"
             }
         }
     }
@@ -177,7 +159,7 @@ fn Card(
 /// We use effects to change the play status on changes to these signals, rather than the signals
 /// themselves. This is just to allow a nice transition from one card to the next.
 #[component]
-pub fn Audio(url: String, user_playing: Signal<bool>, visible: ReadOnlySignal<bool>) -> Element {
+fn Audio(url: String, user_playing: Signal<bool>, visible: ReadOnlySignal<bool>) -> Element {
     use wasm_bindgen::JsCast;
     use web_sys::HtmlAudioElement;
 

@@ -1,9 +1,71 @@
+use std::collections::{HashSet, VecDeque};
+
 use dioxus::prelude::*;
 
-use crate::{bird::Bird, ui::AppCtx};
+use crate::{
+    bird::Bird,
+    ui::{components::BirdCard, AppCtx, Route},
+};
+
+static SIMULTANEOUS_CALLS: GlobalSignal<usize> = Signal::global(|| 1);
+static LOOP_AUDIO: GlobalSignal<bool> = Signal::global(|| true);
 
 #[component]
 pub fn Birds() -> Element {
+    rsx! {
+        div {
+            class: "flex flex-col sm:flex-row gap-4 p-4 sm:p-8 sm:pb-0",
+            div {
+                class: "text-center sm:text-left text-lg flex flex-col gap-4 sm:max-w-xs",
+                h2 {
+                    class: "text-3xl",
+                    "Your Aviary"
+                }
+                div {
+                    span {
+                        "Here are all the birds you've learned so far! 🐦 Continue to play the "
+                    }
+                    Link {
+                        class: "underline text-purple-dark",
+                        // TODO: after switching to query param, this can be Route::Play
+                        to: Route::Index {},
+                        "Pack of the Day"
+                    }
+                    span {
+                        " to learn more!"
+                    }
+                }
+                div {
+                    class: "fixed bottom-0 left-0 right-0 pt-2 pb-4 border-t bg-offwhite sm:static sm:mt-auto flex flex-col gap-2 items-center",
+                    span { "Select 10 birds to review"}
+                    button {
+                        class: "px-12 py-4 mt-2 border-2 border-green-extra-dark focus:outline-none focus-visible:ring focus-visible:ring-green-dark font-semibold text-base bg-green-dark text-white rounded-xl shadow sm:hover:shadow-xl sm:hover:scale-125 sm:hover:bg-gradient-to-r from-green to-green-dark transition-transform uppercase text-xl z-40",
+                        onclick: move |_| {
+                            tracing::info!("TODO review birds");
+                            // navigator().push(Route::Play { pack_id: pack.id });
+                        },
+                        "review"
+                    }
+                }
+            }
+            BirdCollection {}
+        }
+    }
+}
+
+#[component]
+fn BirdCollection() -> Element {
+    rsx! {
+        div {
+            class: "flex flex-col gap-4 w-full",
+            div {class: "sticky top-0", "Some controls here etc."}
+            div {BirdGrid {}}
+        }
+    }
+}
+
+#[component]
+fn BirdGrid() -> Element {
     let stats = use_context::<AppCtx>().stats;
     let bird_ids = use_memo(move || stats.read().birds_learned());
 
@@ -17,8 +79,8 @@ pub fn Birds() -> Element {
         );
 
     match &*birds.read_unchecked() {
-        None => rsx! { h1 { "Your Aviary" } BirdsPlaceholder {bird_ids} },
-        Some(Ok(birds)) => rsx! { h1 {"Your Aviary" } BirdsInner {birds: birds.clone()} },
+        None => rsx! { BirdsPlaceholder {bird_ids} },
+        Some(Ok(birds)) => rsx! { BirdsInner {birds: birds.clone()} },
         Some(Err(e)) => rsx! {
             div {
                 class: "text-red-dark text-center flex flex-col items-center justify-center gap-6 mb-auto",
@@ -49,17 +111,21 @@ pub fn Birds() -> Element {
 
 #[component]
 fn BirdsInner(birds: Vec<Bird>) -> Element {
+    // NOTE: might be better to use form values with a memo
+    let mut birds_selected = use_signal(|| HashSet::<u64>::new());
+    let mut birds_playing = use_signal(|| VecDeque::<u64>::new());
     rsx! {
-        div {
-            class: "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4",
+        ul {
+            class: "grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,_minmax(14rem,_1fr))] gap-4 sm:gap-8 sm:overflow-auto sm:max-h-[calc(100vh-160px)] sm:pr-2 mb-[8.25rem] sm:mb-0",
             for bird in birds {
-                div {"{bird.common_name}"}
+                BirdCard { bird, extra_classes: "sm:h-72 sm:max-w-56 bg-yellow" }
             }
         }
     }
 }
 
 #[component]
+// TODO: update this to match the finished aviary design
 fn BirdsPlaceholder(bird_ids: ReadOnlySignal<Vec<u64>>) -> Element {
     rsx! {
         div {
