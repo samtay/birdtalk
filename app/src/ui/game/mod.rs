@@ -8,11 +8,7 @@ pub mod quiz;
 use dioxus::prelude::*;
 use rand::prelude::SliceRandom;
 
-use crate::{
-    bird::{Bird, BirdPack},
-    stats::Stats,
-    ui::AppCtx,
-};
+use crate::{bird::Bird, pack::Pack, stats::Stats, ui::AppCtx};
 use audio::AudioPlayer;
 use card::{MultipleChoiceCard, MultipleChoiceCardPlaceholder};
 use game_over::GameOverModal;
@@ -22,8 +18,8 @@ use quiz::{Game, MULTIPLE_CHOICE_SIZE};
 struct GameCtx {
     /// Game state
     game: Signal<Game>,
-    /// Birdpack
-    birdpack: CopyValue<BirdPack>,
+    /// Pack
+    pack: CopyValue<Pack>,
     /// Storage backed stats state
     stats: Signal<Stats>,
     /// Value of `stats` at the game start (so we can diff at the end).
@@ -40,10 +36,10 @@ struct GameCtx {
 
 impl GameCtx {
     /// Initialize a new game context (and provide it to children).
-    fn init(birdpack: BirdPack) -> Self {
+    fn init(pack: Pack) -> Self {
         let app_ctx = use_context::<AppCtx>();
-        let game = use_signal(|| Game::init(birdpack.birds.clone(), true));
-        let birdpack = CopyValue::new(birdpack);
+        let game = use_signal(|| Game::init(pack.birds.clone(), true));
+        let pack = CopyValue::new(pack);
         let stats = *app_ctx.stats;
         let stats_original = stats.with_peek(|og| CopyValue::new(og.clone()));
         let correct_chosen = use_signal(|| false);
@@ -52,7 +48,7 @@ impl GameCtx {
             game,
             stats,
             correct_chosen,
-            birdpack,
+            pack,
             game_completed,
             stats_original,
         })
@@ -103,7 +99,7 @@ impl GameCtx {
 
     async fn next(&mut self) {
         if self.game.read().is_complete() {
-            self.stats.write().add_pack_completed(&self.birdpack.read());
+            self.stats.write().add_pack_completed(&self.pack.read());
             self.game_completed.set(true);
             // TODO: sync stats on game completed
         } else {
@@ -125,7 +121,7 @@ impl GameCtx {
 }
 
 #[component]
-pub fn GameView(pack: BirdPack) -> Element {
+pub fn GameView(pack: Pack) -> Element {
     let game_ctx = GameCtx::init(pack);
     let shuffle = game_ctx.shuffle_memo();
     let correct_bird = game_ctx.correct_bird_memo();

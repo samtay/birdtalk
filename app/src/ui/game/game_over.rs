@@ -5,7 +5,8 @@ use crate::{
     ui::{
         components::{Login, Modal},
         game::GameCtx,
-        AppCtx, Route, PLAY_STATUS,
+        pages::PLAY_STATUS,
+        AppCtx, Route,
     },
 };
 
@@ -19,7 +20,7 @@ pub fn GameOverModal() -> Element {
             // async_std::task::sleep(std::time::Duration::from_millis(500)).await;
             tracing::debug!("Game over! Resetting game status...");
             *PLAY_STATUS.write() = None;
-            navigator().push(Route::Index {});
+            navigator().push(Route::Birds {});
         });
     });
 

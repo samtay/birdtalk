@@ -1,16 +1,16 @@
 use dioxus::prelude::*;
 
 use crate::{
-    bird::BirdPack,
-    ui::{
-        game::{GameView, GameViewPlaceholder},
-        PLAY_STATUS,
-    },
+    pack::{Pack, PackIdentifier},
+    ui::game::{GameView, GameViewPlaceholder},
 };
 
+pub static PLAY_STATUS: GlobalSignal<Option<Pack>> = Signal::global(|| None);
+
 #[component]
-pub fn Play(pack_id: u64) -> Element {
+pub fn Play(pack_id: PackIdentifier) -> Element {
     // Do I need reactivity on pack_id? https://docs.rs/dioxus-hooks/0.6.0-alpha.2/dioxus_hooks/fn.use_effect.html#with-non-reactive-dependencies
+    let pack_id = CopyValue::new(pack_id);
 
     // Typically PLAY_STATUS is already loaded with the proper birdpack (if a user has navigated to
     // this route from within the app).
@@ -18,7 +18,7 @@ pub fn Play(pack_id: u64) -> Element {
         PLAY_STATUS
             .read()
             .as_ref()
-            .filter(|p| p.id == pack_id)
+            .filter(|p| p.id == *pack_id.read())
             .cloned()
     });
     let mut error = use_signal(|| None);
@@ -27,7 +27,7 @@ pub fn Play(pack_id: u64) -> Element {
     use_effect(move || {
         if pack_to_play.read().is_none() {
             spawn(async move {
-                let result = BirdPack::fetch_by_id(pack_id).await;
+                let result = Pack::fetch_by_id(&pack_id.read()).await;
                 match result {
                     Ok(pack) => *PLAY_STATUS.write() = Some(pack),
                     Err(e) => error.set(Some(e)),

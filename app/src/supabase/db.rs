@@ -4,7 +4,10 @@ use gloo_net::http::RequestBuilder;
 use serde::{de::DeserializeOwned, Serialize};
 use thiserror::Error;
 
-use crate::conf::{SUPABASE_ANON_KEY, SUPABASE_API_URL};
+use crate::{
+    conf::{SUPABASE_ANON_KEY, SUPABASE_API_URL},
+    utils,
+};
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -126,9 +129,10 @@ impl<T: DeserializeOwned> SupabaseRequest<T> {
         I: IntoIterator<Item = D>,
         D: Display,
     {
-        self.builder = self
-            .builder
-            .query([(column.as_ref(), &format!("in.({})", join(values, ",")))]);
+        self.builder = self.builder.query([(
+            column.as_ref(),
+            &format!("in.({})", utils::join(values, ",")),
+        )]);
         self
     }
 
@@ -153,18 +157,4 @@ pub trait SupabaseResource: Sized + DeserializeOwned {
     fn request() -> SupabaseRequest<Vec<Self>> {
         SupabaseRequest::from(Self::table_name())
     }
-}
-
-fn join(values: impl IntoIterator<Item = impl Display>, sep: &str) -> String {
-    use std::fmt::Write;
-
-    let mut s = String::new();
-    let mut iter = values.into_iter();
-    if let Some(v) = iter.next() {
-        write!(s, "{v}").unwrap();
-        for v in iter {
-            write!(s, "{sep}{v}").unwrap();
-        }
-    }
-    s
 }

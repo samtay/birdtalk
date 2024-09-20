@@ -83,9 +83,14 @@ impl BirdPack {
             .ok_or_else(|| Error::from(format!("No pack found with id {id} 🙈")))
     }
 
-    /// Query db for pack of the day (respects local time)
+    /// Query db for pack of today (respects local time)
     pub async fn fetch_today() -> Result<Self> {
         let day = chrono::offset::Local::now().date_naive();
+        Self::fetch_by_day(day).await
+    }
+
+    /// Query db for pack of a given day (respects local time)
+    pub async fn fetch_by_day(day: NaiveDate) -> Result<Self> {
         Self::request()
             .select("*")
             .eq("day", day.format("%Y-%m-%d"))
