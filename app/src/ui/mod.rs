@@ -74,7 +74,7 @@ fn HeaderFooter() -> Element {
     let is_index = matches!(route, Route::Index {});
     rsx! {
         div {
-            class: "flex flex-col sm:h-dvh pb-2 selection:bg-purple-dark overflow-x-clip sm:overflow-x-visible",
+            class: "flex flex-col sm:h-dvh selection:bg-purple-dark overflow-x-clip sm:overflow-x-visible",
             header {
                 id: "header",
                 class: "text-green-dark shrink py-2 w-full flex flex-row justify-between items-center",
@@ -98,7 +98,7 @@ fn HeaderFooter() -> Element {
             }
             footer {
                 id: "footer",
-                class: "shrink sticky top-[100vh] hidden sm:flex justify-items-center justify-center",
+                class: "h-6 shrink sticky top-[100vh] hidden sm:flex justify-items-center justify-center",
                 div {
                     "© 2024 birdtalk"
                 }
