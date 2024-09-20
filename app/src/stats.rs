@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 
-use crate::bird::BirdPack;
+use crate::pack::{Pack, PackIdentifier};
 
 /// The number of times a bird must be correctly identified consecutively to be considered learned.
 pub const LEARN_THRESHOLD: u32 = 3;
@@ -83,12 +83,14 @@ impl Stats {
         bird_stat.mistaken += 1;
     }
 
-    pub fn add_pack_completed(&mut self, pack: &BirdPack) {
-        let pack_stat = self.pack_stats.entry(pack.id).or_default();
-        pack_stat.times_completed += 1;
+    pub fn add_pack_completed(&mut self, pack: &Pack) {
+        if let Some(pack_id) = pack.birdpack_id {
+            let pack_stat = self.pack_stats.entry(pack_id).or_default();
+            pack_stat.times_completed += 1;
+        }
 
         // If this is a daily pack
-        if let Some(day) = pack.day {
+        if let PackIdentifier::Date(day) = pack.id {
             // that is actually today's pack (or yesterday's, allowing for fetched/finished
             // before/after midnight)
             let today = chrono::offset::Local::now().date_naive();

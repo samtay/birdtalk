@@ -3,7 +3,8 @@ use dioxus::prelude::*;
 use super::{bird::BirdCard, icons::ArrowUturnRightIcon};
 use crate::{
     bird::{Bird, BirdPack},
-    ui::{Route, PLAY_STATUS},
+    pack::Pack,
+    ui::{pages::PLAY_STATUS, Route},
 };
 
 /// Pack of the day
@@ -72,8 +73,10 @@ fn PackOfTheDayInner(pack: BirdPack) -> Element {
                 button {
                     class: "px-12 py-4 mt-2 border-2 border-green-extra-dark focus:outline-none focus-visible:ring focus-visible:ring-green-dark font-semibold text-base bg-green-dark text-white rounded-xl shadow sm:hover:shadow-xl sm:hover:scale-125 sm:hover:bg-gradient-to-r from-green to-green-dark transition-transform uppercase text-xl z-40",
                     onclick: move |_| {
-                        *PLAY_STATUS.write() = Some(pack.clone());
-                        navigator().push(Route::Play { pack_id: pack.id });
+                        let pack = Pack::from(pack.clone());
+                        let pack_id = pack.id.clone();
+                            *PLAY_STATUS.write() = Some(pack);
+                        navigator().push(Route::Play {pack_id});
                     },
                     "play"
                 }

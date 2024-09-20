@@ -6,10 +6,12 @@ use tracing::Level;
 
 mod bird;
 mod conf;
+mod pack;
 mod stats;
 mod supabase;
 mod sync;
 mod ui;
+mod utils;
 
 fn main() {
     // Init storage

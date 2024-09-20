@@ -8,14 +8,12 @@ mod pages;
 use dioxus::prelude::*;
 
 use crate::{
-    bird::BirdPack,
+    pack::PackIdentifier,
     stats::Stats,
     supabase::AuthState,
     sync::Sync,
     ui::pages::{Birds, Index, Play},
 };
-
-pub static PLAY_STATUS: GlobalSignal<Option<BirdPack>> = Signal::global(|| None);
 
 #[derive(Clone, Copy)]
 pub struct AppCtx {
@@ -47,7 +45,7 @@ pub fn App() -> Element {
     }
 }
 
-#[derive(Clone, Routable, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Routable, Debug, PartialEq)]
 #[rustfmt::skip]
 enum Route {
     #[layout(HeaderFooter)]
@@ -59,9 +57,9 @@ enum Route {
         #[route("/")]
         Index {},
 
-        #[route("/play/:pack_id")]
+        #[route("/play/?:..pack_id")]
         Play {
-            pack_id: u64
+            pack_id: PackIdentifier,
         },
 
         #[route("/birds")]
