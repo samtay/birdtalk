@@ -107,12 +107,14 @@ fn BirdCollection() -> Element {
     rsx! {
         div {
             class: "flex flex-col gap-4 w-full",
-            div {class: "sticky top-0", "Some controls here etc."}
+            // TODO: unhide and add controls for listening, sorting, etc.
+            div {class: "hidden sticky top-0", "Some controls here etc."}
             div {BirdGrid {}}
         }
     }
 }
 
+// TODO: handle case where user has no birds yet (or less than 10).
 #[component]
 fn BirdGrid() -> Element {
     let bird_ids = use_context::<AviaryCtx>().bird_ids;
@@ -157,13 +159,15 @@ fn BirdGrid() -> Element {
     }
 }
 
+const BIRD_GRID_HEIGHT: &str = "sm:h-[calc(100vh-120px)]";
+
 #[component]
 fn BirdsInner(birds: Vec<Bird>) -> Element {
     // NOTE: might be better to use form values with a memo
     rsx! {
         ul {
             tabindex: -1,
-            class: "grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,_minmax(14rem,_1fr))] gap-4 sm:gap-8 sm:overflow-auto sm:h-[calc(100vh-176px)] sm:pt-2 sm:pr-2 mb-[8.25rem] sm:mb-0",
+            class: "grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,_minmax(14rem,_1fr))] gap-4 sm:gap-8 sm:overflow-auto {BIRD_GRID_HEIGHT} sm:pt-2 sm:pr-2 mb-[8.25rem] sm:mb-0",
             for bird in birds {
                 BirdInner { bird }
             }
@@ -215,7 +219,6 @@ fn BirdInner(bird: Bird) -> Element {
 }
 
 #[component]
-// TODO: update this to match the finished aviary design
 fn BirdsPlaceholder(bird_ids: ReadOnlySignal<Vec<u64>>) -> Element {
     let height_first = |ix| match ix % 3 {
         0 => "h-40",
@@ -230,10 +233,10 @@ fn BirdsPlaceholder(bird_ids: ReadOnlySignal<Vec<u64>>) -> Element {
     };
     rsx! {
         div {
-            class: "animate-pulse grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,_minmax(14rem,_1fr))] gap-4 sm:gap-8 sm:overflow-auto sm:h-[calc(100vh-176px)] sm:pr-2 mb-[8.25rem] sm:mb-0",
+            class: "animate-pulse grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,_minmax(14rem,_1fr))] gap-4 sm:gap-8 sm:overflow-auto {BIRD_GRID_HEIGHT} sm:pt-2 sm:pr-2 mb-[8.25rem] sm:mb-0",
             for (ix, _id) in bird_ids.iter().enumerate() {
                 BirdCardPlaceholder {
-                    extra_classes: "sm:h-72 sm:max-w-56",
+                    extra_classes: "sm:h-72 sm:w-56",
                     extra_scientific_first_class: height_first(ix),
                     extra_scientific_second_class: height_second(ix),
                 }
