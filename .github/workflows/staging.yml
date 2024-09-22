@@ -59,8 +59,8 @@ jobs:
 
       # Install the Dioxus CLI
       - name: Install Dioxus
-        # run: cargo binstall dioxus-cli -y --force
-        run: cargo install --git https://github.com/DioxusLabs/dioxus.git dioxus-cli --locked
+        # run: cargo binstall dioxus-cli@0.6.0-alpha.2 -y --force
+        run: cargo install --git https://github.com/DioxusLabs/dioxus.git --rev 87c2f64f134756578f6cf9e12fd085b9bb03c5c7 dioxus-cli --locked
 
       # Build our Dioxus app in release.
       - name: Build app
