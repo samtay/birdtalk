@@ -75,7 +75,7 @@ fn PackOfTheDayInner(pack: BirdPack) -> Element {
                     onclick: move |_| {
                         let pack = Pack::from(pack.clone());
                         let pack_id = pack.id.clone();
-                            *PLAY_STATUS.write() = Some(pack);
+                        *PLAY_STATUS.write() = Some(pack);
                         navigator().push(Route::Play {pack_id});
                     },
                     "play"

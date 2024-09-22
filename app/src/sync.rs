@@ -119,7 +119,7 @@ impl UserStats {
         tracing::debug!("Pushing stats for user_id {:?}", self.user_id);
         self.updated_at = Utc::now();
         if !self.user_id.is_empty() {
-            SupabaseRequest::rpc("upsert_stats", self)?
+            SupabaseRequest::<()>::rpc("upsert_stats", self)?
                 .execute()
                 .await?;
         }

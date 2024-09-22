@@ -3,7 +3,7 @@
 mod auth;
 mod bird;
 mod birdpack;
-mod icons;
+pub mod icons;
 mod modal;
 
 pub use auth::*;

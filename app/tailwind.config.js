@@ -397,7 +397,13 @@ module.exports = {
             transform: 'translateY(-50px) rotate(8deg) translateX(55px) scale(0.95)'
           }
         }
-      }
+      },
+      ringColor: (theme) => ({
+        DEFAULT: theme('colors.purple-dark'),
+      }),
+      outlineColor: (theme) => ({
+        DEFAULT: theme('colors.purple-dark'),
+      })
     },
   },
   plugins: [],

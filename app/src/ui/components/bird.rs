@@ -6,6 +6,8 @@ use crate::bird::Bird;
 pub struct BirdCardProps {
     extra_classes: Option<String>,
     #[props(default = true)]
+    text_selection: bool,
+    #[props(default = true)]
     responsive: bool,
     bird: Bird,
     children: Element,
@@ -17,15 +19,21 @@ pub fn BirdCard(props: BirdCardProps) -> Element {
         responsive,
         bird,
         children,
+        text_selection,
     } = props;
     let extra_classes = extra_classes.unwrap_or_default();
+    let select_class = if text_selection {
+        "select-all"
+    } else {
+        "select-none"
+    };
     rsx! {
         div {
             class: "flex flex-row justify-between border rounded-xl shadow py-3 sm:py-4 {extra_classes}",
 
             // left
             div {
-                class: "uppercase max-h-full self-end whitespace-nowrap text-ellipsis overflow-hidden",
+                class: "uppercase max-h-full self-end whitespace-nowrap text-ellipsis overflow-hidden {select_class}",
                 class: if responsive {
                     "hidden sm:block"
                 },
@@ -38,7 +46,7 @@ pub fn BirdCard(props: BirdCardProps) -> Element {
             div {
                 class: "flex items-center",
                 class: if responsive {
-                    "flex-row sm:flex-col gap-1 sm:gap-4 px-1 sm:px-0 w-full"
+                    "flex-row sm:flex-col gap-1 sm:gap-4 px-2 sm:px-0 w-full"
                 } else {
                     "flex-col gap-4"
                 },
@@ -48,14 +56,14 @@ pub fn BirdCard(props: BirdCardProps) -> Element {
                     alt: "",
                 }
                 div {
-                    class: "text-lg text-center select-all mx-auto",
+                    class: "text-lg text-center mx-auto {select_class}",
                     "{bird.common_name}"
                 }
                 {children}
             }
 
             div {
-                class: "uppercase max-h-full self-start whitespace-nowrap text-ellipsis overflow-hidden",
+                class: "uppercase max-h-full self-start whitespace-nowrap text-ellipsis overflow-hidden {select_class}",
                 class: if responsive {
                     "hidden sm:block"
                 },
@@ -105,7 +113,7 @@ pub fn BirdCardPlaceholder(props: BirdCardPlaceholderProps) -> Element {
             div {
                 class: "flex items-center",
                 class: if responsive {
-                    "flex-row sm:flex-col gap-1 sm:gap-4 px-1 sm:px-0 w-full"
+                    "flex-row sm:flex-col gap-1 sm:gap-4 px-2 sm:px-0 w-full"
                 } else {
                     "flex-col gap-4"
                 },

@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::supabase::{self, Error, Result, SupabaseResource};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Eq)]
 pub struct Bird {
     pub id: u64,
     pub common_name: String,
@@ -12,7 +12,7 @@ pub struct Bird {
     pub sounds: Vec<Sound>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Sound {
     pub path: String,
     pub default_: bool,
@@ -21,6 +21,12 @@ pub struct Sound {
 impl PartialEq for Bird {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
+    }
+}
+
+impl std::hash::Hash for Bird {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
     }
 }
 
