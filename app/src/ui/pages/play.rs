@@ -10,6 +10,7 @@ pub static PLAY_STATUS: GlobalSignal<Option<Pack>> = Signal::global(|| None);
 #[component]
 pub fn Play(pack_id: PackIdentifier) -> Element {
     // Do I need reactivity on pack_id? https://docs.rs/dioxus-hooks/0.6.0-alpha.2/dioxus_hooks/fn.use_effect.html#with-non-reactive-dependencies
+    // TODO: Enforce ad-hoc bird ids learned in user's stats!
     let pack_id = use_hook(|| CopyValue::new(pack_id));
 
     // Typically PLAY_STATUS is already loaded with the proper birdpack (if a user has navigated to

@@ -75,13 +75,31 @@ fn HeaderFooter() -> Element {
             class: "flex flex-col sm:h-dvh selection:bg-purple-dark overflow-x-clip sm:overflow-x-visible",
             header {
                 id: "header",
-                class: "text-green-dark shrink py-2 w-full flex flex-row justify-between items-center",
+                class: "text-green-dark shrink px-1 py-2 w-full flex flex-row justify-between sm:justify-center items-center gap-4",
                 class: if is_index {
                     "h-20 text-5xl"
                 } else {
                     "h-16 sm:h-20 text-4xl sm:text-5xl"
                 },
-                div {}
+                // TODO: hambuger menu for mobile (with nice animation 3 bars to X)
+                div {
+                    class: "shrink-0",
+                    Link {
+                        class: "outline-purple-dark",
+                        to: Route::Birds {},
+                        // TODO: use hover:bg-url-[highlighted] to use the yellow fill on hover
+                        img {
+                            class: if is_index {
+                                "h-12"
+                            } else {
+                                "h-10 sm:h-12"
+                            },
+                            src: asset!("assets/aviary.png"),
+                            alt: "Your Aviary",
+                        }
+                        span { class: "sr-only", "Your Aviary" }
+                    }
+                }
                 div {
                     class: "font-arcade font-semibold uppercase",
                     h1 {
@@ -91,11 +109,19 @@ fn HeaderFooter() -> Element {
                         }
                     }
                 }
-                div {}
+                // Just jank until another icon is here
+                div {
+                    class: "shrink-0",
+                    class: if is_index {
+                        "w-[41px]"
+                    } else {
+                        "w-[34px] sm:w-[41px]"
+                    },
+                }
             }
             div {
                 id: "content",
-                class: "no-shrink",
+                class: "shrink-0",
                 Outlet::<Route> {
                 }
             }
