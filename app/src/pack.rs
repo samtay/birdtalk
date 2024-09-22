@@ -62,6 +62,17 @@ impl From<BirdPack> for Pack {
     }
 }
 
+impl From<Vec<Bird>> for Pack {
+    fn from(birds: Vec<Bird>) -> Self {
+        let bird_ids = birds.iter().map(|b| b.id).collect();
+        Self {
+            id: PackIdentifier::Birds(bird_ids),
+            birds,
+            birdpack_id: None,
+        }
+    }
+}
+
 impl Pack {
     pub async fn fetch_by_id(id: &PackIdentifier) -> Result<Self> {
         match id {

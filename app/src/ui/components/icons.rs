@@ -136,3 +136,43 @@ pub fn ArrowUturnRightIcon() -> Element {
         }
     }
 }
+
+#[component]
+pub fn CheckedCircle(extra_classes: Option<String>) -> Element {
+    let extra_classes = extra_classes.unwrap_or_default();
+    rsx! {
+        svg {
+            class: "w-6 h-6 {extra_classes}",
+            view_box: "0 0 24 24",
+            fill: "none",
+            xmlns: "http://www.w3.org/2000/svg",
+            stroke_width: "1.5",
+            stroke: "currentColor",
+            path {
+                d: "M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
+                stroke_linecap: "round",
+                stroke_linejoin: "round"
+            }
+        }
+    }
+}
+
+#[component]
+pub fn UncheckedCircle(extra_classes: Option<String>) -> Element {
+    let extra_classes = extra_classes.unwrap_or_default();
+    rsx! {
+        svg {
+            class: "w-6 h-6 {extra_classes}",
+            view_box: "0 0 24 24",
+            fill: "none",
+            xmlns: "http://www.w3.org/2000/svg",
+            stroke_width: "1",
+            stroke: "currentColor",
+            path {
+                d: "M9 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
+                stroke_linecap: "round",
+                stroke_linejoin: "round"
+            }
+        }
+    }
+}

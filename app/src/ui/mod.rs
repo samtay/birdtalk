@@ -84,7 +84,12 @@ fn HeaderFooter() -> Element {
                 div {}
                 div {
                     class: "font-arcade font-semibold uppercase",
-                    h1 { Link { to: Route::Index {}, "birdtalk" } }
+                    h1 {
+                        Link {
+                            class: "outline-none focus-visible:ring",
+                            to: Route::Index {}, "birdtalk"
+                        }
+                    }
                 }
                 div {}
             }
