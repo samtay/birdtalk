@@ -184,7 +184,7 @@ fn BirdInner(bird: Bird) -> Element {
             key: id,
             class: "flex justify-center",
             label {
-                class: "relative w-full sm:w-56 sm:h-72 sm:hover:-translate-y-2 shadow sm:hover:shadow-lg transition-transform",
+                class: "relative w-full sm:w-56 sm:h-72 sm:hover:-translate-y-2 transition-transform",
                 input {
                     class: "absolute opacity-0 peer",
                     r#type: "checkbox",
@@ -208,7 +208,7 @@ fn BirdInner(bird: Bird) -> Element {
                 }
                 BirdCard {
                     bird: bird.clone(),
-                    extra_classes: "w-full h-full bg-yellow cursor-pointer peer-checked:bg-green peer-checked:border-green-dark peer-checked:text-green-extra-dark peer-focus-visible:ring peer-focus-visible:ring-yellow-dark peer-checked:peer-focus-visible:ring-green-dark",
+                    extra_classes: "w-full h-full bg-yellow cursor-pointer shadow sm:hover:shadow-lg peer-checked:bg-green peer-checked:border-green-dark peer-checked:text-green-extra-dark peer-focus-visible:ring peer-focus-visible:ring-yellow-dark peer-checked:peer-focus-visible:ring-green-dark",
                     text_selection: false,
                 }
                 CheckedCircle {extra_classes: "text-green-extra-dark inline-block absolute top-2 right-2 sm:top-auto sm:bottom-2 sm:right-[calc(50%-0.75rem)] invisible peer-checked:visible"}
