@@ -180,7 +180,7 @@ fn BirdInner(bird: Bird) -> Element {
             key: id,
             class: "flex justify-center",
             label {
-                class: "relative w-full sm:w-56 sm:h-72",
+                class: "relative w-full sm:w-56 sm:h-72 sm:hover:-translate-y-2 shadow sm:hover:shadow-lg transition-transform",
                 input {
                     class: "absolute opacity-0 peer",
                     r#type: "checkbox",
