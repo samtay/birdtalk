@@ -1,11 +1,6 @@
 
-export function get_form_data(form) {
-    let values = new Map();
-    const formData = new FormData(form);
-
-    for (let name of formData.keys()) {
-        values.set(name, formData.getAll(name));
-    }
-
-    return values;
-}
+                export function get_initial_hydration_data() {
+                    const decoded = atob(window.initial_dioxus_hydration_data);
+                    return Uint8Array.from(decoded, (c) => c.charCodeAt(0))
+                }
+            

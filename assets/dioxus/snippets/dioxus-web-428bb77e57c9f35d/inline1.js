@@ -1,11 +1,10 @@
 
-export function get_select_data(select) {
-    let values = [];
-    for (let i = 0; i < select.options.length; i++) {
-      let option = select.options[i];
-      if (option.selected) {
-        values.push(option.value.toString());
-      }
+export function get_form_data(form) {
+    let values = new Map();
+    const formData = new FormData(form);
+
+    for (let name of formData.keys()) {
+        values.set(name, formData.getAll(name));
     }
 
     return values;
