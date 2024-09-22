@@ -32,6 +32,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           cache-all-crates: "true"
+          cache-on-failure: "true"
 
       - name: Install npm
         uses: actions/setup-node@v4
