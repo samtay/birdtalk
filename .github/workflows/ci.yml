@@ -33,6 +33,13 @@ jobs:
         with:
           cache-all-crates: "true"
 
+      - name: Install npm
+        uses: actions/setup-node@v4
+
+      - name: npm install
+        working-directory: app
+        run: npm ci;
+
       # dotenvy requires this
       - run: cp .env.example .env
 
