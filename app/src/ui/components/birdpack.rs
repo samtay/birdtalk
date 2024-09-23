@@ -123,17 +123,6 @@ fn CardContainer(
             // to compute hardcoded transform strings, so that its tailwind all the way down.
             transform: "rotate({degree(pos())}deg) translateX({degree(pos())}px)",
             z_index: "{pack_size - pos()}",
-            "data-position": "{pos()}",
-
-            // current
-            class: if pos() == 0 {
-                "select-text will-change-transform"
-            },
-
-            // next
-            class: if pos() == 1 {
-                "z"
-            },
 
             // last
             class: if pos() == pack_size - 1 {
@@ -143,6 +132,7 @@ fn CardContainer(
             BirdCard {
                 extra_classes: "h-full w-full {bg_color(ix)}",
                 responsive: false,
+                text_selection: pos() == 0,
                 bird,
                 div {
                     class: "mt-auto mb-8",
