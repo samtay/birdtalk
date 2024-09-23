@@ -75,7 +75,7 @@ fn HeaderFooter() -> Element {
             class: "flex flex-col sm:h-dvh selection:bg-purple-dark overflow-x-clip sm:overflow-x-visible",
             header {
                 id: "header",
-                class: "text-green-dark shrink px-1 py-2 w-full flex flex-row justify-between sm:justify-center items-center gap-4",
+                class: "text-green-dark grow-0 shrink-0 px-1 py-2 w-full flex flex-row justify-between sm:justify-center items-center gap-4",
                 class: if is_index {
                     "h-20 text-5xl"
                 } else {
@@ -121,13 +121,13 @@ fn HeaderFooter() -> Element {
             }
             div {
                 id: "content",
-                class: "shrink-0",
+                class: "grow shrink-0",
                 Outlet::<Route> {
                 }
             }
             footer {
                 id: "footer",
-                class: "h-6 shrink sticky top-[100vh] hidden sm:flex justify-items-center justify-center",
+                class: "h-6 shrink grow-0 mt-auto hidden sm:flex justify-items-center justify-center",
                 div {
                     "© 2024 birdtalk"
                 }
