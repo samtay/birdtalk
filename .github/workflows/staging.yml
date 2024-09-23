@@ -65,7 +65,7 @@ jobs:
       # Build our Dioxus app in release.
       - name: Build app
         working-directory: app
-        run: dx build --profile release --platform static-generation --features static-generation
+        run: dx clean ; dx build --profile release --platform static-generation --features static-generation
 
       # Fixup index.html (see https://github.com/DioxusLabs/dioxus/issues/2847)
       - name: Fixup build output

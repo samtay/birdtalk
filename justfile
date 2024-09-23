@@ -35,6 +35,7 @@ build-ssg:
   sed -i 's/<html>/<html lang="en">/' index.html
   sed -i 's/<html>/<html lang="en">/' birds/index.html
   sed -i 's/<html>/<html lang="en">/' play/index.html
+  cp index.html 404.html
 
 # serve SSG site
 serve-ssg:

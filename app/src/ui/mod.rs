@@ -76,6 +76,7 @@ fn HeaderFooter() -> Element {
     } else {
         AVIARY
     };
+    let aviary_src = aviary_src.strip_prefix("./assets").unwrap_or(aviary_src);
     rsx! {
         div {
             class: "flex flex-col sm:h-dvh selection:bg-purple-dark overflow-x-clip sm:overflow-x-visible",
