@@ -20,6 +20,31 @@ watch-tailwind:
   cd app
   npx tailwindcss -i ./input.css -o ./assets/tailwind.css --watch
 
+# build SSG site
+build-ssg:
+  #!/usr/bin/env bash
+  set -euxo pipefail
+  cd app
+  dx clean
+  dx build --profile release --platform static-generation --features static-generation
+  cd ..
+  ./dist/birdtalk
+  cp -r ./static/* ./dist/public
+  rm -rf ./static
+  cd dist/public
+  sed -i 's/<html>/<html lang="en">/' index.html
+  sed -i 's/<html>/<html lang="en">/' birds/index.html
+  sed -i 's/<html>/<html lang="en">/' play/index.html
+
+# serve SSG site
+serve-ssg:
+  miniserve --spa --index index.html --port 3000 ./dist/public
+
+# build and serve SSG site
+build-and-serve-ssg:
+  just build-ssg
+  just serve-ssg
+
 # deploy linode
 deploy-linode:
   rsync --compress --recursive --verbose --human-readable --progress --rsh ssh --exclude target --exclude app/.dioxus --exclude app/dist ~/code/birdtalk linode:
