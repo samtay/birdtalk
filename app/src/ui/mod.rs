@@ -69,33 +69,29 @@ enum Route {
 #[component]
 fn HeaderFooter() -> Element {
     let route: Route = use_route();
-    let is_index = matches!(route, Route::Index {});
+    const AVIARY: &str = asset!("assets/aviary.png");
+    const AVIARY_ACTIVE: &str = asset!("assets/aviary_active.png");
+    let aviary_src = if matches!(route, Route::Birds {}) {
+        AVIARY_ACTIVE
+    } else {
+        AVIARY
+    };
     rsx! {
         div {
             class: "flex flex-col sm:h-dvh selection:bg-purple-dark overflow-x-clip sm:overflow-x-visible",
             header {
                 id: "header",
-                class: "text-green-dark grow-0 shrink-0 px-1 py-2 w-full flex flex-row justify-between sm:justify-center items-center gap-4",
-                class: if is_index {
-                    "h-20 text-5xl"
-                } else {
-                    "h-16 sm:h-20 text-4xl sm:text-5xl"
-                },
-                // TODO: hambuger menu for mobile (with nice animation 3 bars to X)
+                class: "text-green-dark grow-0 shrink-0 px-1 py-2 w-full flex flex-row justify-between sm:justify-center items-center gap-8",
+                class: "h-16 sm:h-20 text-4xl sm:text-5xl",
                 div {
                     class: "shrink-0",
                     Link {
-                        class: "outline-purple-dark",
+                        class: "outline-none focus-visible:ring",
                         to: Route::Birds {},
-                        // TODO: use hover:bg-url-[highlighted] to use the yellow fill on hover
-                        img {
-                            class: if is_index {
-                                "h-12"
-                            } else {
-                                "h-10 sm:h-12"
-                            },
-                            src: asset!("assets/aviary.png"),
-                            alt: "Your Aviary",
+                        div {
+                            class: "bg-contain bg-no-repeat bg-center",
+                            class: "h-10 w-8 sm:h-12 sm:w-10",
+                            background_image: "url({aviary_src})",
                         }
                         span { class: "sr-only", "Your Aviary" }
                     }
@@ -111,12 +107,7 @@ fn HeaderFooter() -> Element {
                 }
                 // Just jank until another icon is here
                 div {
-                    class: "shrink-0",
-                    class: if is_index {
-                        "w-[41px]"
-                    } else {
-                        "w-[34px] sm:w-[41px]"
-                    },
+                    class: "shrink-0 h-10 w-8 sm:h-12 sm:w-10",
                 }
             }
             div {

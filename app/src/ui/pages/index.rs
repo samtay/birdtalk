@@ -13,7 +13,7 @@ pub fn Index() -> Element {
                     // screen-lg == 1024px, 5/10 of the lg-screen is 512px
                     class: "lg:ml-auto lg:max-w-[512px] flex flex-col justify-between gap-5",
                     div {
-                        class: "text-4xl text-center uppercase",
+                        class: "text-3xl sm:text-4xl text-center uppercase",
                         "10 new birds every day"
                     }
                     PackOfTheDay { }
@@ -25,17 +25,17 @@ pub fn Index() -> Element {
                     // screen-lg == 1024px, 5/10 of the lg-screen is 512px
                     class: "lg:mr-auto lg:ml-48 lg:max-w-[512px] uppercase",
                     div {
-                        class: "w-full sm:w-56 text-5xl text-left text-bold leading-normal sm:leading-tight",
+                        class: "w-full sm:w-56 text-4xl sm:text-5xl text-left text-bold leading-normal sm:leading-tight",
                         "A game that helps you memorize bird calls."
                     }
                 }
             }
             div {
-                class: "text-5xl col-span-10 text-left bg-yellow-dark text p-8 sm:p-16",
+                class: "text-4xl sm:text-5xl col-span-10 text-left bg-yellow-dark text p-8 sm:p-16",
                 div {
                     class: "max-w-screen-lg mx-auto",
                     span {
-                        class: "text-5xl",
+                        class: "text-4xl sm:text-5xl",
                         "The wild speaks. "
                     }
                     span {

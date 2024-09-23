@@ -1,13 +1,13 @@
 set dotenv-load
 
-# watch server
+# run initial setup
 initial-setup:
   #!/usr/bin/env bash
   cd app
   npm install
 
-# watch server
-watch-server platform='web':
+# watch app w/ hotreload
+watch platform='web':
   #!/usr/bin/env bash
   set -euxo pipefail
   cd app

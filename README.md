@@ -30,4 +30,4 @@
 ### start local services
 
 - `just supabase-up`: Start up local supabase with some seed data
-- `just watch-server`: Start dioxus app running at `localhost:3000` with hot reload
+- `just watch`: Start dioxus app running at `localhost:3000` with hot reload
