@@ -54,9 +54,17 @@ impl AviaryCtx {
 #[component]
 pub fn Birds() -> Element {
     let ctx = AviaryCtx::init();
-    let no_birds = ctx.bird_ids.read().is_empty();
 
-    if no_birds {
+    // NOTE: SSG hydration is finicky. This hack allows page load not to freeze.
+    let mut no_birds = use_signal(|| false);
+    if generation() == 0 {
+        needs_update();
+    }
+    if generation() == 1 {
+        no_birds.set(ctx.bird_ids.read().is_empty());
+    }
+
+    if no_birds() {
         rsx! { EmptyNest {} }
     } else {
         rsx! {
