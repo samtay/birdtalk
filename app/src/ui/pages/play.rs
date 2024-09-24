@@ -2,7 +2,10 @@ use dioxus::prelude::*;
 
 use crate::{
     pack::{Pack, PackIdentifier},
-    ui::game::{GameView, GameViewPlaceholder},
+    ui::{
+        game::{GameView, GameViewPlaceholder},
+        AppCtx,
+    },
 };
 
 pub static PLAY_STATUS: GlobalSignal<Option<Pack>> = Signal::global(|| None);
@@ -10,7 +13,6 @@ pub static PLAY_STATUS: GlobalSignal<Option<Pack>> = Signal::global(|| None);
 #[component]
 pub fn Play(pack_id: PackIdentifier) -> Element {
     // Do I need reactivity on pack_id? https://docs.rs/dioxus-hooks/0.6.0-alpha.2/dioxus_hooks/fn.use_effect.html#with-non-reactive-dependencies
-    // TODO: Enforce ad-hoc bird ids learned in user's stats!
     let pack_id = use_hook(|| CopyValue::new(pack_id));
 
     // Typically PLAY_STATUS is already loaded with the proper birdpack (if a user has navigated to
@@ -25,13 +27,34 @@ pub fn Play(pack_id: PackIdentifier) -> Element {
     let mut error = use_signal(|| None);
 
     // But if not (perhaps a fresh page load on this route),
+    let ctx = use_context::<AppCtx>();
     use_effect(move || {
         if pack_to_play.read().is_none() {
             spawn(async move {
-                let result = Pack::fetch_by_id(&pack_id.read()).await;
+                let pack_id = pack_id.read();
+                let stats = ctx.stats.read();
+
+                // Enforce ad-hoc review rounds are based on birds already learned.
+                if let PackIdentifier::Birds(ref birds_requested) = *pack_id {
+                    for bird_id in birds_requested {
+                        if stats
+                            .bird_stats()
+                            .get(bird_id)
+                            .filter(|b| b.learned)
+                            .is_none()
+                        {
+                            error.set(Some(
+                                "You haven't learned some of these birds yet!".to_string(),
+                            ));
+                            return;
+                        }
+                    }
+                }
+
+                let result = Pack::fetch_by_id(&pack_id).await;
                 match result {
                     Ok(pack) => *PLAY_STATUS.write() = Some(pack),
-                    Err(e) => error.set(Some(e)),
+                    Err(e) => error.set(Some(format!("{e}"))),
                 }
             });
         }

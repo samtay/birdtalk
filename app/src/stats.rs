@@ -33,9 +33,9 @@ pub struct Stats {
 /// Stats per bird for a user.
 #[derive(Debug, Default, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BirdStats {
-    identified: u32,
-    mistaken: u32,
-    learned: bool,
+    pub identified: u32,
+    pub mistaken: u32,
+    pub learned: bool,
 }
 
 /// Stats per bird pack for a user.
@@ -130,5 +130,9 @@ impl Stats {
             }
         }
         Some(count)
+    }
+
+    pub fn bird_stats(&self) -> &HashMap<u64, BirdStats> {
+        &self.bird_stats
     }
 }
