@@ -68,15 +68,13 @@ enum Route {
 
 #[component]
 fn HeaderFooter() -> Element {
-    let route: Route = use_route();
     const AVIARY: ImageAsset = asset!(image("assets/aviary.png").size(80, 96));
     const AVIARY_ACTIVE: ImageAsset = asset!(image("assets/aviary_active.png").size(80, 96));
-    let aviary_src = if matches!(route, Route::Birds {}) {
-        AVIARY_ACTIVE
-    } else {
-        AVIARY
-    };
-    let aviary_src = aviary_src.strip_prefix("./assets").unwrap_or(&aviary_src);
+    // SSG screws these up
+    let aviary_src = AVIARY.strip_prefix("./assets").unwrap_or(&AVIARY);
+    let aviary_active_src = AVIARY_ACTIVE
+        .strip_prefix("./assets")
+        .unwrap_or(&AVIARY_ACTIVE);
     rsx! {
         div {
             class: "flex flex-col sm:h-dvh selection:bg-purple-dark overflow-x-clip sm:overflow-x-visible",
@@ -87,14 +85,27 @@ fn HeaderFooter() -> Element {
                 div {
                     class: "shrink-0",
                     Link {
+                        id: "aviary-header-link",
                         class: "outline-none focus-visible:ring",
+                        active_class: "aviary-active",
                         to: Route::Birds {},
                         div {
+                            id: "aviary-header-img",
                             class: "bg-contain bg-no-repeat bg-center",
                             class: "h-10 w-8 sm:h-12 sm:w-10",
-                            background_image: "url({aviary_src})",
                         }
                         span { class: "sr-only", "Your Aviary" }
+                    }
+                    style {
+                        r#"
+                        #aviary-header-img {{
+                            background-image: url({aviary_src});
+                        }}
+                        #aviary-header-link:hover > #aviary-header-img,
+                        #aviary-header-link.aviary-active > #aviary-header-img {{
+                            background-image: url({aviary_active_src});
+                        }}
+                        "#
                     }
                 }
                 div {
