@@ -69,14 +69,14 @@ enum Route {
 #[component]
 fn HeaderFooter() -> Element {
     let route: Route = use_route();
-    const AVIARY: &str = asset!("assets/aviary.png");
-    const AVIARY_ACTIVE: &str = asset!("assets/aviary_active.png");
+    const AVIARY: ImageAsset = asset!(image("assets/aviary.png").size(80, 96));
+    const AVIARY_ACTIVE: ImageAsset = asset!(image("assets/aviary_active.png").size(80, 96));
     let aviary_src = if matches!(route, Route::Birds {}) {
         AVIARY_ACTIVE
     } else {
         AVIARY
     };
-    let aviary_src = aviary_src.strip_prefix("./assets").unwrap_or(aviary_src);
+    let aviary_src = aviary_src.strip_prefix("./assets").unwrap_or(&aviary_src);
     rsx! {
         div {
             class: "flex flex-col sm:h-dvh selection:bg-purple-dark overflow-x-clip sm:overflow-x-visible",
