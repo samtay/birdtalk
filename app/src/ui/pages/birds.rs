@@ -35,7 +35,6 @@ struct AviaryCtx {
 }
 
 impl AviaryCtx {
-    /// Initialize a new game context (and provide it to children).
     fn init() -> Self {
         let stats = use_context::<AppCtx>().stats;
         let bird_ids = use_memo(move || stats.read().birds_learned());
@@ -57,12 +56,9 @@ pub fn Birds() -> Element {
 
     // NOTE: SSG hydration is finicky. This hack allows page load not to freeze.
     let mut no_birds = use_signal(|| false);
-    if generation() == 0 {
-        needs_update();
-    }
-    if generation() == 1 {
+    use_effect(move || {
         no_birds.set(ctx.bird_ids.read().is_empty());
-    }
+    });
 
     if no_birds() {
         rsx! { EmptyNest {} }
@@ -107,7 +103,7 @@ fn EmptyNest() -> Element {
 fn Sidebar() -> Element {
     let AviaryCtx {
         selected,
-        enough_birds,
+        enough_birds: enough_birds_problematic,
         ..
     } = use_context();
     let num_selected = use_memo(move || selected.read().len());
@@ -119,6 +115,12 @@ fn Sidebar() -> Element {
         }
         x if x == MINIMUM_BIRDS - 1 => "Select 1 more bird".to_string(),
         _ => "".to_string(),
+    });
+
+    // Ugh SSG is killing me
+    let mut enough_birds = use_signal(|| false);
+    use_effect(move || {
+        enough_birds.set(*enough_birds_problematic.read());
     });
 
     rsx! {
