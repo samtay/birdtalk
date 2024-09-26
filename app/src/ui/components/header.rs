@@ -33,10 +33,8 @@ pub fn Header() -> Element {
 
 #[component]
 fn AviaryLink() -> Element {
-    const AVIARY: ImageAsset = asset!(image("assets/aviary.png").size(80, 96));
-    const AVIARY_ACTIVE: ImageAsset = asset!(image("assets/aviary_active.png").size(80, 96));
+    const AVIARY: ImageAsset = asset!(image("assets/aviary_sprite.png"));
     let aviary_src = fix_asset_for_ssg(&AVIARY);
-    let aviary_active_src = fix_asset_for_ssg(&AVIARY_ACTIVE);
 
     rsx! {
         Link {
@@ -46,7 +44,6 @@ fn AviaryLink() -> Element {
             to: Route::Birds {},
             div {
                 id: "aviary-header-img",
-                class: "bg-contain bg-no-repeat bg-center",
                 class: "h-10 w-8 sm:h-12 sm:w-10",
             }
             span { class: "sr-only", "Your Aviary" }
@@ -54,11 +51,11 @@ fn AviaryLink() -> Element {
         style {
             dangerous_inner_html: r#"
             #aviary-header-img {{
-                background-image: url({aviary_src});
+                background: no-repeat url({aviary_src}) 0 0 / 200% 100%;
             }}
             #aviary-header-link:hover > #aviary-header-img,
             #aviary-header-link.aviary-active > #aviary-header-img {{
-                background-image: url({aviary_active_src});
+                background-position: -40px -0px;
             }}
             "#
         }
@@ -67,10 +64,8 @@ fn AviaryLink() -> Element {
 
 #[component]
 fn DonateLink() -> Element {
-    const DONATE: ImageAsset = asset!(image("assets/donate.png").size(80, 96));
-    const DONATE_ACTIVE: ImageAsset = asset!(image("assets/donate_active.png").size(80, 96));
+    const DONATE: ImageAsset = asset!(image("assets/donate_sprite.png"));
     let donate_src = fix_asset_for_ssg(&DONATE);
-    let donate_active_src = fix_asset_for_ssg(&DONATE_ACTIVE);
 
     rsx! {
         Link {
@@ -80,7 +75,6 @@ fn DonateLink() -> Element {
             to: "https://act.audubon.org/a/donate",
             div {
                 id: "donate-header-img",
-                class: "bg-contain bg-no-repeat bg-center",
                 class: "h-10 w-8 sm:h-12 sm:w-10",
             }
             span { class: "sr-only", "Donate" }
@@ -88,10 +82,10 @@ fn DonateLink() -> Element {
         style {
             dangerous_inner_html: r#"
             #donate-header-img {{
-                background-image: url({donate_src});
+                background: no-repeat url({donate_src}) 0 0 / 200% 100%;
             }}
             #donate-header-link:hover > #donate-header-img {{
-                background-image: url({donate_active_src});
+                background-position: -40px -0px;
             }}
             "#
         }
