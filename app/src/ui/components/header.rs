@@ -7,24 +7,24 @@ pub fn Header() -> Element {
     rsx! {
         header {
             id: "header",
-            class: "text-green-dark grow-0 shrink-0 px-1 py-2 w-full flex flex-row justify-between sm:justify-center items-center gap-8",
+            class: "text-green-dark grow-0 shrink-0 px-2 py-2 w-full flex flex-row justify-between sm:justify-center items-center sm:gap-8",
             class: "h-16 sm:h-20 text-4xl sm:text-5xl",
             div {
-                class: "shrink-0",
+                class: "ml-1 shrink-0 rounded-xl has-[:focus-visible]:ring has-[:focus-visible]:ring-offset-4",
                 AviaryLink {}
             }
             div {
                 class: "font-arcade font-semibold uppercase",
                 h1 {
                     Link {
-                        class: "outline-none focus-visible:ring",
+                        class: "outline-none rounded-xl focus-visible:ring focus-visible:ring-offset-1",
                         to: Route::Index {}, "birdtalk"
                     }
                 }
             }
             // Just jank until another icon is here
             div {
-                class: "shrink-0",
+                class: "mr-1 shrink-0 rounded-xl has-[:focus-visible]:ring has-[:focus-visible]:ring-offset-4",
                 DonateLink {}
             }
         }
@@ -41,7 +41,7 @@ fn AviaryLink() -> Element {
     rsx! {
         Link {
             id: "aviary-header-link",
-            class: "outline-none focus-visible:ring",
+            class: "outline-none",
             active_class: "aviary-active",
             to: Route::Birds {},
             div {
@@ -75,7 +75,7 @@ fn DonateLink() -> Element {
     rsx! {
         Link {
             id: "donate-header-link",
-            class: "outline-none focus-visible:ring",
+            class: "outline-none",
             new_tab: true,
             to: "https://act.audubon.org/a/donate",
             div {
