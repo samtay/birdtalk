@@ -97,7 +97,7 @@ fn HeaderFooter() -> Element {
                         span { class: "sr-only", "Your Aviary" }
                     }
                     style {
-                        r#"
+                        dangerous_inner_html: r#"
                         #aviary-header-img {{
                             background-image: url({aviary_src});
                         }}
