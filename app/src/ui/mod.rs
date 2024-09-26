@@ -13,7 +13,7 @@ use crate::{
     supabase::AuthState,
     sync::Sync,
     ui::{
-        components::Header,
+        components::{icons, Header},
         pages::{Birds, Index, Play},
     },
 };
@@ -83,9 +83,16 @@ fn HeaderFooter() -> Element {
             }
             footer {
                 id: "footer",
-                class: "h-6 shrink grow-0 mt-auto hidden sm:flex justify-items-center justify-center",
+                class: "h-6 shrink grow-0 mt-auto hidden sm:flex justify-center items-center",
                 div {
                     "© 2024 birdtalk"
+                }
+                Link {
+                    to: "https://github.com/samtay/birdtalk",
+                    new_tab: true,
+                    class: "ml-2",
+                    icons::Github {}
+                    span { class: "sr-only", "GitHub Repository" }
                 }
             }
         }
