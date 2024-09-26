@@ -25,7 +25,6 @@ build-ssg:
   #!/usr/bin/env bash
   set -euxo pipefail
   cd app
-  dx clean
   dx build --profile release --platform static-generation --features static-generation
   cd ..
   ./dist/birdtalk
