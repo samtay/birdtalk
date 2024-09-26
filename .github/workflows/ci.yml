@@ -37,15 +37,26 @@ jobs:
       - name: Install npm
         uses: actions/setup-node@v4
 
-      - name: npm install
+      - name: Install npm deps
         working-directory: app
         run: npm ci;
 
       # dotenvy requires this
       - run: cp .env.example .env
 
-      - name: cargo fmt
+      - name: Format check
         run: cargo +nightly fmt --all -- --check
 
-      - name: cargo clippy
+      - name: Lint check
         run: cargo +stable clippy --all-features -- -D warnings
+
+      - name: Test
+        run: cargo test
+
+      - name: Install Dioxus
+        # run: cargo binstall dioxus-cli@0.6.0-alpha.2 -y --force
+        run: cargo install --git https://github.com/DioxusLabs/dioxus.git --rev 87c2f64f134756578f6cf9e12fd085b9bb03c5c7 dioxus-cli --locked
+
+      - name: Build app
+        working-directory: app
+        run: dx build --platform web --features web
