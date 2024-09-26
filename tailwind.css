@@ -1351,21 +1351,9 @@ video {
   --tw-gradient-to: #234E32 var(--tw-gradient-to-position);
 }
 
-.bg-contain {
-  background-size: contain;
-}
-
 .bg-clip-text {
   -webkit-background-clip: text;
           background-clip: text;
-}
-
-.bg-center {
-  background-position: center;
-}
-
-.bg-no-repeat {
-  background-repeat: no-repeat;
 }
 
 .object-cover {
