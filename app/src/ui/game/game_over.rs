@@ -39,7 +39,7 @@ pub fn GameOverModal() -> Element {
                     tbody {
                         Stat { name: "XP", f: Stats::xp }
                         Stat { name: "Birds Learned", f: Stats::total_birds_learned }
-                        Stat { name: "Daily Pack Streak", f: Stats::daily_pack_streak }
+                        Stat { name: "Daily Pack Streak", f: Stats::active_daily_pack_streak, fprev: Some(Stats::latest_daily_pack_streak)}
                     }
                 }
                 // TODO: uncomment when auth is fully implemented
@@ -74,14 +74,26 @@ pub fn GameOverModal() -> Element {
     }
 }
 
-#[component]
-fn Stat(name: &'static str, f: fn(&Stats) -> u32) -> Element {
+#[derive(PartialEq, Clone, Props)]
+struct StatProps {
+    name: &'static str,
+    f: fn(&Stats) -> u32,
+    /// Optionally specify a different function to get the previous stats value.
+    #[props(default = None)]
+    fprev: Option<fn(&Stats) -> u32>,
+}
+
+fn Stat(StatProps { name, f, fprev }: StatProps) -> Element {
     let game_ctx = use_context::<GameCtx>();
     let stats = game_ctx.stats.read();
     let og_stats = game_ctx.stats_original.read();
 
     let value = f(&stats);
-    let og_value = f(&og_stats);
+    let og_value = if let Some(fp) = fprev {
+        fp(&og_stats)
+    } else {
+        f(&og_stats)
+    };
     let change = value.checked_sub(og_value).filter(|v| *v > 0);
     rsx! {
         tr {

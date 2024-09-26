@@ -44,7 +44,7 @@ pub enum PackIdentifier {
 
 impl Default for PackIdentifier {
     fn default() -> Self {
-        PackIdentifier::Date(chrono::offset::Local::now().date_naive())
+        PackIdentifier::Date(utils::today())
     }
 }
 

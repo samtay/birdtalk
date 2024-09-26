@@ -41,7 +41,8 @@ impl GameCtx {
         let game = use_signal(|| Game::init(pack.birds.clone(), true));
         let pack = use_hook(|| CopyValue::new(pack));
         let stats = *app_ctx.stats;
-        let stats_original = stats.with_peek(|og| CopyValue::new(og.clone()));
+        let stats_original_peek = stats.peek();
+        let stats_original = use_hook(|| CopyValue::new(stats_original_peek.clone()));
         let correct_chosen = use_signal(|| false);
         let game_completed = use_signal(|| false);
         use_context_provider(|| Self {

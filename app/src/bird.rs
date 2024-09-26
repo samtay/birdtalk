@@ -1,7 +1,10 @@
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 
-use crate::supabase::{self, Error, Result, SupabaseResource};
+use crate::{
+    supabase::{self, Error, Result, SupabaseResource},
+    utils,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Eq)]
 pub struct Bird {
@@ -91,8 +94,7 @@ impl BirdPack {
 
     /// Query db for pack of today (respects local time)
     pub async fn fetch_today() -> Result<Self> {
-        let day = chrono::offset::Local::now().date_naive();
-        Self::fetch_by_day(day).await
+        Self::fetch_by_day(utils::today()).await
     }
 
     /// Query db for pack of a given day (respects local time)

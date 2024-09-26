@@ -1,5 +1,7 @@
 use std::fmt::Display;
 
+use chrono::NaiveDate;
+
 pub fn join(values: impl IntoIterator<Item = impl Display>, sep: impl Display) -> String {
     use std::fmt::Write;
 
@@ -12,4 +14,8 @@ pub fn join(values: impl IntoIterator<Item = impl Display>, sep: impl Display) -
         }
     }
     s
+}
+
+pub fn today() -> NaiveDate {
+    chrono::offset::Local::now().date_naive()
 }

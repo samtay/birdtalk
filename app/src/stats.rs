@@ -5,7 +5,10 @@ use std::collections::HashMap;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 
-use crate::pack::{Pack, PackIdentifier};
+use crate::{
+    pack::{Pack, PackIdentifier},
+    utils,
+};
 
 /// The number of times a bird must be correctly identified consecutively to be considered learned.
 pub const LEARN_THRESHOLD: u32 = 3;
@@ -93,7 +96,7 @@ impl Stats {
         if let PackIdentifier::Date(day) = pack.id {
             // that is actually today's pack (or yesterday's, allowing for fetched/finished
             // before/after midnight)
-            let today = chrono::offset::Local::now().date_naive();
+            let today = utils::today();
             if day == today || day == today.pred_opt().unwrap() {
                 // that hasn't been completed yet
                 if self
@@ -109,17 +112,33 @@ impl Stats {
         }
     }
 
-    pub fn daily_pack_streak(&self) -> u32 {
-        self.daily_pack_streak_opt().unwrap_or(0)
+    /// Returns the active daily pack streak, if any.
+    ///
+    /// For a streak to be active, it must have continued until at latest yesterday.
+    pub fn active_daily_pack_streak(&self) -> u32 {
+        let today = utils::today();
+        self.daily_pack_streak(|d| *d == today || *d == today.pred_opt().unwrap())
+            .unwrap_or(0)
     }
 
-    fn daily_pack_streak_opt(&self) -> Option<u32> {
-        let today = chrono::offset::Local::now().date_naive();
+    /// Returns the latest daily pack streak, if any.
+    ///
+    /// This is the most recent pack strek, regardless of whether it is still active.
+    pub fn latest_daily_pack_streak(&self) -> u32 {
+        self.daily_pack_streak(|_| true).unwrap_or(0)
+    }
+
+    /// Returns a daily pack streak where the most recent pack completed satisfies the given
+    /// predicate. If there are no packs completed or the predicate fails, returns `None`.
+    fn daily_pack_streak<F>(&self, start_date_predicate: F) -> Option<u32>
+    where
+        F: Fn(&NaiveDate) -> bool,
+    {
         let mut day = self
             .daily_packs_completed
             .last()
             .copied()
-            .filter(|d| *d == today || *d == today.pred_opt().unwrap())?;
+            .filter(start_date_predicate)?;
         let mut count = 0;
         for day_completed in self.daily_packs_completed.iter().rev() {
             if day == *day_completed {
@@ -134,5 +153,51 @@ impl Stats {
 
     pub fn bird_stats(&self) -> &HashMap<u64, BirdStats> {
         &self.bird_stats
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn active_streak_can_start_yesterday() {
+        let yesterday = utils::today().pred_opt().unwrap();
+        let stats = Stats {
+            daily_packs_completed: vec![yesterday.pred_opt().unwrap(), yesterday],
+            ..Default::default()
+        };
+
+        assert_eq!(stats.active_daily_pack_streak(), 2);
+    }
+
+    #[test]
+    fn active_pack_streak_can_start_today() {
+        let today = utils::today();
+        let stats = Stats {
+            daily_packs_completed: vec![today.pred_opt().unwrap(), today],
+            ..Default::default()
+        };
+        assert_eq!(stats.latest_daily_pack_streak(), 2);
+    }
+
+    #[test]
+    fn daily_pack_streak_lost_works() {
+        let today = utils::today();
+        let yesterday = today.pred_opt().unwrap();
+        let yyesterday = yesterday.pred_opt().unwrap();
+        let yyyesterday = yyesterday.pred_opt().unwrap();
+        let mut stats = Stats::default();
+        stats.daily_packs_completed.push(yyyesterday);
+        stats.daily_packs_completed.push(yyesterday);
+
+        assert_eq!(stats.active_daily_pack_streak(), 0);
+        assert_eq!(stats.latest_daily_pack_streak(), 2);
+
+        // skip yesterday
+        stats.daily_packs_completed.push(today);
+
+        assert_eq!(stats.active_daily_pack_streak(), 1);
+        assert_eq!(stats.latest_daily_pack_streak(), 1);
     }
 }
