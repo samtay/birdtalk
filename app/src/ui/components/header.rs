@@ -55,7 +55,13 @@ fn AviaryLink() -> Element {
             }}
             #aviary-header-link:hover > #aviary-header-img,
             #aviary-header-link.aviary-active > #aviary-header-img {{
-                background-position: -40px -0px;
+                background-position: -32px -0px;
+            }}
+            @media (width>=640px) {{
+                #aviary-header-link:hover > #aviary-header-img,
+                #aviary-header-link.aviary-active > #aviary-header-img {{
+                    background-position: -40px -0px;
+                }}
             }}
             "#
         }
@@ -85,7 +91,12 @@ fn DonateLink() -> Element {
                 background: no-repeat url({donate_src}) 0 0 / 200% 100%;
             }}
             #donate-header-link:hover > #donate-header-img {{
-                background-position: -40px -0px;
+                background-position: -32px -0px;
+            }}
+            @media (width>=640px) {{
+                #donate-header-link:hover > #donate-header-img {{
+                    background-position: -40px -0px;
+                }}
             }}
             "#
         }
