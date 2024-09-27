@@ -124,9 +124,19 @@ fn CardContainer(
             transform: "rotate({degree(pos())}deg) translateX({degree(pos())}px)",
             z_index: "{pack_size - pos()}",
 
-            // last
+            // last card animates to the back of the deck
             class: if pos() == pack_size - 1 {
                 "animate-card-slide-out"
+            },
+
+            // click on the cards behind to skip over to them
+            class: if pos() > 0 {
+                "cursor-pointer"
+            },
+            onclick: move |_| {
+                if pos() > 0 {
+                    position.with_mut(|p| *p = (*p + 1) % pack_size);
+                }
             },
 
             BirdCard {
