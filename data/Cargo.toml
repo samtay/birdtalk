@@ -13,4 +13,4 @@ futures = "0.3.30"
 serde = { workspace = true }
 serde_json = { workspace = true }
 sqlx = { version = "0.8.1", features = ["postgres", "runtime-tokio"] }
-tokio = { version = "1.38.0", features = ["rt", "macros"] }
+tokio = { version = "1.43.1", features = ["rt", "macros"] }
