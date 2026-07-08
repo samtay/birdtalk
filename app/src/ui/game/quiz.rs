@@ -98,8 +98,8 @@ impl Game {
             if ctx.learned() {
                 weight += 10;
             }
-            weight -= ctx.mistaken as i32;
-            weight -= ctx.last_seen.map(|ls| ls.max(5) as i32).unwrap_or(5);
+            weight -= ctx.mistaken.min(2) as i32;
+            weight -= ctx.last_seen.map(|ls| ls.min(5) as i32).unwrap_or(5);
             weight
         });
     }
