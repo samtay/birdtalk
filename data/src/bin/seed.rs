@@ -51,7 +51,23 @@ async fn main() -> Result<()> {
     let mut conn = PgConnection::connect(&db_url).await?;
 
     upsert_birds(&bird_seed, &mut conn).await?;
+    ensure_daily_packs(&mut conn).await?;
     upload_media(&bird_seed, &mut conn).await?;
+    Ok(())
+}
+
+async fn ensure_daily_packs(conn: &mut PgConnection) -> Result<()> {
+    println!("Ensuring today's daily packs have birds linked...");
+    sqlx::query!("select ensure_daily_pack(current_date - 1)")
+        .execute(&mut *conn)
+        .await?;
+    sqlx::query!("select ensure_daily_pack(current_date)")
+        .execute(&mut *conn)
+        .await?;
+    sqlx::query!("select ensure_daily_pack(current_date + 1)")
+        .execute(&mut *conn)
+        .await?;
+    println!("Done!");
     Ok(())
 }
 
