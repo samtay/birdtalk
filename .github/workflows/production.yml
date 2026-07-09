@@ -37,7 +37,10 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: stable
+          # Pinned: rustc 1.97.0 hits a wasm-bindgen 0.2.93 dyn-closure export
+          # collision ("Duplicate export name '_dyn_core_...'")
+          # 1.96.1 is the last version confirmed working.
+          toolchain: "1.96.1"
           targets: wasm32-unknown-unknown
 
       # Use another action to cache our files when possible.
