@@ -1,3 +1,4 @@
+use std::cmp::Reverse;
 use std::mem;
 
 use rand::{seq::SliceRandom, thread_rng};
@@ -15,8 +16,13 @@ pub struct Game {
     /// The first element is the current bird to be identified.
     choices: Vec<BirdContext>,
 
-    /// The rest of the birdpack.
+    /// Birds that have sat out at least 2 full rounds. Kept sorted by weight,
+    /// ascending (most overdue first) -- the pool set_next_challenge draws from.
     pack: Vec<BirdContext>,
+
+    /// Birds shown exactly 1 round ago. Hard-excluded from the next round
+    /// unless `pack` can't fill one on its own.
+    benched: Vec<BirdContext>,
 
     /// Has this bird pack already been learned?
     already_learned: bool,
@@ -34,6 +40,7 @@ impl Game {
         Self {
             choices,
             pack,
+            benched: Vec::new(),
             already_learned: false,
         }
     }
@@ -70,48 +77,77 @@ impl Game {
         }
     }
 
-    // TODO: redo this. it doesn't allow any of the birds in a multi choice round to be repeated
-    // TODO: last seen should probably only matter for the correct choice?
-    // TODO: look up if there are standard algorithms for this kind of memorization game...
+    /// Birds shown last round are always off limits -- a hard 1-round floor is
+    /// always achievable. Birds shown 2 rounds ago stay off limits too,
+    /// *unless* `pack` can't fill a round on its own: with only 10 birds and 4
+    /// shown per round, 8 are always locked up between the current and
+    /// just-finished rounds, leaving only 2 truly free, so this kicks in most
+    /// rounds. When that happens, `draw_next_choices` reluctantly reuses
+    /// whichever benched birds need it *least* (highest weight) so the birds
+    /// we're actually trying to give a break aren't the ones getting dragged
+    /// back.
     pub fn set_next_challenge(&mut self) {
-        // Lil over engineered, but mem efficient. self.pack becomes the new choices
-        let mut rest_of_pack = self.pack.split_off(MULTIPLE_CHOICE_SIZE);
-        mem::swap(&mut self.pack, &mut self.choices);
-        self.choices.iter_mut().for_each(|ctx| {
-            ctx.last_seen = Some(0);
-        });
-        self.pack.iter_mut().for_each(|ctx| {
-            ctx.last_seen = Some(1);
-        });
-        rest_of_pack.iter_mut().for_each(|ctx| {
-            if let Some(ls) = ctx.last_seen.as_mut() {
-                *ls += 1;
-            }
-        });
-        self.pack.append(&mut rest_of_pack);
+        let mut previous_choices = mem::take(&mut self.choices);
+        let mut next_choices = self.draw_next_choices();
 
-        // Keep sorted for next time
+        next_choices.iter_mut().for_each(|ctx| ctx.last_seen = Some(0));
+        previous_choices.iter_mut().for_each(|ctx| ctx.last_seen = Some(1));
+        // Everyone left in `pack` or `benched` waited one more round for this
+        // draw; bump their clock before `benched` graduates into `pack` below.
+        self.pack
+            .iter_mut()
+            .chain(self.benched.iter_mut())
+            .for_each(|ctx| {
+                if let Some(ls) = ctx.last_seen.as_mut() {
+                    *ls += 1;
+                }
+            });
+
+        self.pack.append(&mut self.benched);
         self.pack.shuffle(&mut thread_rng());
-        self.pack.sort_by_key(|ctx| {
-            // The weights might need some randomization too.
-            let mut weight: i32 = 0;
-            if ctx.learned() {
-                weight += 10;
-            }
-            weight -= ctx.mistaken.min(2) as i32;
-            weight -= ctx.last_seen.map(|ls| ls.min(5) as i32).unwrap_or(5);
-            weight
-        });
+        self.pack.sort_by_key(Self::weight);
+
+        self.benched = previous_choices;
+        self.choices = next_choices;
+    }
+
+    /// Pop the next round's birds off `self.pack`/`self.benched`, leaving
+    /// whatever's left in each for `set_next_challenge` to age and reshuffle.
+    fn draw_next_choices(&mut self) -> Vec<BirdContext> {
+        if self.pack.len() >= MULTIPLE_CHOICE_SIZE {
+            // `pack` is kept sorted by weight (most overdue first), so the
+            // front is exactly who should go next.
+            self.pack.drain(0..MULTIPLE_CHOICE_SIZE).collect()
+        } else {
+            let shortfall = MULTIPLE_CHOICE_SIZE - self.pack.len();
+            self.benched.sort_by_key(|ctx| Reverse(Self::weight(ctx)));
+            let backfill = self.benched.drain(0..shortfall.min(self.benched.len()));
+            mem::take(&mut self.pack).into_iter().chain(backfill).collect()
+        }
+    }
+
+    /// Score a bird for how overdue it is: higher sorts later (shown less
+    /// urgently), so ascending sort puts the most-overdue bird first.
+    fn weight(ctx: &BirdContext) -> i32 {
+        let mut weight: i32 = 0;
+        if ctx.learned() {
+            weight += 10;
+        }
+        // Both terms are capped so neither a long mistake streak nor a long
+        // absence can dominate the score forever.
+        weight -= ctx.mistaken.min(2) as i32;
+        weight -= ctx.last_seen.map(|ls| ls.min(5) as i32).unwrap_or(5);
+        weight
     }
 
     /// Get the count of learned birds out of total birds.
-    // NOTE: this assumes an even partition into choices/pack.
     pub fn progress(&self) -> (usize, usize) {
-        let total = self.choices.len() + self.pack.len();
+        let total = self.choices.len() + self.pack.len() + self.benched.len();
         let learned = self
             .choices
             .iter()
             .chain(self.pack.iter())
+            .chain(self.benched.iter())
             .filter(|bc| bc.learned())
             .count();
         (learned, total)
@@ -121,6 +157,7 @@ impl Game {
         self.choices
             .iter()
             .chain(self.pack.iter())
+            .chain(self.benched.iter())
             .all(|bc| bc.learned())
     }
 }
