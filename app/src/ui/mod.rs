@@ -5,6 +5,7 @@ mod components;
 mod game;
 mod pages;
 
+use chrono::Datelike;
 use dioxus::prelude::*;
 
 use crate::{
@@ -16,6 +17,7 @@ use crate::{
         components::{icons, Header},
         pages::{Birds, Index, Play},
     },
+    utils,
 };
 
 #[derive(Clone, Copy)]
@@ -85,7 +87,7 @@ fn HeaderFooter() -> Element {
                 id: "footer",
                 class: "h-6 shrink grow-0 mt-auto hidden sm:flex justify-center items-center",
                 div {
-                    "© 2024 birdtalk"
+                    "© {utils::today().year()} birdtalk"
                 }
                 Link {
                     to: "https://github.com/samtay/birdtalk",
