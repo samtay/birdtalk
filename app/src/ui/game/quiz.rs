@@ -90,8 +90,13 @@ impl Game {
         let mut previous_choices = mem::take(&mut self.choices);
         let mut next_choices = self.draw_next_choices();
 
-        next_choices.iter_mut().for_each(|ctx| ctx.last_seen = Some(0));
-        previous_choices.iter_mut().for_each(|ctx| ctx.last_seen = Some(1));
+        next_choices.sort_by_key(Self::weight);
+        next_choices
+            .iter_mut()
+            .for_each(|ctx| ctx.last_seen = Some(0));
+        previous_choices
+            .iter_mut()
+            .for_each(|ctx| ctx.last_seen = Some(1));
         // Everyone left in `pack` or `benched` waited one more round for this
         // draw; bump their clock before `benched` graduates into `pack` below.
         self.pack
@@ -122,7 +127,10 @@ impl Game {
             let shortfall = MULTIPLE_CHOICE_SIZE - self.pack.len();
             self.benched.sort_by_key(|ctx| Reverse(Self::weight(ctx)));
             let backfill = self.benched.drain(0..shortfall.min(self.benched.len()));
-            mem::take(&mut self.pack).into_iter().chain(backfill).collect()
+            mem::take(&mut self.pack)
+                .into_iter()
+                .chain(backfill)
+                .collect()
         }
     }
 
@@ -196,5 +204,93 @@ impl BirdContext {
     /// Get the bird's learned status within the given game context.
     pub fn learned(&self) -> bool {
         self.consecutively_identified >= LEARN_THRESHOLD
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use super::*;
+
+    fn fake_pack(n: u64) -> Vec<Bird> {
+        (0..n)
+            .map(|id| Bird {
+                id,
+                common_name: format!("bird-{id}"),
+                scientific_name: format!("sci-{id}"),
+                image: String::new(),
+                sounds: vec![],
+            })
+            .collect()
+    }
+
+    #[test]
+    fn incorrect_answer_resets_streak_but_keeps_mistaken_count() {
+        let mut game = Game::init(fake_pack(10), false);
+
+        game.record_choice(true);
+        game.record_choice(true);
+        assert_eq!(game.correct_choice().consecutively_identified, 2);
+
+        game.record_choice(false);
+        assert_eq!(game.correct_choice().consecutively_identified, 0);
+        assert_eq!(game.correct_choice().mistaken, 1);
+        // `identified` only counts correct answers, so it's untouched by the miss.
+        assert_eq!(game.correct_choice().identified, 2);
+    }
+
+    #[test]
+    fn bird_is_learned_after_learn_threshold_consecutive_corrects() {
+        let mut game = Game::init(fake_pack(10), false);
+
+        for _ in 0..LEARN_THRESHOLD {
+            assert!(!game.correct_choice().learned());
+            game.record_choice(true);
+        }
+
+        assert!(game.correct_choice().learned());
+    }
+
+    #[test]
+    fn is_complete_only_once_every_bird_is_learned() {
+        let mut game = Game::init(fake_pack(8), false);
+        assert!(!game.is_complete());
+
+        // Each round only advances whichever bird is `correct_choice()`, so
+        // keep answering correctly and advancing rounds until every bird has
+        // racked up LEARN_THRESHOLD consecutive corrects.
+        let mut rounds = 0;
+        while !game.is_complete() {
+            game.record_choice(true);
+            game.set_next_challenge();
+            rounds += 1;
+            assert!(rounds < 1000, "did not converge -- possible infinite loop");
+        }
+
+        let (learned, total) = game.progress();
+        assert_eq!(learned, total);
+    }
+
+    #[test]
+    fn a_bird_never_reappears_within_one_round_of_being_shown() {
+        let mut game = Game::init(fake_pack(10), true);
+        let mut last_shown_round: HashMap<u64, i32> = HashMap::new();
+
+        for round in 0..200 {
+            for ctx in game.choices() {
+                if let Some(&prev) = last_shown_round.get(&ctx.bird.id) {
+                    assert!(
+                        round - prev >= 2,
+                        "bird {} reappeared after only {} round(s)",
+                        ctx.bird.id,
+                        round - prev
+                    );
+                }
+                last_shown_round.insert(ctx.bird.id, round);
+            }
+            game.record_choice(true);
+            game.set_next_challenge();
+        }
     }
 }
