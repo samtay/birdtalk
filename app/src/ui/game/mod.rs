@@ -4,6 +4,7 @@ mod audio;
 mod card;
 mod game_over;
 pub mod quiz;
+mod spectrogram;
 
 use dioxus::prelude::*;
 use rand::prelude::SliceRandom;
