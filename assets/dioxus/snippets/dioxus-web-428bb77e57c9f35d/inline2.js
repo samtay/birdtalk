@@ -1,12 +1,6 @@
 
-export function get_select_data(select) {
-    let values = [];
-    for (let i = 0; i < select.options.length; i++) {
-      let option = select.options[i];
-      if (option.selected) {
-        values.push(option.value.toString());
-      }
-    }
-
-    return values;
-}
+                export function get_initial_hydration_data() {
+                    const decoded = atob(window.initial_dioxus_hydration_data);
+                    return Uint8Array.from(decoded, (c) => c.charCodeAt(0))
+                }
+            
