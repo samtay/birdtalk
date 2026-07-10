@@ -162,17 +162,23 @@ pub fn GameView(pack: Pack) -> Element {
 fn ProgressBar() -> Element {
     let game_ctx = use_context::<GameCtx>();
     let progress_memo = game_ctx.progress();
-    let (progress, total) = progress_memo();
+    let (learned, total) = progress_memo();
 
-    let progress = progress * 100 / total;
     rsx! {
         div {
-            class: "h-2 w-10/12 max-w-xs sm:max-w-xl m-2 sm:m-4 sm:mt-6 bg-offwhite-2 rounded-full",
-            div {
-                class: "bg-gradient-to-r from-green-light to-green-dark min-w-2 h-full rounded-full relative transition-[width,transform]",
-                style: "width: min(calc(100% + 0.5rem), calc({progress}% + 0.5rem))", // 2 rem == w-8
+            class: "flex gap-0 items-center justify-center w-10/12 max-w-xs sm:max-w-xl m-2 sm:m-4 sm:mt-6",
+            for ix in 0..total {
                 span {
-                    class: "absolute right-0 top-[-0.25rem] h-4 w-4 sm:top-[-0.5rem] sm:h-6 sm:w-6 rounded-full bg-green-dark",
+                    key: ix,
+                    class: "h-3 w-3 sm:h-4 sm:w-4 rounded-full grow-0 transition-colors duration-500",
+                    class: if ix < learned { "bg-green-dark" } else { "bg-offwhite-2" },
+                }
+                if ix + 1 < total {
+                    span {
+                        key: "connector-{ix}",
+                        class: "grow-0 w-4 sm:w-5 h-[0.2rem] transition-colors duration-500",
+                        class: if ix + 1 < learned { "bg-green-dark" } else { "bg-offwhite-2" },
+                    }
                 }
             }
         }
